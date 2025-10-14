@@ -15,5 +15,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "/smartkit-hub-tools/", // For GitHub Pages deployment
+  base: "/", // For custom domain (aismartkit.tech)
 }));
