@@ -15,5 +15,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "/", // Change this to your repo name if deploying to username.github.io/repo-name
+  base: "/smartkit-hub-tools/", // For GitHub Pages deployment
 }));
