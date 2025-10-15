@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { jsPDF } from "jspdf";
+import * as XLSX from "xlsx";
 
 interface ConversionFormat {
   from: string[];
@@ -37,13 +39,13 @@ const FileConverter = () => {
       icon: FileImage
     },
     document: {
-      from: ['txt', 'md', 'html', 'csv', 'json', 'xml'],
-      to: ['txt', 'md', 'html', 'pdf', 'docx'],
+      from: ['txt', 'md', 'html', 'csv', 'json', 'xml', 'pdf'],
+      to: ['txt', 'md', 'html', 'pdf', 'docx', 'csv', 'json'],
       label: "Documents",
       icon: FileText
     },
     spreadsheet: {
-      from: ['csv', 'json', 'xml'],
+      from: ['csv', 'json', 'xml', 'xlsx', 'xls'],
       to: ['csv', 'json', 'xlsx'],
       label: "Spreadsheets",
       icon: FileSpreadsheet
@@ -188,6 +190,38 @@ const FileConverter = () => {
         let extension = outputFormat;
 
         switch (outputFormat) {
+          case 'pdf':
+            // Convert to PDF using jsPDF
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 20;
+            const maxLineWidth = pageWidth - (margin * 2);
+            
+            // Split text into lines that fit the page
+            const pdfLines = doc.splitTextToSize(text, maxLineWidth);
+            let y = margin;
+            const lineHeight = 7;
+            
+            pdfLines.forEach((line: string) => {
+              if (y + lineHeight > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+              }
+              doc.text(line, margin, y);
+              y += lineHeight;
+            });
+            
+            const pdfBlob = doc.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            const pdfLink = document.createElement('a');
+            const originalName = file.name.split('.')[0];
+            pdfLink.download = `${originalName}.pdf`;
+            pdfLink.href = pdfUrl;
+            pdfLink.click();
+            URL.revokeObjectURL(pdfUrl);
+            continue; // Skip the regular blob creation
+            
           case 'md':
             // Convert to markdown
             convertedContent = `# ${file.name}\n\n${text}`;
@@ -223,8 +257,8 @@ const FileConverter = () => {
             break;
           case 'csv':
             // Simple conversion (assumes newline = row)
-            const lines = text.split('\n');
-            convertedContent = lines.map(line => `"${line}"`).join('\n');
+            const csvLines = text.split('\n');
+            convertedContent = csvLines.map(line => `"${line}"`).join('\n');
             mimeType = 'text/csv';
             break;
           default:
@@ -241,6 +275,11 @@ const FileConverter = () => {
         URL.revokeObjectURL(url);
       } catch (error) {
         console.error(`Error converting ${file.name}:`, error);
+        toast({
+          title: "Conversion Error",
+          description: `Failed to convert ${file.name}`,
+          variant: "destructive",
+        });
       }
     }
 
@@ -250,6 +289,149 @@ const FileConverter = () => {
     toast({
       title: "Conversion Complete",
       description: `${files.length} file(s) converted`,
+    });
+  };
+
+  const convertSpreadsheets = async () => {
+    if (files.length === 0) {
+      toast({
+        title: "No Files",
+        description: "Please add files to convert",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setConverting(true);
+    setProgress(0);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setProgress(((i + 1) / files.length) * 100);
+
+      try {
+        const fileExt = file.name.split('.').pop()?.toLowerCase();
+        
+        if (fileExt === 'csv' || fileExt === 'json') {
+          // Read and convert CSV/JSON to XLSX
+          const text = await file.text();
+          let data: any[][] = [];
+          
+          if (fileExt === 'csv') {
+            // Parse CSV
+            const csvLines = text.trim().split('\n');
+            data = csvLines.map(line => {
+              // Simple CSV parser (doesn't handle quotes perfectly)
+              return line.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
+            });
+          } else if (fileExt === 'json') {
+            // Parse JSON
+            const jsonData = JSON.parse(text);
+            if (Array.isArray(jsonData)) {
+              // Convert array of objects to 2D array
+              if (jsonData.length > 0 && typeof jsonData[0] === 'object') {
+                const headers = Object.keys(jsonData[0]);
+                data = [headers, ...jsonData.map(obj => headers.map(h => obj[h]))];
+              } else {
+                data = jsonData.map(item => [item]);
+              }
+            } else {
+              // Single object - convert to key-value pairs
+              data = Object.entries(jsonData);
+            }
+          }
+          
+          if (outputFormat === 'xlsx') {
+            // Convert to XLSX
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            const xlsxBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([xlsxBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const originalName = file.name.split('.')[0];
+            link.download = `${originalName}.xlsx`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          } else if (outputFormat === 'csv') {
+            // Convert to CSV
+            const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const originalName = file.name.split('.')[0];
+            link.download = `${originalName}.csv`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          } else if (outputFormat === 'json') {
+            // Convert to JSON
+            const jsonData = data.length > 1 
+              ? data.slice(1).map(row => {
+                  const obj: any = {};
+                  data[0].forEach((header, idx) => {
+                    obj[header] = row[idx];
+                  });
+                  return obj;
+                })
+              : data;
+            const jsonContent = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const originalName = file.name.split('.')[0];
+            link.download = `${originalName}.json`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          }
+        } else if (fileExt === 'xlsx' || fileExt === 'xls') {
+          // Read XLSX file
+          const arrayBuffer = await file.arrayBuffer();
+          const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          
+          if (outputFormat === 'csv') {
+            const csv = XLSX.utils.sheet_to_csv(firstSheet);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const originalName = file.name.split('.')[0];
+            link.download = `${originalName}.csv`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          } else if (outputFormat === 'json') {
+            const json = XLSX.utils.sheet_to_json(firstSheet);
+            const jsonContent = JSON.stringify(json, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const originalName = file.name.split('.')[0];
+            link.download = `${originalName}.json`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          }
+        }
+      } catch (error) {
+        console.error(`Error converting ${file.name}:`, error);
+        toast({
+          title: "Conversion Error",
+          description: `Failed to convert ${file.name}`,
+          variant: "destructive",
+        });
+      }
+    }
+
+    setConverting(false);
+    setProgress(0);
+    
+    toast({
+      title: "Conversion Complete",
+      description: `${files.length} file(s) converted to ${outputFormat.toUpperCase()}`,
     });
   };
 
@@ -404,7 +586,7 @@ const FileConverter = () => {
                         <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <p className="text-sm font-medium mb-1">Upload documents to convert</p>
                         <p className="text-xs text-muted-foreground">
-                          TXT, MD, HTML, CSV, JSON, XML • Batch conversion available
+                          TXT, MD, HTML, CSV, JSON, XML • PDF generation supported
                         </p>
                       </label>
                     </div>
@@ -444,6 +626,7 @@ const FileConverter = () => {
                             <SelectItem value="txt">Plain Text (TXT)</SelectItem>
                             <SelectItem value="md">Markdown (MD)</SelectItem>
                             <SelectItem value="html">HTML Document</SelectItem>
+                            <SelectItem value="pdf">PDF Document</SelectItem>
                             <SelectItem value="json">JSON Format</SelectItem>
                             <SelectItem value="csv">CSV Spreadsheet</SelectItem>
                           </SelectContent>
@@ -467,12 +650,76 @@ const FileConverter = () => {
 
                 {/* Spreadsheet Converter */}
                 <TabsContent value="spreadsheet" className="space-y-6">
-                  <div className="bg-yellow-50 p-6 rounded-lg text-center">
-                    <FileSpreadsheet className="h-16 w-16 mx-auto mb-4 text-yellow-600" />
-                    <p className="font-medium text-yellow-900 mb-2">CSV & JSON Conversion</p>
-                    <p className="text-sm text-yellow-800">
-                      Upload CSV or JSON files and convert between formats. Excel support coming soon!
-                    </p>
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
+                      <input
+                        type="file"
+                        accept=".csv,.json,.xlsx,.xls"
+                        multiple
+                        onChange={handleFilesUpload}
+                        className="hidden"
+                        id="spreadsheet-upload"
+                      />
+                      <label htmlFor="spreadsheet-upload" className="cursor-pointer">
+                        <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <p className="text-sm font-medium mb-1">Upload spreadsheets to convert</p>
+                        <p className="text-xs text-muted-foreground">
+                          CSV, JSON, XLSX, XLS • Convert between formats easily
+                        </p>
+                      </label>
+                    </div>
+
+                    {files.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>Files Ready ({files.length})</Label>
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {files.map((file, index) => (
+                            <Card key={index} className="p-3">
+                              <div className="flex items-center gap-3">
+                                {getFileIcon(file.name)}
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">{file.name}</p>
+                                  <Badge variant="secondary" className="text-xs">
+                                    {file.name.split('.').pop()?.toUpperCase()}
+                                  </Badge>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => removeFile(index)}>
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Output Format</Label>
+                        <Select value={outputFormat} onValueChange={setOutputFormat}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
+                            <SelectItem value="csv">CSV Format</SelectItem>
+                            <SelectItem value="json">JSON Format</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>&nbsp;</Label>
+                        <Button 
+                          className="w-full bg-gradient-primary border-0"
+                          onClick={convertSpreadsheets}
+                          disabled={files.length === 0 || converting}
+                        >
+                          {converting ? "Converting..." : "Convert Spreadsheets"}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {converting && <Progress value={progress} className="w-full" />}
                   </div>
                 </TabsContent>
               </Tabs>
@@ -513,13 +760,16 @@ const FileConverter = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Documents:</p>
-                    <p className="text-muted-foreground">TXT ↔ MD ↔ HTML ↔ JSON ↔ CSV</p>
+                    <p className="text-muted-foreground">TXT ↔ MD ↔ HTML ↔ PDF ↔ JSON ↔ CSV</p>
                   </div>
                   <div>
-                    <p className="font-medium mb-1">Coming Soon:</p>
-                    <p className="text-muted-foreground">PDF, DOCX, XLSX, PPTX</p>
+                    <p className="font-medium mb-1">Spreadsheets:</p>
+                    <p className="text-muted-foreground">XLSX ↔ CSV ↔ JSON</p>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  💡 <strong>Note:</strong> DOCX and PPTX require advanced APIs. Use PDF for document export or online converters for Office formats.
+                </p>
               </div>
             </CardContent>
           </Card>
