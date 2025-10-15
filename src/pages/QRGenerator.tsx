@@ -30,13 +30,16 @@ const QRGenerator = () => {
   const [cornerStyle, setCornerStyle] = useState("square");
   const [dotStyle, setDotStyle] = useState("square");
   
+  // Auto-generate QR code when settings change
+  useEffect(() => {
+    if (text.trim()) {
+      generateQR();
+    }
+  }, [text, size, fgColor, bgColor, errorCorrection, logo, logoSize]);
+  
   const generateQR = async () => {
     if (!text.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter text or URL",
-        variant: "destructive"
-      });
+      setQrGenerated(false);
       return;
     }
 
@@ -78,36 +81,17 @@ const QRGenerator = () => {
           // Draw logo
           ctx.drawImage(logoImg, x, y, logoSizePixels, logoSizePixels);
           setQrGenerated(true);
-          
-          toast({
-            title: "Success!",
-            description: "QR code generated with logo",
-          });
         };
         logoImg.onerror = () => {
           // If logo fails to load, still show QR code
           setQrGenerated(true);
-          toast({
-            title: "Warning",
-            description: "QR code generated, but logo failed to load",
-            variant: "destructive"
-          });
         };
       } else {
         // No logo, QR is ready
         setQrGenerated(true);
-        toast({
-          title: "Success!",
-          description: "QR code generated successfully",
-        });
       }
     } catch (error) {
       console.error(error);
-      toast({
-        title: "Error",
-        description: "Failed to generate QR code",
-        variant: "destructive"
-      });
     }
   };
 
@@ -199,7 +183,6 @@ const QRGenerator = () => {
                         placeholder="https://example.com or any text"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && generateQR()}
                       />
                     </div>
 
@@ -332,23 +315,25 @@ const QRGenerator = () => {
                   </TabsContent>
                 </Tabs>
 
-                <Button 
-                  className="w-full bg-gradient-primary border-0 mt-6" 
-                  size="lg"
-                  onClick={generateQR}
-                  disabled={!text.trim()}
-                >
-                  <Palette className="h-4 w-4 mr-2" />
-                  Generate Custom QR Code
-                </Button>
+                <div className="mt-6 p-4 bg-muted rounded-lg border border-dashed">
+                  <p className="text-sm text-center text-muted-foreground">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                      Live Preview - QR updates as you type
+                    </span>
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
             {/* Preview Panel */}
             <Card>
               <CardHeader>
-                <CardTitle>Preview & Download</CardTitle>
-                <CardDescription>Your customized QR code</CardDescription>
+                <CardTitle>Live Preview & Download</CardTitle>
+                <CardDescription>Your QR code updates in real-time as you make changes</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-muted p-8 rounded-lg flex justify-center items-center min-h-[400px]">
@@ -360,7 +345,8 @@ const QRGenerator = () => {
                   ) : (
                     <div className="text-center text-muted-foreground">
                       <Palette className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <p>Configure your QR code and click generate</p>
+                      <p className="text-lg font-medium mb-2">Start typing to see your QR code</p>
+                      <p className="text-sm">Enter any text or URL in the left panel</p>
                     </div>
                   )}
                 </div>
