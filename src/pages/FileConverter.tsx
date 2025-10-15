@@ -13,6 +13,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+import { saveAs } from "file-saver";
+import pptxgen from "pptxgenjs";
 
 interface ConversionFormat {
   from: string[];
@@ -221,6 +224,77 @@ const FileConverter = () => {
             pdfLink.click();
             URL.revokeObjectURL(pdfUrl);
             continue; // Skip the regular blob creation
+            
+          case 'docx':
+            // Convert to DOCX using docx library
+            const paragraphs = text.split('\n').map(line => {
+              // Check if line looks like a heading (starts with #)
+              if (line.trim().startsWith('#')) {
+                const headingText = line.replace(/^#+\s*/, '');
+                const level = line.match(/^#+/)?.[0].length || 1;
+                return new Paragraph({
+                  text: headingText,
+                  heading: level === 1 ? HeadingLevel.HEADING_1 : 
+                          level === 2 ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3
+                });
+              }
+              // Regular paragraph
+              return new Paragraph({
+                children: [new TextRun(line || ' ')], // Add space for empty lines
+              });
+            });
+            
+            const docxDoc = new Document({
+              sections: [{
+                properties: {},
+                children: paragraphs,
+              }],
+            });
+            
+            const docxBlob = await Packer.toBlob(docxDoc);
+            saveAs(docxBlob, `${file.name.split('.')[0]}.docx`);
+            continue;
+            
+          case 'pptx':
+            // Convert to PPTX using pptxgenjs
+            const pptx = new pptxgen();
+            
+            // Split text into slides (by paragraph or every 10 lines)
+            const pptxLines = text.split('\n').filter(line => line.trim());
+            const linesPerSlide = 10;
+            
+            for (let i = 0; i < pptxLines.length; i += linesPerSlide) {
+              const slide = pptx.addSlide();
+              const slideLines = pptxLines.slice(i, i + linesPerSlide);
+              
+              // Add title (first line of the slide)
+              if (slideLines.length > 0) {
+                slide.addText(slideLines[0], {
+                  x: 0.5,
+                  y: 0.5,
+                  w: '90%',
+                  h: 0.8,
+                  fontSize: 24,
+                  bold: true,
+                  color: '363636'
+                });
+                
+                // Add body text (remaining lines)
+                if (slideLines.length > 1) {
+                  slide.addText(slideLines.slice(1).join('\n'), {
+                    x: 0.5,
+                    y: 1.5,
+                    w: '90%',
+                    h: 4,
+                    fontSize: 14,
+                    color: '363636'
+                  });
+                }
+              }
+            }
+            
+            await pptx.writeFile({ fileName: `${file.name.split('.')[0]}.pptx` });
+            continue;
             
           case 'md':
             // Convert to markdown
@@ -627,6 +701,8 @@ const FileConverter = () => {
                             <SelectItem value="md">Markdown (MD)</SelectItem>
                             <SelectItem value="html">HTML Document</SelectItem>
                             <SelectItem value="pdf">PDF Document</SelectItem>
+                            <SelectItem value="docx">Word Document (DOCX)</SelectItem>
+                            <SelectItem value="pptx">PowerPoint (PPTX)</SelectItem>
                             <SelectItem value="json">JSON Format</SelectItem>
                             <SelectItem value="csv">CSV Spreadsheet</SelectItem>
                           </SelectContent>
@@ -760,7 +836,7 @@ const FileConverter = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Documents:</p>
-                    <p className="text-muted-foreground">TXT ↔ MD ↔ HTML ↔ PDF ↔ JSON ↔ CSV</p>
+                    <p className="text-muted-foreground">TXT → PDF/DOCX/PPTX/HTML</p>
                   </div>
                   <div>
                     <p className="font-medium mb-1">Spreadsheets:</p>
@@ -768,7 +844,7 @@ const FileConverter = () => {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  💡 <strong>Note:</strong> DOCX and PPTX require advanced APIs. Use PDF for document export or online converters for Office formats.
+                  💡 <strong>Note:</strong> DOCX & PPTX creation works client-side (no server needed). Complex formatting & images require manual editing.
                 </p>
               </div>
             </CardContent>
