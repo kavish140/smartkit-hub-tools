@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
-import QRCodeLib from "qrcode";
+import * as QRCodeLib from "qrcode";
 
 const QRGenerator = () => {
   const navigate = useNavigate();
@@ -30,6 +30,9 @@ const QRGenerator = () => {
   const [cornerStyle, setCornerStyle] = useState("square");
   const [dotStyle, setDotStyle] = useState("square");
   
+  // Validate hex color
+  const isValidHex = (v: string) => /^#([0-9a-fA-F]{3}){1,2}$/.test(v.trim());
+
   // Auto-generate QR code when settings change
   useEffect(() => {
     if (text.trim()) {
@@ -44,6 +47,17 @@ const QRGenerator = () => {
     }
 
     try {
+      // Basic validation
+      if (!isValidHex(fgColor) || !isValidHex(bgColor)) {
+        toast({
+          title: "Invalid color",
+          description: "Please use a valid hex color like #000000 or #FFF",
+          variant: "destructive",
+        });
+        setQrGenerated(false);
+        return;
+      }
+
       const canvas = canvasRef.current;
       if (!canvas) return;
       
@@ -65,9 +79,14 @@ const QRGenerator = () => {
         errorCorrectionLevel: errorCorrection as 'L' | 'M' | 'Q' | 'H'
       });
 
+      // Show QR immediately after base draw
+      setQrGenerated(true);
+
       // Add logo if provided
       if (logo) {
         const logoImg = new Image();
+        // Helps avoid tainted canvas if a remote image is ever used
+        logoImg.crossOrigin = "anonymous";
         logoImg.src = logo;
         logoImg.onload = () => {
           const logoSizePixels = (size * logoSize) / 100;
@@ -80,18 +99,26 @@ const QRGenerator = () => {
           
           // Draw logo
           ctx.drawImage(logoImg, x, y, logoSizePixels, logoSizePixels);
-          setQrGenerated(true);
+          // QR already shown; nothing else to do
         };
         logoImg.onerror = () => {
           // If logo fails to load, still show QR code
-          setQrGenerated(true);
+          // QR already shown
         };
-      } else {
-        // No logo, QR is ready
-        setQrGenerated(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      const message = typeof error?.message === 'string' ? error.message : 'Failed to generate QR code';
+      // Common overflow hint when data is too long for the selected EC level
+      const hint = /code length overflow/i.test(message)
+        ? " Try reducing the Error Correction Level or shortening the content."
+        : "";
+      toast({
+        title: "Generation error",
+        description: message + hint,
+        variant: "destructive",
+      });
+      setQrGenerated(false);
     }
   };
 
@@ -120,20 +147,33 @@ const QRGenerator = () => {
     if (!canvas) return;
 
     try {
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
+      if (canvas.toBlob) {
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `qrcode.${format}`;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          toast({
+            title: "Success",
+            description: `QR code downloaded as ${format.toUpperCase()}`,
+          });
+        }, `image/${format}`);
+      } else {
+        // Fallback for very old browsers
+        const dataUrl = canvas.toDataURL(`image/${format}`);
         const link = document.createElement('a');
-        link.href = url;
+        link.href = dataUrl;
         link.download = `qrcode.${format}`;
         link.click();
-        URL.revokeObjectURL(url);
-        
         toast({
           title: "Success",
           description: `QR code downloaded as ${format.toUpperCase()}`,
         });
-      }, `image/${format}`);
+      }
     } catch (error) {
       toast({
         title: "Error",
