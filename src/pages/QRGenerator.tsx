@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import QRCodeLib from "qrcode";
 
 const QRGenerator = () => {
   const navigate = useNavigate();
@@ -50,49 +51,46 @@ const QRGenerator = () => {
       canvas.width = size;
       canvas.height = size;
 
-      // Generate QR using API with custom colors
-      const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&ecc=${errorCorrection}&color=${fgColor.replace('#', '')}&bgcolor=${bgColor.replace('#', '')}`;
-      
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      
-      img.onload = () => {
-        // Draw QR code
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, size, size);
-        ctx.drawImage(img, 0, 0, size, size);
-        
-        // Add logo if provided
-        if (logo) {
-          const logoImg = new Image();
-          logoImg.src = logo;
-          logoImg.onload = () => {
-            const logoSizePixels = (size * logoSize) / 100;
-            const x = (size - logoSizePixels) / 2;
-            const y = (size - logoSizePixels) / 2;
-            
-            // Draw white background for logo
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(x - 10, y - 10, logoSizePixels + 20, logoSizePixels + 20);
-            
-            // Draw logo
-            ctx.drawImage(logoImg, x, y, logoSizePixels, logoSizePixels);
-            setQrGenerated(true);
-          };
-        } else {
+      // Generate QR code using qrcode library
+      await QRCodeLib.toCanvas(canvas, text, {
+        width: size,
+        margin: 2,
+        color: {
+          dark: fgColor,
+          light: bgColor
+        },
+        errorCorrectionLevel: errorCorrection as 'L' | 'M' | 'Q' | 'H'
+      });
+
+      // Add logo if provided
+      if (logo) {
+        const logoImg = new Image();
+        logoImg.src = logo;
+        logoImg.onload = () => {
+          const logoSizePixels = (size * logoSize) / 100;
+          const x = (size - logoSizePixels) / 2;
+          const y = (size - logoSizePixels) / 2;
+          
+          // Draw white background for logo
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(x - 5, y - 5, logoSizePixels + 10, logoSizePixels + 10);
+          
+          // Draw logo
+          ctx.drawImage(logoImg, x, y, logoSizePixels, logoSizePixels);
           setQrGenerated(true);
-        }
-      };
-      
-      img.onerror = () => {
+          
+          toast({
+            title: "Success!",
+            description: "QR code generated with logo",
+          });
+        };
+      } else {
+        setQrGenerated(true);
         toast({
-          title: "Error",
-          description: "Failed to generate QR code",
-          variant: "destructive"
+          title: "Success!",
+          description: "QR code generated successfully",
         });
-      };
-      
-      img.src = apiUrl;
+      }
     } catch (error) {
       console.error(error);
       toast({
