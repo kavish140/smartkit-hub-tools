@@ -34,6 +34,7 @@ import ChartGenerator from "./pages/ChartGenerator";
 import YouTubeDownloader from "./pages/YouTubeDownloader";
 import FileConverter from "./pages/FileConverter";
 import AudioConverter from "./pages/AudioConverter";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +81,7 @@ const App = () => (
           <Route path="/youtube-downloader" element={<YouTubeDownloader />} />
           <Route path="/file-converter" element={<FileConverter />} />
           <Route path="/audio-converter" element={<AudioConverter />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
