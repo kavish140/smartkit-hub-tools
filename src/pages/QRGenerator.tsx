@@ -84,7 +84,17 @@ const QRGenerator = () => {
             description: "QR code generated with logo",
           });
         };
+        logoImg.onerror = () => {
+          // If logo fails to load, still show QR code
+          setQrGenerated(true);
+          toast({
+            title: "Warning",
+            description: "QR code generated, but logo failed to load",
+            variant: "destructive"
+          });
+        };
       } else {
+        // No logo, QR is ready
         setQrGenerated(true);
         toast({
           title: "Success!",
