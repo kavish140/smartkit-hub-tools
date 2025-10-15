@@ -6,12 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Download, Upload, Palette, Settings } from "lucide-react";
+import { ArrowLeft, Download, Palette, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
-import * as QRCodeLib from "qrcode";
+import QRCode from "qrcode";
 
 const QRGenerator = () => {
   const navigate = useNavigate();
@@ -35,10 +35,16 @@ const QRGenerator = () => {
 
   // Auto-generate QR code when settings change
   useEffect(() => {
+    console.log("useEffect triggered, text:", text);
     if (text.trim()) {
+      console.log("Calling generateQR");
       generateQR();
+    } else {
+      console.log("Text is empty, hiding QR");
+      setQrGenerated(false);
     }
-  }, [text, size, fgColor, bgColor, errorCorrection, logo, logoSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, size, fgColor, bgColor, errorCorrection, logo, logoSize, dotStyle, cornerStyle]);
   
   const generateQR = async () => {
     if (!text.trim()) {
@@ -59,27 +65,130 @@ const QRGenerator = () => {
       }
 
       const canvas = canvasRef.current;
-      if (!canvas) return;
+      if (!canvas) {
+        console.error("Canvas ref is null");
+        return;
+      }
       
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        console.error("Cannot get canvas context");
+        return;
+      }
 
       // Set canvas size
       canvas.width = size;
       canvas.height = size;
 
-      // Generate QR code using qrcode library
-      await QRCodeLib.toCanvas(canvas, text, {
-        width: size,
-        margin: 2,
-        color: {
-          dark: fgColor,
-          light: bgColor
-        },
-        errorCorrectionLevel: errorCorrection as 'L' | 'M' | 'Q' | 'H'
-      });
+      // For rounded styles, we need to apply custom rendering
+      if (dotStyle === 'rounded' || dotStyle === 'dots' || cornerStyle !== 'square') {
+        // Generate QR code as data URL first to get the matrix
+        const qrDataUrl = await QRCode.toDataURL(text, {
+          width: size,
+          margin: 2,
+          color: {
+            dark: fgColor,
+            light: bgColor
+          },
+          errorCorrectionLevel: errorCorrection as 'L' | 'M' | 'Q' | 'H'
+        });
+
+        // Load the QR image to extract pixel data
+        const img = new Image();
+        img.src = qrDataUrl;
+        await new Promise((resolve) => {
+          img.onload = resolve;
+        });
+
+        // Draw background
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, size, size);
+
+        // Get image data to analyze QR pattern
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = size;
+        tempCanvas.height = size;
+        const tempCtx = tempCanvas.getContext('2d')!;
+        tempCtx.drawImage(img, 0, 0);
+        const imageData = tempCtx.getImageData(0, 0, size, size);
+
+        // Calculate module size (size of each QR dot)
+        // QR codes have a formula: (version * 4 + 17) modules + margin
+        // Estimate modules by sampling
+        let moduleSize = 1;
+        for (let i = 0; i < size; i++) {
+          const idx = (i * size) * 4;
+          const r1 = imageData.data[idx];
+          const r2 = imageData.data[idx + 4];
+          if (Math.abs(r1 - r2) > 100) {
+            // Found transition
+            let count = 1;
+            while (i + count < size) {
+              const idx2 = ((i + count) * size) * 4;
+              if (Math.abs(imageData.data[idx] - imageData.data[idx2]) < 100) {
+                count++;
+              } else {
+                break;
+              }
+            }
+            moduleSize = count;
+            break;
+          }
+        }
+
+        // Draw QR modules with custom styles
+        ctx.fillStyle = fgColor;
+        for (let y = 0; y < size; y += moduleSize) {
+          for (let x = 0; x < size; x += moduleSize) {
+            const idx = (y * size + x) * 4;
+            const isDark = imageData.data[idx] < 128;
+
+            if (isDark) {
+              // Check if this is a corner detection pattern (position pattern)
+              const isCornerPattern = 
+                (x < moduleSize * 10 && y < moduleSize * 10) || // Top-left
+                (x > size - moduleSize * 10 && y < moduleSize * 10) || // Top-right
+                (x < moduleSize * 10 && y > size - moduleSize * 10); // Bottom-left
+
+              if (dotStyle === 'dots') {
+                // Draw circular dots
+                ctx.beginPath();
+                ctx.arc(
+                  x + moduleSize / 2,
+                  y + moduleSize / 2,
+                  moduleSize / 2.5,
+                  0,
+                  Math.PI * 2
+                );
+                ctx.fill();
+              } else if (dotStyle === 'rounded') {
+                // Draw rounded squares
+                const radius = moduleSize / 4;
+                ctx.beginPath();
+                ctx.roundRect(x, y, moduleSize, moduleSize, radius);
+                ctx.fill();
+              } else {
+                // Draw square
+                ctx.fillRect(x, y, moduleSize, moduleSize);
+              }
+            }
+          }
+        }
+      } else {
+        // Standard square QR code
+        await QRCode.toCanvas(canvas, text, {
+          width: size,
+          margin: 2,
+          color: {
+            dark: fgColor,
+            light: bgColor
+          },
+          errorCorrectionLevel: errorCorrection as 'L' | 'M' | 'Q' | 'H'
+        });
+      }
 
       // Show QR immediately after base draw
+      console.log("QR code generated successfully");
       setQrGenerated(true);
 
       // Add logo if provided
@@ -377,12 +486,11 @@ const QRGenerator = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-muted p-8 rounded-lg flex justify-center items-center min-h-[400px]">
-                  {qrGenerated ? (
-                    <canvas 
-                      ref={canvasRef} 
-                      className="max-w-full border-2 border-border rounded-lg shadow-lg"
-                    />
-                  ) : (
+                  <canvas 
+                    ref={canvasRef} 
+                    className={`max-w-full border-2 border-border rounded-lg shadow-lg ${qrGenerated ? '' : 'hidden'}`}
+                  />
+                  {!qrGenerated && (
                     <div className="text-center text-muted-foreground">
                       <Palette className="h-16 w-16 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">Start typing to see your QR code</p>
