@@ -1,32 +1,7 @@
-import { Code2, User } from "lucide-react";
+import { Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 const Header = () => {
-  const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    const email = localStorage.getItem('userEmail');
-    setUserEmail(email);
-  }, []);
-
-  const handleAuth = () => {
-    if (userEmail) {
-      // If logged in, show profile or logout
-      const confirmLogout = window.confirm("Do you want to sign out?");
-      if (confirmLogout) {
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        setUserEmail(null);
-      }
-    } else {
-      // Navigate to auth page
-      navigate('/auth');
-    }
-  };
-
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -41,30 +16,19 @@ const Header = () => {
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
-            <a href="/#tools" className="text-foreground/70 hover:text-foreground transition-colors">
+            <a href="#tools" className="text-foreground/70 hover:text-foreground transition-colors">
               Tools
             </a>
-            <a href="/#about" className="text-foreground/70 hover:text-foreground transition-colors">
+            <a href="#about" className="text-foreground/70 hover:text-foreground transition-colors">
               About
             </a>
-            <a href="/#contact" className="text-foreground/70 hover:text-foreground transition-colors">
+            <a href="#contact" className="text-foreground/70 hover:text-foreground transition-colors">
               Contact
             </a>
           </nav>
 
-          <Button 
-            variant="default" 
-            className="bg-gradient-primary border-0"
-            onClick={handleAuth}
-          >
-            {userEmail ? (
-              <>
-                <User className="h-4 w-4 mr-2" />
-                {userEmail.split('@')[0]}
-              </>
-            ) : (
-              "Sign In"
-            )}
+          <Button variant="default" className="bg-gradient-primary border-0">
+            Get Started
           </Button>
         </div>
       </div>
