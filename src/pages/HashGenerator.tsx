@@ -14,27 +14,31 @@ const HashGenerator = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [text, setText] = useState("");
-  const [algorithm, setAlgorithm] = useState("sha256");
+  const [algorithm, setAlgorithm] = useState("SHA-256");
   const [hash, setHash] = useState("");
 
   const generateHash = async () => {
-    if (!text) return;
-
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-
-    let hashAlgorithm = algorithm.toUpperCase().replace(/\d/g, (match) => `-${match}`);
-    if (algorithm === "md5") {
-      // MD5 is not available in Web Crypto API, using a simple implementation
-      setHash(await simpleMD5(text));
+    if (!text) {
+      toast({
+        title: "Error",
+        description: "Please enter text to hash",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      const hashBuffer = await crypto.subtle.digest(hashAlgorithm, data);
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest(algorithm, data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
       setHash(hashHex);
+      toast({
+        title: "Success!",
+        description: "Hash generated successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -42,17 +46,6 @@ const HashGenerator = () => {
         variant: "destructive",
       });
     }
-  };
-
-  // Simple MD5 implementation for browser
-  const simpleMD5 = async (str: string): Promise<string> => {
-    // Using SHA-256 as fallback since MD5 is not secure and not available in Web Crypto
-    // In production, you'd use a proper MD5 library
-    const encoder = new TextEncoder();
-    const data = encoder.encode(str);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   };
 
   const copyHash = () => {
@@ -80,8 +73,13 @@ const HashGenerator = () => {
 
           <Card className="max-w-3xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-3xl">Hash Generator</CardTitle>
-              <CardDescription>Generate MD5, SHA-1, SHA-256, SHA-384, and SHA-512 hashes</CardDescription>
+              <CardTitle className="text-3xl flex items-center gap-2">
+                <Hash className="h-8 w-8" />
+                Hash Generator
+              </CardTitle>
+              <CardDescription>
+                Generate cryptographic hashes for your text
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -102,11 +100,10 @@ const HashGenerator = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="md5">MD5 (via SHA-256)</SelectItem>
-                    <SelectItem value="sha1">SHA-1</SelectItem>
-                    <SelectItem value="sha256">SHA-256</SelectItem>
-                    <SelectItem value="sha384">SHA-384</SelectItem>
-                    <SelectItem value="sha512">SHA-512</SelectItem>
+                    <SelectItem value="SHA-1">SHA-1</SelectItem>
+                    <SelectItem value="SHA-256">SHA-256</SelectItem>
+                    <SelectItem value="SHA-384">SHA-384</SelectItem>
+                    <SelectItem value="SHA-512">SHA-512</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -115,7 +112,6 @@ const HashGenerator = () => {
                 className="w-full bg-gradient-primary border-0" 
                 size="lg"
                 onClick={generateHash}
-                disabled={!text}
               >
                 <Hash className="h-4 w-4 mr-2" />
                 Generate Hash
@@ -123,22 +119,28 @@ const HashGenerator = () => {
 
               {hash && (
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label>Generated Hash</Label>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={copyHash}
-                    >
+                  <div className="flex items-center justify-between">
+                    <Label>Generated Hash ({algorithm})</Label>
+                    <Button size="sm" variant="ghost" onClick={copyHash}>
                       <Copy className="h-3 w-3 mr-1" />
                       Copy
                     </Button>
                   </div>
-                  <div className="bg-muted p-4 rounded-lg font-mono text-sm break-all">
+                  <div className="bg-muted p-4 rounded font-mono text-xs break-all">
                     {hash}
                   </div>
                 </div>
               )}
+
+              <div className="bg-muted p-4 rounded-lg text-sm">
+                <h4 className="font-medium mb-2">About Hash Functions:</h4>
+                <ul className="space-y-1 text-muted-foreground">
+                  <li> SHA-1: 160-bit hash (Legacy, less secure)</li>
+                  <li> SHA-256: 256-bit hash (Recommended)</li>
+                  <li> SHA-384: 384-bit hash (High security)</li>
+                  <li> SHA-512: 512-bit hash (Maximum security)</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
         </div>
