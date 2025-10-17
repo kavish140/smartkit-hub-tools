@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Atom, Download, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -13,52 +14,52 @@ interface Isomer {
   svg: string;
 }
 
+type MoleculeType = "alkane" | "alkene" | "alkyne";
+
 const IsomerDiagrams = () => {
+  const [activeTab, setActiveTab] = useState<MoleculeType>("alkane");
   const [carbonCount, setCarbonCount] = useState<number>(4);
-  const [hydrogenCount, setHydrogenCount] = useState<number>(10);
   const [isomers, setIsomers] = useState<Isomer[]>([]);
-  const [formulaType, setFormulaType] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const validateFormula = (c: number, h: number): string => {
-    if (h === 2 * c + 2) return "Alkane";
-    if (h === 2 * c) return "Alkene";
-    if (h === 2 * c - 2) return "Alkyne";
-    return "Invalid";
+  // Calculate hydrogen count based on molecule type and carbon count
+  const calculateHydrogen = (c: number, type: MoleculeType): number => {
+    if (type === "alkane") return 2 * c + 2;
+    if (type === "alkene") return 2 * c;
+    if (type === "alkyne") return 2 * c - 2;
+    return 0;
   };
 
+  const hydrogenCount = calculateHydrogen(carbonCount, activeTab);
+
+  // Update isomers when carbon count or tab changes
+  useEffect(() => {
+    setIsomers([]);
+  }, [carbonCount, activeTab]);
+
   const generateIsomers = () => {
-    const type = validateFormula(carbonCount, hydrogenCount);
-    setFormulaType(type);
+    let generatedIsomers: Isomer[] = [];
 
-    if (type === "Invalid") {
-      toast({
-        title: "Invalid Formula",
-        description: "The molecular formula doesn't match standard hydrocarbon patterns.",
-        variant: "destructive",
-      });
-      setIsomers([]);
-      return;
+    if (activeTab === "alkane") {
+      generatedIsomers = generateAlkaneIsomers(carbonCount);
+    } else if (activeTab === "alkene") {
+      generatedIsomers = generateAlkeneIsomers(carbonCount);
+    } else if (activeTab === "alkyne") {
+      generatedIsomers = generateAlkyneIsomers(carbonCount);
     }
 
-    if (type !== "Alkane") {
-      toast({
-        title: "Limited Support",
-        description: "Currently only alkane isomers (CnH2n+2) are fully supported.",
-      });
-      setIsomers([]);
-      return;
-    }
-
-    // Generate isomers based on carbon count
-    const generatedIsomers = generateAlkaneIsomers(carbonCount);
     setIsomers(generatedIsomers);
 
     if (generatedIsomers.length === 0) {
       toast({
-        title: "No Isomers",
-        description: "Isomer generation for this molecule is not yet implemented.",
+        title: "No Isomers Available",
+        description: `Isomer generation for C${carbonCount} ${activeTab} is not yet available.`,
+      });
+    } else {
+      toast({
+        title: "Isomers Generated!",
+        description: `Found ${generatedIsomers.length} isomer${generatedIsomers.length !== 1 ? 's' : ''} for C${carbonCount}H${hydrogenCount}.`,
       });
     }
   };
@@ -66,32 +67,23 @@ const IsomerDiagrams = () => {
   const generateAlkaneIsomers = (c: number): Isomer[] => {
     const isomers: Isomer[] = [];
 
-    if (c === 3) {
-      // Propane - only 1 structure
+    // All alkanes have at least the linear (n-alkane) form
+    if (c >= 1 && c <= 10) {
+      const alkaneNames = ["Methane", "Ethane", "Propane", "Butane", "Pentane", "Hexane", "Heptane", "Octane", "Nonane", "Decane"];
       isomers.push({
-        name: "Propane",
-        structure: "CH3-CH2-CH3",
-        svg: drawLinearAlkane(3),
+        name: c <= 3 ? alkaneNames[c - 1] : `n-${alkaneNames[c - 1]}`,
+        structure: c === 1 ? "CH4" : c === 2 ? "CH3-CH3" : "CH3-" + "(CH2)".repeat(c - 2) + "-CH3",
+        svg: drawLinearAlkane(c),
       });
-    } else if (c === 4) {
-      // Butane - 2 isomers
-      isomers.push({
-        name: "n-Butane",
-        structure: "CH3-CH2-CH2-CH3",
-        svg: drawLinearAlkane(4),
-      });
+    }
+
+    if (c === 4) {
       isomers.push({
         name: "Isobutane (2-Methylpropane)",
         structure: "CH3-CH(CH3)-CH3",
         svg: drawBranchedAlkane(4, "iso"),
       });
     } else if (c === 5) {
-      // Pentane - 3 isomers
-      isomers.push({
-        name: "n-Pentane",
-        structure: "CH3-CH2-CH2-CH2-CH3",
-        svg: drawLinearAlkane(5),
-      });
       isomers.push({
         name: "Isopentane (2-Methylbutane)",
         structure: "CH3-CH(CH3)-CH2-CH3",
@@ -103,12 +95,6 @@ const IsomerDiagrams = () => {
         svg: drawBranchedAlkane(5, "neo"),
       });
     } else if (c === 6) {
-      // Hexane - 5 isomers
-      isomers.push({
-        name: "n-Hexane",
-        structure: "CH3-CH2-CH2-CH2-CH2-CH3",
-        svg: drawLinearAlkane(6),
-      });
       isomers.push({
         name: "2-Methylpentane",
         structure: "CH3-CH(CH3)-CH2-CH2-CH3",
@@ -128,6 +114,83 @@ const IsomerDiagrams = () => {
         name: "2,3-Dimethylbutane",
         structure: "CH3-CH(CH3)-CH(CH3)-CH3",
         svg: drawBranchedAlkane(6, "2,3-dimethyl"),
+      });
+    } else if (c === 7) {
+      // Heptane has 9 isomers - showing main ones
+      isomers.push({
+        name: "2-Methylhexane",
+        structure: "CH3-CH(CH3)-(CH2)3-CH3",
+        svg: drawBranchedAlkane(7, "2-methyl"),
+      });
+      isomers.push({
+        name: "3-Methylhexane",
+        structure: "CH3-CH2-CH(CH3)-(CH2)2-CH3",
+        svg: drawBranchedAlkane(7, "3-methyl"),
+      });
+    } else if (c >= 8 && c <= 10) {
+      // For C8-C10, just show a note about isomer count
+      const isomerCounts: {[key: number]: number} = {8: 18, 9: 35, 10: 75};
+      isomers.push({
+        name: `Note: C${c} has ${isomerCounts[c]} possible isomers`,
+        structure: "Only linear form shown",
+        svg: drawLinearAlkane(c),
+      });
+    }
+
+    return isomers;
+  };
+
+  const generateAlkeneIsomers = (c: number): Isomer[] => {
+    const isomers: Isomer[] = [];
+
+    if (c >= 2 && c <= 10) {
+      const alkeneNames = ["", "Ethene", "Propene", "Butene", "Pentene", "Hexene", "Heptene", "Octene", "Nonene", "Decene"];
+      isomers.push({
+        name: alkeneNames[c - 1] || `C${c}-Alkene`,
+        structure: c === 2 ? "CH2=CH2" : "CH2=CH-" + (c > 3 ? "(CH2)".repeat(c - 3) + "-" : "") + "CH3",
+        svg: drawLinearAlkene(c),
+      });
+    }
+
+    if (c === 4) {
+      isomers.push({
+        name: "2-Butene (cis/trans)",
+        structure: "CH3-CH=CH-CH3",
+        svg: drawLinearAlkene(4, 2),
+      });
+      isomers.push({
+        name: "2-Methylpropene",
+        structure: "CH2=C(CH3)-CH3",
+        svg: drawBranchedAlkene(4, "iso"),
+      });
+    } else if (c >= 5 && c <= 10) {
+      isomers.push({
+        name: `Multiple positional and geometric isomers exist`,
+        structure: `C${c}H${2*c} has various isomers`,
+        svg: drawLinearAlkene(c),
+      });
+    }
+
+    return isomers;
+  };
+
+  const generateAlkyneIsomers = (c: number): Isomer[] => {
+    const isomers: Isomer[] = [];
+
+    if (c >= 2 && c <= 10) {
+      const alkyneNames = ["", "Ethyne", "Propyne", "Butyne", "Pentyne", "Hexyne", "Heptyne", "Octyne", "Nonyne", "Decyne"];
+      isomers.push({
+        name: alkyneNames[c - 1] || `C${c}-Alkyne`,
+        structure: c === 2 ? "HC≡CH" : "HC≡C-" + (c > 3 ? "(CH2)".repeat(c - 3) + "-" : "") + "CH3",
+        svg: drawLinearAlkyne(c),
+      });
+    }
+
+    if (c >= 4 && c <= 10) {
+      isomers.push({
+        name: `2-${["", "", "", "Butyne", "Pentyne", "Hexyne", "Heptyne", "Octyne", "Nonyne", "Decyne"][c - 1]}`,
+        structure: c === 4 ? "CH3-C≡C-CH3" : `CH3-C≡C-${"(CH2)".repeat(c - 4)}-CH3`,
+        svg: drawLinearAlkyne(c, 2),
       });
     }
 
@@ -327,6 +390,102 @@ const IsomerDiagrams = () => {
     return svg;
   };
 
+  const drawLinearAlkene = (c: number, position: number = 1): string => {
+    const width = 400;
+    const height = 200;
+    const spacing = Math.min(60, (width - 100) / Math.max(c - 1, 1));
+    const startX = (width - spacing * Math.max(c - 1, 1)) / 2;
+    const centerY = height / 2;
+
+    let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
+    
+    // Draw carbon chain
+    for (let i = 0; i < c; i++) {
+      const x = startX + i * spacing;
+      
+      svg += `<circle cx="${x}" cy="${centerY}" r="8" fill="#1e40af" />`;
+      svg += `<text x="${x}" y="${centerY - 15}" text-anchor="middle" font-size="14" fill="#1e40af">C</text>`;
+      
+      if (i < c - 1) {
+        // Draw double bond at specified position
+        if (i === position - 1) {
+          svg += `<line x1="${x + 8}" y1="${centerY - 3}" x2="${x + spacing - 8}" y2="${centerY - 3}" stroke="#1e40af" stroke-width="2" />`;
+          svg += `<line x1="${x + 8}" y1="${centerY + 3}" x2="${x + spacing - 8}" y2="${centerY + 3}" stroke="#1e40af" stroke-width="2" />`;
+        } else {
+          svg += `<line x1="${x + 8}" y1="${centerY}" x2="${x + spacing - 8}" y2="${centerY}" stroke="#1e40af" stroke-width="2" />`;
+        }
+      }
+    }
+    
+    svg += `</svg>`;
+    return svg;
+  };
+
+  const drawBranchedAlkene = (c: number, type: string): string => {
+    const width = 400;
+    const height = 250;
+    const spacing = 60;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
+    let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
+    
+    if (c === 4 && type === "iso") {
+      // 2-Methylpropene
+      svg += `<circle cx="${centerX - spacing}" cy="${centerY}" r="8" fill="#1e40af" />`;
+      svg += `<text x="${centerX - spacing}" y="${centerY - 15}" text-anchor="middle" font-size="14" fill="#1e40af">CH2</text>`;
+      
+      svg += `<line x1="${centerX - spacing + 8}" y1="${centerY - 3}" x2="${centerX - 8}" y2="${centerY - 3}" stroke="#1e40af" stroke-width="2" />`;
+      svg += `<line x1="${centerX - spacing + 8}" y1="${centerY + 3}" x2="${centerX - 8}" y2="${centerY + 3}" stroke="#1e40af" stroke-width="2" />`;
+      
+      svg += `<circle cx="${centerX}" cy="${centerY}" r="8" fill="#1e40af" />`;
+      svg += `<text x="${centerX}" y="${centerY - 15}" text-anchor="middle" font-size="14" fill="#1e40af">C</text>`;
+      
+      svg += `<line x1="${centerX}" y1="${centerY}" x2="${centerX}" y2="${centerY - spacing}" stroke="#1e40af" stroke-width="2" />`;
+      svg += `<circle cx="${centerX}" cy="${centerY - spacing}" r="8" fill="#1e40af" />`;
+      svg += `<text x="${centerX}" y="${centerY - spacing - 15}" text-anchor="middle" font-size="14" fill="#1e40af">CH3</text>`;
+      
+      svg += `<line x1="${centerX + 8}" y1="${centerY}" x2="${centerX + spacing - 8}" y2="${centerY}" stroke="#1e40af" stroke-width="2" />`;
+      svg += `<circle cx="${centerX + spacing}" cy="${centerY}" r="8" fill="#1e40af" />`;
+      svg += `<text x="${centerX + spacing}" y="${centerY - 15}" text-anchor="middle" font-size="14" fill="#1e40af">CH3</text>`;
+    }
+    
+    svg += `</svg>`;
+    return svg;
+  };
+
+  const drawLinearAlkyne = (c: number, position: number = 1): string => {
+    const width = 400;
+    const height = 200;
+    const spacing = Math.min(60, (width - 100) / Math.max(c - 1, 1));
+    const startX = (width - spacing * Math.max(c - 1, 1)) / 2;
+    const centerY = height / 2;
+
+    let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
+    
+    // Draw carbon chain
+    for (let i = 0; i < c; i++) {
+      const x = startX + i * spacing;
+      
+      svg += `<circle cx="${x}" cy="${centerY}" r="8" fill="#dc2626" />`;
+      svg += `<text x="${x}" y="${centerY - 15}" text-anchor="middle" font-size="14" fill="#dc2626">C</text>`;
+      
+      if (i < c - 1) {
+        // Draw triple bond at specified position
+        if (i === position - 1) {
+          svg += `<line x1="${x + 8}" y1="${centerY - 4}" x2="${x + spacing - 8}" y2="${centerY - 4}" stroke="#dc2626" stroke-width="2" />`;
+          svg += `<line x1="${x + 8}" y1="${centerY}" x2="${x + spacing - 8}" y2="${centerY}" stroke="#dc2626" stroke-width="2" />`;
+          svg += `<line x1="${x + 8}" y1="${centerY + 4}" x2="${x + spacing - 8}" y2="${centerY + 4}" stroke="#dc2626" stroke-width="2" />`;
+        } else {
+          svg += `<line x1="${x + 8}" y1="${centerY}" x2="${x + spacing - 8}" y2="${centerY}" stroke="#dc2626" stroke-width="2" />`;
+        }
+      }
+    }
+    
+    svg += `</svg>`;
+    return svg;
+  };
+
   const downloadSVG = (isomer: Isomer) => {
     const blob = new Blob([isomer.svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
@@ -342,11 +501,6 @@ const IsomerDiagrams = () => {
       title: "Downloaded!",
       description: `${isomer.name} structure saved as SVG.`,
     });
-  };
-
-  const quickSelect = (c: number, h: number) => {
-    setCarbonCount(c);
-    setHydrogenCount(h);
   };
 
   return (
@@ -378,22 +532,54 @@ const IsomerDiagrams = () => {
 
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Molecular Formula</CardTitle>
+              <CardTitle>Select Hydrocarbon Type</CardTitle>
               <CardDescription>
-                Enter the number of carbon and hydrogen atoms (e.g., C4H10 for butane)
+                Choose the type of hydrocarbon and carbon count (hydrogen is calculated automatically)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as MoleculeType)}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="alkane">Alkane (CnH2n+2)</TabsTrigger>
+                  <TabsTrigger value="alkene">Alkene (CnH2n)</TabsTrigger>
+                  <TabsTrigger value="alkyne">Alkyne (CnH2n-2)</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="alkane" className="space-y-4 mt-6">
+                  <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                      Alkanes: Saturated hydrocarbons with single bonds only
+                    </p>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="alkene" className="space-y-4 mt-6">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      Alkenes: Unsaturated hydrocarbons with one C=C double bond
+                    </p>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="alkyne" className="space-y-4 mt-6">
+                  <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg">
+                    <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                      Alkynes: Unsaturated hydrocarbons with one C≡C triple bond
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="carbon">Number of Carbon Atoms (C)</Label>
                   <Input
                     id="carbon"
                     type="number"
-                    min="1"
+                    min={activeTab === "alkane" ? "1" : "2"}
                     max="10"
                     value={carbonCount}
-                    onChange={(e) => setCarbonCount(parseInt(e.target.value) || 0)}
+                    onChange={(e) => setCarbonCount(parseInt(e.target.value) || (activeTab === "alkane" ? 1 : 2))}
                     className="text-lg"
                   />
                 </div>
@@ -402,36 +588,47 @@ const IsomerDiagrams = () => {
                   <Input
                     id="hydrogen"
                     type="number"
-                    min="1"
-                    max="30"
                     value={hydrogenCount}
-                    onChange={(e) => setHydrogenCount(parseInt(e.target.value) || 0)}
-                    className="text-lg"
+                    disabled
+                    className="text-lg bg-muted"
                   />
+                  <p className="text-xs text-muted-foreground">Auto-calculated based on carbon count and type</p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Quick Select (Alkanes)</Label>
+                <Label>Quick Select</Label>
                 <div className="flex flex-wrap gap-2">
-                  <Button onClick={() => quickSelect(3, 8)} variant="outline" size="sm">
-                    C3H8 (Propane)
-                  </Button>
-                  <Button onClick={() => quickSelect(4, 10)} variant="outline" size="sm">
-                    C4H10 (Butane)
-                  </Button>
-                  <Button onClick={() => quickSelect(5, 12)} variant="outline" size="sm">
-                    C5H12 (Pentane)
-                  </Button>
-                  <Button onClick={() => quickSelect(6, 14)} variant="outline" size="sm">
-                    C6H14 (Hexane)
-                  </Button>
-                  <Button onClick={() => quickSelect(7, 16)} variant="outline" size="sm">
-                    C7H16 (Heptane)
-                  </Button>
-                  <Button onClick={() => quickSelect(8, 18)} variant="outline" size="sm">
-                    C8H18 (Octane)
-                  </Button>
+                  {activeTab === "alkane" && (
+                    <>
+                      <Button onClick={() => setCarbonCount(3)} variant="outline" size="sm">C3H8</Button>
+                      <Button onClick={() => setCarbonCount(4)} variant="outline" size="sm">C4H10</Button>
+                      <Button onClick={() => setCarbonCount(5)} variant="outline" size="sm">C5H12</Button>
+                      <Button onClick={() => setCarbonCount(6)} variant="outline" size="sm">C6H14</Button>
+                      <Button onClick={() => setCarbonCount(7)} variant="outline" size="sm">C7H16</Button>
+                      <Button onClick={() => setCarbonCount(8)} variant="outline" size="sm">C8H18</Button>
+                    </>
+                  )}
+                  {activeTab === "alkene" && (
+                    <>
+                      <Button onClick={() => setCarbonCount(2)} variant="outline" size="sm">C2H4</Button>
+                      <Button onClick={() => setCarbonCount(3)} variant="outline" size="sm">C3H6</Button>
+                      <Button onClick={() => setCarbonCount(4)} variant="outline" size="sm">C4H8</Button>
+                      <Button onClick={() => setCarbonCount(5)} variant="outline" size="sm">C5H10</Button>
+                      <Button onClick={() => setCarbonCount(6)} variant="outline" size="sm">C6H12</Button>
+                      <Button onClick={() => setCarbonCount(7)} variant="outline" size="sm">C7H14</Button>
+                    </>
+                  )}
+                  {activeTab === "alkyne" && (
+                    <>
+                      <Button onClick={() => setCarbonCount(2)} variant="outline" size="sm">C2H2</Button>
+                      <Button onClick={() => setCarbonCount(3)} variant="outline" size="sm">C3H4</Button>
+                      <Button onClick={() => setCarbonCount(4)} variant="outline" size="sm">C4H6</Button>
+                      <Button onClick={() => setCarbonCount(5)} variant="outline" size="sm">C5H8</Button>
+                      <Button onClick={() => setCarbonCount(6)} variant="outline" size="sm">C6H10</Button>
+                      <Button onClick={() => setCarbonCount(7)} variant="outline" size="sm">C7H12</Button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -441,19 +638,14 @@ const IsomerDiagrams = () => {
                 size="lg"
               >
                 <Atom className="mr-2 h-5 w-5" />
-                Generate Isomers
+                Generate Isomers for C{carbonCount}H{hydrogenCount}
               </Button>
 
-              {formulaType && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                  <p className="text-sm font-medium">
-                    Formula Type: <span className="text-blue-600 dark:text-blue-400">{formulaType}</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    C{carbonCount}H{hydrogenCount}
-                  </p>
-                </div>
-              )}
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <p className="text-sm font-medium">
+                  Current Formula: <span className="text-blue-600 dark:text-blue-400">C{carbonCount}H{hydrogenCount}</span> ({activeTab.charAt(0).toUpperCase() + activeTab.slice(1)})
+                </p>
+              </div>
             </CardContent>
           </Card>
 
