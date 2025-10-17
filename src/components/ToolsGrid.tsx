@@ -27,7 +27,8 @@ import {
   Mail,
   Smartphone,
   Code2,
-  BarChart3
+  BarChart3,
+  Atom
 } from "lucide-react";
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
@@ -237,6 +238,13 @@ const tools = [
     icon: Download,
     category: "Utility",
     path: "/file-converter"
+  },
+  {
+    title: "Isomer Diagrams",
+    description: "Generate hydrocarbon isomer structures",
+    icon: Atom,
+    category: "Education",
+    path: "/isomer-diagrams"
   }
 ];
 
