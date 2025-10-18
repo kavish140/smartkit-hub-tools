@@ -35,6 +35,7 @@ import YouTubeDownloader from "./pages/YouTubeDownloader";
 import FileConverter from "./pages/FileConverter";
 import AudioConverter from "./pages/AudioConverter";
 import IsomerDiagrams from "./pages/IsomerDiagrams";
+import ScreenshotEditor from "./pages/ScreenshotEditor";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +83,7 @@ const App = () => (
           <Route path="/file-converter" element={<FileConverter />} />
           <Route path="/audio-converter" element={<AudioConverter />} />
           <Route path="/isomer-diagrams" element={<IsomerDiagrams />} />
+          <Route path="/screenshot-editor" element={<ScreenshotEditor />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

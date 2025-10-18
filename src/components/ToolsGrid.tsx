@@ -28,7 +28,8 @@ import {
   Smartphone,
   Code2,
   BarChart3,
-  Atom
+  Atom,
+  Paintbrush
 } from "lucide-react";
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
@@ -245,6 +246,13 @@ const tools = [
     icon: Atom,
     category: "Education",
     path: "/isomer-diagrams"
+  },
+  {
+    title: "Screenshot Editor",
+    description: "Draw and annotate screenshots with markup tools",
+    icon: Paintbrush,
+    category: "Media",
+    path: "/screenshot-editor"
   }
 ];
 
