@@ -18,13 +18,9 @@ import {
   Undo, 
   Redo, 
   Trash2,
-  ZoomIn,
-  ZoomOut,
-  Move,
-  Paintbrush,
-  Highlighter,
   MousePointer,
-  Eye
+  Paintbrush,
+  Highlighter
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -58,38 +54,50 @@ const ScreenshotEditor = () => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [selectedText, setSelectedText] = useState<string>("");
   const [detectedFontInfo, setDetectedFontInfo] = useState<any>(null);
-  const [zoom, setZoom] = useState(1);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    redrawCanvas();
-  }, [actions, image, zoom, panOffset]);
+    if (image && !imageRef.current) {
+      const img = new Image();
+      img.onload = () => {
+        imageRef.current = img;
+        redrawCanvas();
+      };
+      img.src = image;
+    } else if (imageRef.current) {
+      redrawCanvas();
+    }
+  }, [actions]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
+        const imgSrc = event.target?.result as string;
         const img = new Image();
         img.onload = () => {
-          setImage(event.target?.result as string);
+          const canvas = canvasRef.current;
+          if (canvas) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+          }
+          imageRef.current = img;
+          setImage(imgSrc);
           setActions([]);
           setRedoStack([]);
-          setPanOffset({ x: 0, y: 0 });
-          setZoom(1);
+          
           toast({
             title: "Image Loaded!",
             description: "Start editing your screenshot.",
           });
         };
-        img.src = event.target?.result as string;
+        img.src = imgSrc;
       };
       reader.readAsDataURL(file);
     }
@@ -97,33 +105,19 @@ const ScreenshotEditor = () => {
 
   const redrawCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !imageRef.current) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Apply zoom and pan transformations
-    ctx.save();
-    ctx.translate(panOffset.x, panOffset.y);
-    ctx.scale(zoom, zoom);
-
     // Draw the base image
-    if (image) {
-      const img = new Image();
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        drawActions(ctx);
-      };
-      img.src = image;
-    } else {
-      drawActions(ctx);
-    }
+    ctx.drawImage(imageRef.current, 0, 0);
     
-    ctx.restore();
+    // Draw all actions
+    drawActions(ctx);
   };
 
   const drawActions = (ctx: CanvasRenderingContext2D) => {
@@ -178,19 +172,16 @@ const ScreenshotEditor = () => {
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left - panOffset.x) / zoom;
-    const y = (e.clientY - rect.top - panOffset.y) / zoom;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
     return { x, y };
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getCanvasCoordinates(e);
-
-    if (currentTool === "move") {
-      setIsPanning(true);
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
-      return;
-    }
 
     setIsDrawing(true);
 
@@ -233,39 +224,23 @@ const ScreenshotEditor = () => {
       }
       setIsDrawing(false);
     } else if (currentTool === "select") {
-      // Simulate text selection for demo purposes
-      const ctx = canvasRef.current?.getContext("2d");
-      if (ctx) {
-        const imageData = ctx.getImageData(x - 50, y - 20, 100, 40);
-        // In a real implementation, you would use OCR here
-        setSelectedText("Sample Text");
-        setDetectedFontInfo({
-          fontSize: "16px",
-          fontFamily: "Arial",
-          color: "#000000",
-          fontWeight: "normal",
-        });
-        toast({
-          title: "Text Detected",
-          description: "Text information displayed below.",
-        });
-      }
+      // Simulate text selection
+      setSelectedText("Sample Text");
+      setDetectedFontInfo({
+        fontSize: "16px",
+        fontFamily: "Arial",
+        color: "#000000",
+        fontWeight: "normal",
+      });
+      toast({
+        title: "Text Detected",
+        description: "Text information displayed below.",
+      });
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isPanning && currentTool === "move") {
-      const dx = e.clientX - lastPanPoint.x;
-      const dy = e.clientY - lastPanPoint.y;
-      setPanOffset({
-        x: panOffset.x + dx,
-        y: panOffset.y + dy,
-      });
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
-      return;
-    }
-
-    if (!isDrawing) return;
+    if (!isDrawing || !currentAction) return;
 
     const { x, y } = getCanvasCoordinates(e);
 
@@ -273,79 +248,69 @@ const ScreenshotEditor = () => {
       setCurrentAction((prev) =>
         prev ? { ...prev, points: [...(prev.points || []), { x, y }] } : null
       );
-    } else if (currentTool === "rectangle" || currentTool === "circle") {
-      setCurrentAction((prev) =>
-        prev
-          ? {
-              ...prev,
-              width: x - prev.startX!,
-              height: y - prev.startY!,
-            }
-          : null
-      );
-    }
-
-    // Redraw with current action
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (ctx && currentAction) {
-      redrawCanvas();
-      ctx.save();
-      ctx.translate(panOffset.x, panOffset.y);
-      ctx.scale(zoom, zoom);
-      drawActions(ctx);
       
-      // Draw current action preview
-      ctx.strokeStyle = color;
-      ctx.fillStyle = color;
-      ctx.lineWidth = lineWidth;
+      // Draw preview in real-time
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (ctx && currentAction.points) {
+        redrawCanvas();
+        
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
 
-      if (currentAction.tool === "pen" || currentAction.tool === "eraser") {
-        const points = [...(currentAction.points || []), { x, y }];
-        if (points.length > 1) {
-          ctx.globalCompositeOperation = currentAction.tool === "eraser" ? "destination-out" : "source-over";
-          ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          points.forEach((point) => ctx.lineTo(point.x, point.y));
-          ctx.stroke();
-          ctx.globalCompositeOperation = "source-over";
-        }
-      } else if (currentAction.tool === "highlighter") {
-        const points = [...(currentAction.points || []), { x, y }];
-        if (points.length > 1) {
+        const allPoints = [...currentAction.points, { x, y }];
+        
+        if (currentTool === "highlighter") {
           ctx.globalAlpha = 0.3;
           ctx.lineWidth = lineWidth * 3;
-          ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          points.forEach((point) => ctx.lineTo(point.x, point.y));
-          ctx.stroke();
-          ctx.globalAlpha = 1;
+        } else if (currentTool === "eraser") {
+          ctx.globalCompositeOperation = "destination-out";
         }
-      } else if (currentAction.tool === "rectangle") {
-        const width = x - currentAction.startX!;
-        const height = y - currentAction.startY!;
-        ctx.strokeRect(currentAction.startX!, currentAction.startY!, width, height);
-      } else if (currentAction.tool === "circle") {
-        const width = x - currentAction.startX!;
-        const height = y - currentAction.startY!;
-        const centerX = currentAction.startX! + width / 2;
-        const centerY = currentAction.startY! + height / 2;
-        const radius = Math.sqrt(width ** 2 + height ** 2) / 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.stroke();
+        
+        if (allPoints.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(allPoints[0].x, allPoints[0].y);
+          allPoints.forEach((point) => ctx.lineTo(point.x, point.y));
+          ctx.stroke();
+        }
+        
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
       }
+    } else if (currentTool === "rectangle" || currentTool === "circle") {
+      const newAction = {
+        ...currentAction,
+        width: x - currentAction.startX!,
+        height: y - currentAction.startY!,
+      };
+      setCurrentAction(newAction);
       
-      ctx.restore();
+      // Draw preview
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (ctx) {
+        redrawCanvas();
+        
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        
+        if (currentTool === "rectangle") {
+          ctx.strokeRect(newAction.startX!, newAction.startY!, newAction.width!, newAction.height!);
+        } else if (currentTool === "circle") {
+          const centerX = newAction.startX! + newAction.width! / 2;
+          const centerY = newAction.startY! + newAction.height! / 2;
+          const radius = Math.sqrt(newAction.width! ** 2 + newAction.height! ** 2) / 2;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+      }
     }
   };
 
   const handleMouseUp = () => {
-    if (isPanning) {
-      setIsPanning(false);
-      return;
-    }
-
     if (isDrawing && currentAction) {
       setActions([...actions, currentAction]);
       setRedoStack([]);
@@ -381,42 +346,17 @@ const ScreenshotEditor = () => {
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !imageRef.current) return;
 
-    // Create a new canvas without zoom/pan transformations
-    const exportCanvas = document.createElement("canvas");
-    const exportCtx = exportCanvas.getContext("2d");
-    if (!exportCtx) return;
+    const link = document.createElement("a");
+    link.download = `edited-screenshot-${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
 
-    exportCanvas.width = canvas.width;
-    exportCanvas.height = canvas.height;
-
-    if (image) {
-      const img = new Image();
-      img.onload = () => {
-        exportCtx.drawImage(img, 0, 0);
-        drawActions(exportCtx);
-        
-        const link = document.createElement("a");
-        link.download = `edited-screenshot-${Date.now()}.png`;
-        link.href = exportCanvas.toDataURL();
-        link.click();
-
-        toast({
-          title: "Downloaded!",
-          description: "Your edited screenshot has been saved.",
-        });
-      };
-      img.src = image;
-    }
-  };
-
-  const handleZoomIn = () => {
-    setZoom(Math.min(zoom + 0.1, 3));
-  };
-
-  const handleZoomOut = () => {
-    setZoom(Math.max(zoom - 0.1, 0.5));
+    toast({
+      title: "Downloaded!",
+      description: "Your edited screenshot has been saved.",
+    });
   };
 
   return (
@@ -528,14 +468,6 @@ const ScreenshotEditor = () => {
                   >
                     <Eraser className="mr-2 h-4 w-4" />
                     Eraser
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentTool("move")}
-                    variant={currentTool === "move" ? "default" : "outline"}
-                    className="w-full justify-start"
-                  >
-                    <Move className="mr-2 h-4 w-4" />
-                    Pan/Move
                   </Button>
                 </CardContent>
               </Card>
@@ -660,18 +592,6 @@ const ScreenshotEditor = () => {
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
-                    <Button onClick={handleZoomIn} variant="outline" size="sm">
-                      <ZoomIn className="mr-2 h-4 w-4" />
-                      Zoom In
-                    </Button>
-                    <Button onClick={handleZoomOut} variant="outline" size="sm">
-                      <ZoomOut className="mr-2 h-4 w-4" />
-                      Zoom Out
-                    </Button>
-                    <span className="text-sm flex items-center ml-2">
-                      <Eye className="mr-2 h-4 w-4" />
-                      {Math.round(zoom * 100)}%
-                    </span>
                     <Button
                       onClick={handleDownload}
                       variant="default"
