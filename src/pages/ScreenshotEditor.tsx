@@ -30,6 +30,7 @@ type DrawAction = {
   tool: Tool;
   color: string;
   lineWidth: number;
+  alpha?: number;
   points?: { x: number; y: number }[];
   startX?: number;
   startY?: number;
@@ -61,6 +62,25 @@ const ScreenshotEditor = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Load saved actions from localStorage on mount
+  useEffect(() => {
+    const savedActions = localStorage.getItem("screenshot-editor-actions");
+    if (savedActions) {
+      try {
+        setActions(JSON.parse(savedActions));
+      } catch (error) {
+        console.error("Failed to load saved actions:", error);
+      }
+    }
+  }, []);
+
+  // Save actions to localStorage whenever they change
+  useEffect(() => {
+    if (actions.length > 0) {
+      localStorage.setItem("screenshot-editor-actions", JSON.stringify(actions));
+    }
+  }, [actions]);
+
   useEffect(() => {
     if (image && !imageRef.current) {
       const img = new Image();
@@ -72,7 +92,7 @@ const ScreenshotEditor = () => {
     } else if (imageRef.current) {
       redrawCanvas();
     }
-  }, [actions]);
+  }, [actions, image]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,13 +104,30 @@ const ScreenshotEditor = () => {
         img.onload = () => {
           const canvas = canvasRef.current;
           if (canvas) {
-            canvas.width = img.width;
-            canvas.height = img.height;
+            // Auto-scale large images to fit viewport
+            const maxWidth = 1200;
+            const maxHeight = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
           }
           imageRef.current = img;
           setImage(imgSrc);
           setActions([]);
           setRedoStack([]);
+          localStorage.removeItem("screenshot-editor-actions");
           
           toast({
             title: "Image Loaded!",
@@ -113,8 +150,10 @@ const ScreenshotEditor = () => {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw the base image
-    ctx.drawImage(imageRef.current, 0, 0);
+    // Draw the base image with scaling
+    const scaleX = canvas.width / imageRef.current.width;
+    const scaleY = canvas.height / imageRef.current.height;
+    ctx.drawImage(imageRef.current, 0, 0, canvas.width, canvas.height);
     
     // Draw all actions
     drawActions(ctx);
@@ -127,6 +166,7 @@ const ScreenshotEditor = () => {
       ctx.lineWidth = action.lineWidth;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
+      ctx.globalAlpha = action.alpha ?? 1;
 
       if (action.tool === "pen" || action.tool === "eraser") {
         if (action.points && action.points.length > 1) {
@@ -141,7 +181,6 @@ const ScreenshotEditor = () => {
         }
       } else if (action.tool === "highlighter") {
         if (action.points && action.points.length > 1) {
-          ctx.globalAlpha = 0.3;
           ctx.lineWidth = action.lineWidth * 3;
           ctx.beginPath();
           ctx.moveTo(action.points[0].x, action.points[0].y);
@@ -149,7 +188,6 @@ const ScreenshotEditor = () => {
             ctx.lineTo(point.x, point.y);
           });
           ctx.stroke();
-          ctx.globalAlpha = 1;
         }
       } else if (action.tool === "rectangle") {
         ctx.strokeRect(action.startX!, action.startY!, action.width!, action.height!);
@@ -164,6 +202,9 @@ const ScreenshotEditor = () => {
         ctx.font = `${action.fontSize}px ${action.fontFamily}`;
         ctx.fillText(action.text!, action.startX!, action.startY!);
       }
+      
+      // Reset alpha
+      ctx.globalAlpha = 1;
     });
   };
 
@@ -190,6 +231,7 @@ const ScreenshotEditor = () => {
         tool: currentTool,
         color,
         lineWidth,
+        alpha: currentTool === "highlighter" ? 0.3 : 1,
         points: [{ x, y }],
       });
     } else if (currentTool === "rectangle" || currentTool === "circle") {
@@ -245,36 +287,33 @@ const ScreenshotEditor = () => {
     const { x, y } = getCanvasCoordinates(e);
 
     if (currentTool === "pen" || currentTool === "eraser" || currentTool === "highlighter") {
+      // Update current action points without redrawing everything
       setCurrentAction((prev) =>
         prev ? { ...prev, points: [...(prev.points || []), { x, y }] } : null
       );
       
-      // Draw preview in real-time
+      // Draw only the new segment for better performance
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
-      if (ctx && currentAction.points) {
-        redrawCanvas();
+      if (ctx && currentAction.points && currentAction.points.length > 0) {
+        const lastPoint = currentAction.points[currentAction.points.length - 1];
         
         ctx.strokeStyle = color;
         ctx.lineWidth = lineWidth;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
+        ctx.globalAlpha = currentTool === "highlighter" ? 0.3 : 1;
 
-        const allPoints = [...currentAction.points, { x, y }];
-        
         if (currentTool === "highlighter") {
-          ctx.globalAlpha = 0.3;
           ctx.lineWidth = lineWidth * 3;
         } else if (currentTool === "eraser") {
           ctx.globalCompositeOperation = "destination-out";
         }
         
-        if (allPoints.length > 1) {
-          ctx.beginPath();
-          ctx.moveTo(allPoints[0].x, allPoints[0].y);
-          allPoints.forEach((point) => ctx.lineTo(point.x, point.y));
-          ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(lastPoint.x, lastPoint.y);
+        ctx.lineTo(x, y);
+        ctx.stroke();
         
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = "source-over";
@@ -287,7 +326,7 @@ const ScreenshotEditor = () => {
       };
       setCurrentAction(newAction);
       
-      // Draw preview
+      // Redraw for shapes (needed to show live preview)
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
       if (ctx) {
@@ -312,9 +351,13 @@ const ScreenshotEditor = () => {
 
   const handleMouseUp = () => {
     if (isDrawing && currentAction) {
+      // Finalize the action and add to history
       setActions([...actions, currentAction]);
       setRedoStack([]);
       setCurrentAction(null);
+      
+      // Redraw to ensure final state is correct
+      setTimeout(() => redrawCanvas(), 0);
     }
     setIsDrawing(false);
   };
@@ -338,6 +381,8 @@ const ScreenshotEditor = () => {
   const handleClear = () => {
     setActions([]);
     setRedoStack([]);
+    localStorage.removeItem("screenshot-editor-actions");
+    redrawCanvas();
     toast({
       title: "Canvas Cleared",
       description: "All drawings have been removed.",
