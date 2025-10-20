@@ -1,6 +1,15 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
+interface VisitData {
+  device: string;
+  browser: string;
+  country: string | null;
+  city: string | null;
+  ip: string | null;
+  user_agent: string;
+}
+
 export const useVisitTracking = () => {
   useEffect(() => {
     const trackVisit = async () => {
@@ -40,14 +49,16 @@ export const useVisitTracking = () => {
         }
 
         // Insert visit data into Supabase
-        const { error } = await supabase.from('visits').insert({
+        const visitData: VisitData = {
           device,
           browser,
           country,
           city,
           ip,
           user_agent: userAgent,
-        });
+        };
+
+        const { error } = await supabase.from('visits').insert(visitData);
 
         if (error) {
           console.error('Error tracking visit:', error);

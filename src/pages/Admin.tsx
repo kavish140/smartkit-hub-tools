@@ -7,17 +7,47 @@ import { supabase } from "@/lib/supabaseClient";
 
 const ADMIN_PASSWORD = "changeme123"; // Change this to a strong password!
 
+interface Visit {
+  id: string;
+  timestamp: string;
+  device: string | null;
+  browser: string | null;
+  country: string | null;
+  city: string | null;
+  ip: string | null;
+  user_agent: string | null;
+}
+
+interface DeviceStat {
+  type: string;
+  count: number;
+}
+
+interface LocationStat {
+  country: string;
+  count: number;
+}
+
+interface Stats {
+  totalVisitors: number;
+  uniqueVisitors: number;
+  pageViews: number;
+  devices: DeviceStat[];
+  locations: LocationStat[];
+  recentVisits: Visit[];
+}
+
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState("");
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     totalVisitors: 0,
     uniqueVisitors: 0,
     pageViews: 0,
-    devices: [] as { type: string; count: number }[],
-    locations: [] as { country: string; count: number }[],
-    recentVisits: [] as any[],
+    devices: [],
+    locations: [],
+    recentVisits: [],
   });
   const [loading, setLoading] = useState(false);
 
