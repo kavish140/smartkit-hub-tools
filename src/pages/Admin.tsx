@@ -271,25 +271,75 @@ export default function Admin() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-muted-foreground">Loading...</p>
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p className="ml-3 text-muted-foreground">Loading visits...</p>
+              </div>
             ) : stats.recentVisits.length > 0 ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                 {stats.recentVisits.map((visit, index) => (
-                  <div key={index} className="border-b pb-2 text-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <p><strong>Time:</strong> {new Date(visit.timestamp).toLocaleString()}</p>
-                      {visit.is_bot && (
-                        <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">🤖 Bot</span>
-                      )}
-                    </div>
-                    <p><strong>Device:</strong> {visit.device} | <strong>Browser:</strong> {visit.browser}</p>
-                    <p><strong>Location:</strong> {visit.city ? `${visit.city}, ` : ''}{visit.country || 'Unknown'}</p>
-                    <p><strong>IP:</strong> {visit.ip || 'N/A'}</p>
-                  </div>
+                  <Card key={index} className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-purple-600" />
+                          <span className="text-sm font-semibold text-gray-700">
+                            {new Date(visit.timestamp).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {new Date(visit.timestamp).toLocaleTimeString('en-US', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </span>
+                        </div>
+                        {visit.is_bot && (
+                          <span className="bg-gradient-to-r from-orange-400 to-red-400 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                            🤖 Bot
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="flex items-center gap-2">
+                          <Smartphone className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm">
+                            <span className="font-medium text-gray-700">{visit.device}</span>
+                            <span className="text-gray-400 mx-1">•</span>
+                            <span className="text-gray-600">{visit.browser}</span>
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-gray-700">
+                            {visit.city ? `${visit.city}, ` : ''}{visit.country || 'Unknown'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center w-6 h-6 bg-purple-100 rounded">
+                            <span className="text-xs font-mono text-purple-700">IP</span>
+                          </div>
+                          <span className="text-sm font-mono text-gray-600">{visit.ip || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground">No visits recorded yet.</p>
+              <div className="text-center py-12">
+                <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 text-lg font-medium">No visits recorded yet</p>
+                <p className="text-gray-400 text-sm mt-2">Visits will appear here as users access your site</p>
+              </div>
             )}
           </CardContent>
         </Card>
