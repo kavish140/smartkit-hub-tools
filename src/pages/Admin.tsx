@@ -61,6 +61,11 @@ interface BrowserStat {
   value: number;
 }
 
+interface ToolStat {
+  name: string;
+  count: number;
+}
+
 interface Stats {
   totalVisitors: number;
   uniqueVisitors: number;
@@ -71,6 +76,8 @@ interface Stats {
   dailyVisits: DailyVisit[];
   browsers: BrowserStat[];
   botPercentage: number;
+  topTools: ToolStat[];
+  totalToolUsage: number;
 }
 
 export default function Admin() {
@@ -90,6 +97,8 @@ export default function Admin() {
     dailyVisits: [],
     browsers: [],
     botPercentage: 0,
+    topTools: [],
+    totalToolUsage: 0,
   });
   const [loading, setLoading] = useState(false);
 
@@ -188,6 +197,36 @@ export default function Admin() {
         const botCount = visits.filter(v => v.is_bot).length;
         const botPercentage = totalVisitors > 0 ? Math.round((botCount / totalVisitors) * 100) : 0;
 
+        // Fetch tool usage data
+        let toolQuery = supabase
+          .from('tool_usage')
+          .select('*')
+          .order('timestamp', { ascending: false });
+        
+        if (!showBotsOnly) {
+          toolQuery = toolQuery.or('is_bot.is.null,is_bot.eq.false');
+        }
+
+        const { data: toolUsage, error: toolError } = await toolQuery;
+        
+        let topTools: ToolStat[] = [];
+        let totalToolUsage = 0;
+
+        if (!toolError && toolUsage) {
+          totalToolUsage = toolUsage.length;
+          
+          // Count tool usage
+          const toolCounts: { [key: string]: number } = {};
+          toolUsage.forEach(t => {
+            toolCounts[t.tool_name] = (toolCounts[t.tool_name] || 0) + 1;
+          });
+          
+          topTools = Object.entries(toolCounts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10); // Top 10 tools
+        }
+
         setStats({
           totalVisitors,
           uniqueVisitors: uniqueIPs,
@@ -198,6 +237,8 @@ export default function Admin() {
           dailyVisits,
           browsers,
           botPercentage,
+          topTools,
+          totalToolUsage,
         });
       }
     } catch (error) {
@@ -350,7 +391,7 @@ export default function Admin() {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
@@ -380,10 +421,10 @@ export default function Admin() {
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
                       <BarChart3 className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-sm font-medium opacity-90">Page Views</p>
+                    <p className="text-sm font-medium opacity-90">Tool Uses</p>
                   </div>
-                  <p className="text-5xl font-bold mb-2">{stats.pageViews}</p>
-                  <p className="text-sm opacity-90">Total interactions</p>
+                  <p className="text-5xl font-bold mb-2">{stats.totalToolUsage}</p>
+                  <p className="text-sm opacity-90">Total tool interactions</p>
                 </div>
                 <div className="w-20 h-20 bg-white/10 rounded-full -mr-4 -mt-4"></div>
               </div>
@@ -398,10 +439,16 @@ export default function Admin() {
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
                       <Activity className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-sm font-medium opacity-90">Bot Traffic</p>
+                    <p className="text-sm font-medium opacity-90">
+                      {stats.topTools.length > 0 ? "Top Tool" : "Bot Traffic"}
+                    </p>
                   </div>
-                  <p className="text-5xl font-bold mb-2">{stats.botPercentage}%</p>
-                  <p className="text-sm opacity-90">Automated visitors</p>
+                  <p className="text-5xl font-bold mb-2">
+                    {stats.topTools.length > 0 ? stats.topTools[0].count : `${stats.botPercentage}%`}
+                  </p>
+                  <p className="text-sm opacity-90 truncate">
+                    {stats.topTools.length > 0 ? stats.topTools[0].name : "Automated visitors"}
+                  </p>
                 </div>
                 <div className="w-20 h-20 bg-white/10 rounded-full -mr-4 -mt-4"></div>
               </div>
@@ -522,6 +569,44 @@ export default function Admin() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Top Tools Chart */}
+        {stats.topTools.length > 0 && (
+          <Card className="mb-8 border-2 border-indigo-100 shadow-lg bg-white">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="h-4 w-4 text-white" />
+                </div>
+                Most Popular Tools ({stats.totalToolUsage} total uses)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={stats.topTools} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis type="number" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <YAxis dataKey="name" type="category" width={150} stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '2px solid #e5e7eb', 
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }} 
+                  />
+                  <Bar dataKey="count" fill="url(#toolBarGradient)" radius={[0, 8, 8, 0]} />
+                  <defs>
+                    <linearGradient id="toolBarGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#8b5cf6" />
+                      <stop offset="100%" stopColor="#ec4899" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Top Locations */}
         <Card className="mb-8 border-2 border-orange-100 shadow-lg bg-white">

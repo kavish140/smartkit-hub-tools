@@ -5,8 +5,10 @@ import { ArrowLeft, Delete } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 const Calculator = () => {
+  useToolTracking("Calculator"); // Track tool usage
   const navigate = useNavigate();
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
