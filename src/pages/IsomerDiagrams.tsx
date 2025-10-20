@@ -8,6 +8,7 @@ import { Atom, Download, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useToolTracking } from "@/hooks/useToolTracking";
+import HowToUse from "@/components/HowToUse";
 
 interface Isomer {
   name: string;
@@ -522,46 +523,37 @@ const IsomerDiagrams = () => {
         <HowToUse
           steps={[
             {
-              number: 1,
               title: "Select Hydrocarbon Type",
               description: "Choose between Alkane (CnH2n+2), Alkene (CnH2n), or Alkyne (CnH2n-2)"
             },
             {
-              number: 2,
               title: "Set Carbon Count",
               description: "Enter the number of carbon atoms (1-10). Hydrogen count is auto-calculated."
             },
             {
-              number: 3,
               title: "Generate Isomers",
               description: "Click 'Generate Isomers' to create all possible structural isomers"
             },
             {
-              number: 4,
               title: "View Diagrams",
               description: "Browse through the generated structural diagrams for each isomer"
             },
             {
-              number: 5,
               title: "Download (Optional)",
               description: "Save individual isomer diagrams or download all as a ZIP file"
             }
           ]}
           tips={[
             {
-              icon: "💡",
               text: "Isomers have the same molecular formula but different structural arrangements"
             },
             {
-              icon: "🧪",
               text: "Higher carbon counts produce more isomers (e.g., C5H12 has 3 isomers)"
             },
             {
-              icon: "🔬",
               text: "Alkanes are saturated (single bonds), alkenes have double bonds, alkynes have triple bonds"
             },
             {
-              icon: "📊",
               text: "The number of possible isomers increases exponentially with carbon count"
             }
           ]}

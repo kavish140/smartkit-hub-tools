@@ -6,7 +6,8 @@ import { ArrowLeft, TrendingUp, TrendingDown, RefreshCw, Search } from "lucide-r
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";`nimport HowToUse from "@/components/HowToUse";
+import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface CryptoData {

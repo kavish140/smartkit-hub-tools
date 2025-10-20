@@ -6,7 +6,8 @@ import { ArrowLeft, Video, Search, ExternalLink, Clock, Eye, ThumbsUp } from "lu
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";`nimport HowToUse from "@/components/HowToUse";
+import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface VideoInfo {
