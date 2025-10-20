@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter } from "lucide-react";
+import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 const ADMIN_PASSWORD = "changeme123"; // Change this to a strong password!
+const VISITS_PER_PAGE = 5;
 
 interface Visit {
   id: string;
@@ -45,6 +46,7 @@ export default function Admin() {
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState("");
   const [showBotsOnly, setShowBotsOnly] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [stats, setStats] = useState<Stats>({
     totalVisitors: 0,
     uniqueVisitors: 0,
@@ -336,64 +338,112 @@ export default function Admin() {
                 <p className="ml-3 text-muted-foreground">Loading visits...</p>
               </div>
             ) : stats.recentVisits.length > 0 ? (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                {stats.recentVisits.map((visit, index) => (
-                  <Card key={index} className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-purple-600" />
-                          <span className="text-sm font-semibold text-gray-700">
-                            {new Date(visit.timestamp).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric', 
-                              year: 'numeric' 
-                            })}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            {new Date(visit.timestamp).toLocaleTimeString('en-US', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
-                          </span>
-                        </div>
-                        {visit.is_bot && (
-                          <span className="bg-gradient-to-r from-orange-400 to-red-400 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                            🤖 Bot
-                          </span>
-                        )}
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="flex items-center gap-2">
-                          <Smartphone className="h-4 w-4 text-blue-600" />
-                          <span className="text-sm">
-                            <span className="font-medium text-gray-700">{visit.device}</span>
-                            <span className="text-gray-400 mx-1">•</span>
-                            <span className="text-gray-600">{visit.browser}</span>
-                          </span>
+              <>
+                <div className="space-y-3">
+                  {stats.recentVisits
+                    .slice((currentPage - 1) * VISITS_PER_PAGE, currentPage * VISITS_PER_PAGE)
+                    .map((visit, index) => (
+                    <Card key={index} className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-purple-600" />
+                            <span className="text-sm font-semibold text-gray-700">
+                              {new Date(visit.timestamp).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                              })}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              {new Date(visit.timestamp).toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </span>
+                          </div>
+                          {visit.is_bot && (
+                            <span className="bg-gradient-to-r from-orange-400 to-red-400 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                              🤖 Bot
+                            </span>
+                          )}
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-green-600" />
-                          <span className="text-sm text-gray-700">
-                            {visit.city ? `${visit.city}, ` : ''}{visit.country || 'Unknown'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center justify-center w-6 h-6 bg-purple-100 rounded">
-                            <span className="text-xs font-mono text-purple-700">IP</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="flex items-center gap-2">
+                            <Smartphone className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm">
+                              <span className="font-medium text-gray-700">{visit.device}</span>
+                              <span className="text-gray-400 mx-1">•</span>
+                              <span className="text-gray-600">{visit.browser}</span>
+                            </span>
                           </div>
-                          <span className="text-sm font-mono text-gray-600">{visit.ip || 'N/A'}</span>
+                          
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-green-600" />
+                            <span className="text-sm text-gray-700">
+                              {visit.city ? `${visit.city}, ` : ''}{visit.country || 'Unknown'}
+                            </span>
+                          </div>
                         </div>
+                        
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center w-6 h-6 bg-purple-100 rounded">
+                              <span className="text-xs font-mono text-purple-700">IP</span>
+                            </div>
+                            <span className="text-sm font-mono text-gray-600">{visit.ip || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {/* Pagination Controls */}
+                {stats.recentVisits.length > VISITS_PER_PAGE && (
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {((currentPage - 1) * VISITS_PER_PAGE) + 1} to {Math.min(currentPage * VISITS_PER_PAGE, stats.recentVisits.length)} of {stats.recentVisits.length} visits
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="gap-1"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.ceil(stats.recentVisits.length / VISITS_PER_PAGE) }, (_, i) => i + 1).map(page => (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className={currentPage === page ? "bg-gradient-to-r from-purple-600 to-pink-600" : ""}
+                          >
+                            {page}
+                          </Button>
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(Math.ceil(stats.recentVisits.length / VISITS_PER_PAGE), p + 1))}
+                        disabled={currentPage === Math.ceil(stats.recentVisits.length / VISITS_PER_PAGE)}
+                        className="gap-1"
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-12">
                 <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
