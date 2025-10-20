@@ -340,7 +340,7 @@ export default function PrivacyPolicy() {
               <div className="space-y-2">
                 <p className="font-semibold text-lg">SmartKit.tech</p>
                 <p className="text-muted-foreground">Website: <a href="https://aismartkit.tech" className="text-blue-600 hover:underline">https://aismartkit.tech</a></p>
-                <p className="text-muted-foreground">Email: <a href="mailto:contact@aismartkit.tech" className="text-blue-600 hover:underline">contact@aismartkit.tech</a></p>
+                <p className="text-muted-foreground">Email: <a href="mailto:kavishganatra5@gmail.com" className="text-blue-600 hover:underline">kavishganatra5@gmail.com</a></p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-4">
