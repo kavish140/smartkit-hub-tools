@@ -28,7 +28,10 @@ import {
   Smartphone,
   Code2,
   BarChart3,
-  Atom
+  Atom,
+  Shapes,
+  Type,
+  TestTube2
 } from "lucide-react";
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
@@ -248,6 +251,48 @@ const tools = [
     icon: Atom,
     category: "Education",
     path: "/isomer-diagrams"
+  },
+  {
+    title: "Markdown Converter",
+    description: "Convert Markdown to HTML with live preview",
+    icon: Code2,
+    category: "Developer",
+    path: "/markdown-converter"
+  },
+  {
+    title: "Gradient Generator",
+    description: "Create CSS gradients with multiple color stops",
+    icon: Palette,
+    category: "Design",
+    path: "/gradient-generator"
+  },
+  {
+    title: "Cron Generator",
+    description: "Generate cron expressions for task scheduling",
+    icon: Clock,
+    category: "Developer",
+    path: "/cron-generator"
+  },
+  {
+    title: "Lorem Ipsum Generator",
+    description: "Generate placeholder text for designs",
+    icon: FileText,
+    category: "Utility",
+    path: "/lorem-ipsum-generator"
+  },
+  {
+    title: "Regex Tester",
+    description: "Test and debug regular expressions live",
+    icon: TestTube2,
+    category: "Developer",
+    path: "/regex-tester"
+  },
+  {
+    title: "Case Converter",
+    description: "Convert text between camelCase, snake_case, etc.",
+    icon: Type,
+    category: "Developer",
+    path: "/case-converter"
   }
 ];
 

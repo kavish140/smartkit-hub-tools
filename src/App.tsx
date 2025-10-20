@@ -38,6 +38,12 @@ import AudioConverter from "./pages/AudioConverter";
 import IsomerDiagrams from "./pages/IsomerDiagrams";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Admin from "./pages/Admin";
+import MarkdownConverter from "./pages/MarkdownConverter";
+import GradientGenerator from "./pages/GradientGenerator";
+import CronGenerator from "./pages/CronGenerator";
+import LoremIpsumGenerator from "./pages/LoremIpsumGenerator";
+import RegexTester from "./pages/RegexTester";
+import CaseConverter from "./pages/CaseConverter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +94,12 @@ const App = () => {
           <Route path="/file-converter" element={<FileConverter />} />
           <Route path="/audio-converter" element={<AudioConverter />} />
           <Route path="/isomer-diagrams" element={<IsomerDiagrams />} />
+          <Route path="/markdown-converter" element={<MarkdownConverter />} />
+          <Route path="/gradient-generator" element={<GradientGenerator />} />
+          <Route path="/cron-generator" element={<CronGenerator />} />
+          <Route path="/lorem-ipsum-generator" element={<LoremIpsumGenerator />} />
+          <Route path="/regex-tester" element={<RegexTester />} />
+          <Route path="/case-converter" element={<CaseConverter />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
