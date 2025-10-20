@@ -119,7 +119,23 @@ const CaseConverter = () => {
           Back to Home
         </Button>
 
-        <Card>
+        {/* How to Use Guide */}
+        <HowToUse
+          steps={[
+            { title: "Enter Text", description: "Type or paste your text into the input area." },
+            { title: "Choose Conversion", description: "Click any of the 11 conversion buttons to transform your text." },
+            { title: "Preview Result", description: "See the converted text instantly in the output area." },
+            { title: "Copy Format", description: "One-click copy to use the converted text anywhere." }
+          ]}
+          tips={[
+            { text: "camelCase and PascalCase common for programming" },
+            { text: "snake_case popular in Python and databases" },
+            { text: "kebab-case used in URLs and CSS classes" },
+            { text: "SCREAMING_SNAKE_CASE for constants" }
+          ]}
+        />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Type className="h-6 w-6" />

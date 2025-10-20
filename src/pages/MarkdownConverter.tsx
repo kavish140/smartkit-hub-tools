@@ -191,7 +191,23 @@ Pull requests are welcome!`,
           Back to Home
         </Button>
 
-        <Card>
+        {/* How to Use Guide */}
+        <HowToUse
+          steps={[
+            { title: "Write Markdown", description: "Type or paste your Markdown syntax in the editor on the left." },
+            { title: "See Live Preview", description: "View real-time HTML preview on the right as you type." },
+            { title: "Use Templates", description: "Start with pre-made templates for docs, blogs, or README files." },
+            { title: "Download HTML", description: "Export your converted HTML for use in websites or documentation." }
+          ]}
+          tips={[
+            { text: "Supports headers, bold, italic, lists, links, and code blocks" },
+            { text: "Use ``` for code blocks with syntax highlighting" },
+            { text: "Templates provide starting structures for common documents" },
+            { text: "Perfect for creating documentation and blog posts" }
+          ]}
+        />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code className="h-6 w-6" />

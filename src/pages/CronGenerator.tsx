@@ -156,7 +156,23 @@ const CronGenerator = () => {
           Back to Home
         </Button>
 
-        <Card>
+        {/* How to Use Guide */}
+        <HowToUse
+          steps={[
+            { title: "Build Visually", description: "Use dropdowns to select minutes, hours, days, months, and weekdays." },
+            { title: "Or Use Presets", description: "Choose from 10+ common schedules like daily, weekly, or monthly." },
+            { title: "View Expression", description: "See the generated cron expression and human-readable description." },
+            { title: "Copy & Use", description: "Copy the cron expression for use in schedulers, scripts, or cron jobs." }
+          ]}
+          tips={[
+            { text: "Cron format: minute hour day month weekday" },
+            { text: "* means 'every' (e.g., * * * * * = every minute)" },
+            { text: "Use presets for common schedules to save time" },
+            { text: "Test your cron expression before deploying to production" }
+          ]}
+        />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-6 w-6" />

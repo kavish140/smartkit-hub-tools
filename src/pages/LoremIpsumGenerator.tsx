@@ -121,7 +121,23 @@ const LoremIpsumGenerator = () => {
           Back to Home
         </Button>
 
-        <Card>
+        {/* How to Use Guide */}
+        <HowToUse
+          steps={[
+            { title: "Choose Type", description: "Select Paragraphs, Sentences, or Words format." },
+            { title: "Set Quantity", description: "Use the slider to choose how much placeholder text to generate." },
+            { title: "Use Presets", description: "Quick options for small, medium, or large text blocks." },
+            { title: "Copy Text", description: "Copy generated lorem ipsum for mockups, designs, or testing." }
+          ]}
+          tips={[
+            { text: "Lorem ipsum is standard placeholder text since the 1500s" },
+            { text: "Perfect for design mockups and content placeholders" },
+            { text: "Word count helps estimate content length for layouts" },
+            { text: "Use paragraphs for body text, sentences for headlines" }
+          ]}
+        />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-6 w-6" />

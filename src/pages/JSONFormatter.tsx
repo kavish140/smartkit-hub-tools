@@ -99,7 +99,23 @@ const JSONFormatter = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-6xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Paste JSON", description: "Copy and paste your JSON data into the left input area." },
+              { title: "Format or Validate", description: "Click Format to beautify or Minify to compress. The tool automatically validates your JSON." },
+              { title: "View Results", description: "See formatted JSON on the right with syntax highlighting and validation status." },
+              { title: "Copy Output", description: "Use the copy button to copy the formatted or minified JSON to your clipboard." }
+            ]}
+            tips={[
+              { text: "Invalid JSON will show error messages with line numbers" },
+              { text: "Formatting makes JSON human-readable with proper indentation" },
+              { text: "Minifying removes whitespace for smaller file sizes" },
+              { text: "Great for debugging API responses and configuration files" }
+            ]}
+          />
+
+          <Card className="max-w-6xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">JSON Formatter</CardTitle>
               <CardDescription>Format, validate, and minify JSON data beautifully</CardDescription>

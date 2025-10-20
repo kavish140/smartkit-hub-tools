@@ -77,7 +77,23 @@ const EmailValidator = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-2xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Enter Email", description: "Type or paste an email address in the input field." },
+              { title: "Instant Validation", description: "The tool validates format, syntax, and checks for common mistakes." },
+              { title: "View Results", description: "See validation status with detailed checks (format, domain, syntax)." },
+              { title: "Verify Multiple", description: "Test multiple email addresses to ensure they're valid before sending." }
+            ]}
+            tips={[
+              { text: "Checks email format according to RFC 5322 standards" },
+              { text: "Validates domain format and common TLDs" },
+              { text: "Does not verify if the email account actually exists" },
+              { text: "Great for form validation and data cleaning" }
+            ]}
+          />
+
+          <Card className="max-w-2xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Email Validator</CardTitle>
               <CardDescription>Validate email addresses and check format instantly</CardDescription>

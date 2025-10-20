@@ -81,7 +81,23 @@ const UUIDGenerator = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-3xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Select Version", description: "Choose UUID v4 (random) or v1 (timestamp-based) format." },
+              { title: "Set Quantity", description: "Choose how many UUIDs to generate (1-100)." },
+              { title: "Generate", description: "Click Generate to create unique identifiers instantly." },
+              { title: "Copy UUIDs", description: "Copy individual UUIDs or all at once to your clipboard." }
+            ]}
+            tips={[
+              { text: "UUID v4 is recommended for most use cases (completely random)" },
+              { text: "UUID v1 includes timestamp information" },
+              { text: "UUIDs are globally unique with extremely low collision probability" },
+              { text: "Perfect for database primary keys, session IDs, and unique identifiers" }
+            ]}
+          />
+
+          <Card className="max-w-3xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">UUID Generator</CardTitle>
               <CardDescription>Generate unique identifiers (UUIDs) v1 and v4</CardDescription>

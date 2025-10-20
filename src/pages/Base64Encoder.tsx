@@ -87,7 +87,23 @@ const Base64Encoder = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Mode", description: "Select Encode to convert text to Base64, or Decode to convert Base64 back to text." },
+              { title: "Enter Text", description: "Type or paste your text in the input area." },
+              { title: "Instant Conversion", description: "The conversion happens automatically as you type." },
+              { title: "Copy Result", description: "Click the copy button to copy the encoded or decoded text." }
+            ]}
+            tips={[
+              { text: "Base64 is commonly used for encoding binary data in text format" },
+              { text: "Perfect for embedding images in HTML/CSS or API requests" },
+              { text: "Decoding invalid Base64 will show an error message" },
+              { text: "Base64 increases data size by approximately 33%" }
+            ]}
+          />
+
+          <Card className="max-w-4xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Base64 Encoder/Decoder</CardTitle>
               <CardDescription>Encode and decode Base64 strings easily</CardDescription>

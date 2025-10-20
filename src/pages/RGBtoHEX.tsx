@@ -105,7 +105,23 @@ const RGBtoHEX = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Conversion Type", description: "Select RGB to HEX or HEX to RGB conversion mode." },
+              { title: "Enter Values", description: "Input RGB values (0-255) or HEX code (#RRGGBB)." },
+              { title: "See Live Preview", description: "View the color preview and converted values in real-time." },
+              { title: "Copy Format", description: "Copy the result in your preferred format (HEX, RGB, HSL)." }
+            ]}
+            tips={[
+              { text: "HEX codes start with # followed by 6 hexadecimal digits" },
+              { text: "RGB values range from 0 to 255 for each color channel" },
+              { text: "HSL format is great for adjusting lightness and saturation" },
+              { text: "Use the color preview to verify your conversion" }
+            ]}
+          />
+
+          <Card className="max-w-4xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">RGB to HEX Converter</CardTitle>
               <CardDescription>Convert RGB colors to HEX and vice versa</CardDescription>

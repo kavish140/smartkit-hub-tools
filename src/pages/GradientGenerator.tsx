@@ -135,7 +135,23 @@ const GradientGenerator = () => {
           Back to Home
         </Button>
 
-        <Card>
+        {/* How to Use Guide */}
+        <HowToUse
+          steps={[
+            { title: "Choose Gradient Type", description: "Select Linear, Radial, or Conic gradient style." },
+            { title: "Add Color Stops", description: "Click + to add colors and adjust their positions on the gradient." },
+            { title: "Adjust Angle/Position", description: "Set gradient direction for linear or center point for radial gradients." },
+            { title: "Copy CSS Code", description: "Get CSS, SCSS, or Tailwind code to use in your projects." }
+          ]}
+          tips={[
+            { text: "Use presets for quick inspiration and common gradient styles" },
+            { text: "Linear gradients are great for backgrounds and headers" },
+            { text: "Radial gradients create spotlight and circular effects" },
+            { text: "Conic gradients perfect for color wheels and circular progress" }
+          ]}
+        />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Palette className="h-6 w-6" />

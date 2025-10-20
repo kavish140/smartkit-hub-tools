@@ -127,7 +127,23 @@ const RegexTester = () => {
           Back to Home
         </Button>
 
-        <Card>
+        {/* How to Use Guide */}
+        <HowToUse
+          steps={[
+            { title: "Enter Regex Pattern", description: "Type your regular expression in the pattern field." },
+            { title: "Add Test Text", description: "Paste or type text to test your regex against." },
+            { title: "See Live Matches", description: "Matches highlight in real-time with capture groups shown separately." },
+            { title: "Use Common Patterns", description: "Load pre-made patterns for emails, URLs, phone numbers, and more." }
+          ]}
+          tips={[
+            { text: "Use flags: i (case insensitive), g (global), m (multiline)" },
+            { text: "Common patterns library saves time for validation tasks" },
+            { text: "Capture groups shown separately for parsing data" },
+            { text: "Great for form validation and text processing" }
+          ]}
+        />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-6 w-6" />
