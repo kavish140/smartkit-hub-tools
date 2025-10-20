@@ -230,7 +230,23 @@ const AudioConverter = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Upload Audio", description: "Click to browse or drag & drop your audio file (MP3, WAV, OGG, M4A supported)." },
+              { title: "Select Output Format", description: "Choose the format you want to convert to from the dropdown." },
+              { title: "Adjust Settings", description: "Set bitrate and sample rate for quality control. Higher values = better quality." },
+              { title: "Convert & Download", description: "Click Convert to process, then download your converted audio file." }
+            ]}
+            tips={[
+              { text: "Higher bitrate (320kbps) provides better audio quality" },
+              { text: "WAV format is lossless but creates larger files" },
+              { text: "MP3 is great for compatibility across all devices" },
+              { text: "OGG offers good quality-to-size ratio" }
+            ]}
+          />
+
+          <Card className="max-w-4xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Audio Converter</CardTitle>
               <CardDescription>Convert audio files between different formats</CardDescription>
