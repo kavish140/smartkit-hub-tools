@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useToolTracking } from "@/hooks/useToolTracking";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 
 const UnitConverter = () => {
   useToolTracking("Unit Converter");
@@ -147,7 +148,35 @@ const UnitConverter = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-3xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Select Category",
+                description: "Choose from Length, Weight, Temperature, Volume, Time, or Digital Storage categories using the tabs."
+              },
+              {
+                title: "Enter Value",
+                description: "Type the value you want to convert in the 'From' field."
+              },
+              {
+                title: "Choose Units",
+                description: "Select the source unit and target unit from the dropdown menus."
+              },
+              {
+                title: "View Result",
+                description: "The converted value appears instantly in the 'To' field. Use the swap button to reverse conversion."
+              }
+            ]}
+            tips={[
+              { text: "All conversions happen in real-time as you type" },
+              { text: "Use the swap button to quickly reverse your conversion" },
+              { text: "Digital storage includes B, KB, MB, GB, TB, and PB" },
+              { text: "Temperature supports Celsius, Fahrenheit, and Kelvin" }
+            ]}
+          />
+
+          <Card className="max-w-3xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Unit Converter</CardTitle>
               <CardDescription>Convert between various units of measurement</CardDescription>

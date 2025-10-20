@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface SavedColor {
@@ -225,7 +226,36 @@ const ColorPicker = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-6xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Choose a Mode",
+                description: "Select from Picker (single colors), Gradients (color transitions), Schemes (color harmonies), or Saved (your favorites)."
+              },
+              {
+                title: "Pick Your Color",
+                description: "Use the color picker, enter HEX/RGB/HSL values, or choose from popular colors. All formats update in real-time."
+              },
+              {
+                title: "Generate Schemes",
+                description: "Create complementary, analogous, triadic, or monochromatic color schemes with one click."
+              },
+              {
+                title: "Save & Export",
+                description: "Copy colors in any format (HEX, RGB, HSL) or save favorites for later use. Perfect for design projects!"
+              }
+            ]}
+            tips={[
+              { text: "Use color schemes for professional-looking designs" },
+              { text: "HSL is great for adjusting lightness and saturation" },
+              { text: "Save your brand colors for quick access" },
+              { text: "Gradients can be copied as CSS code" },
+              { text: "Popular colors include pre-made palettes" }
+            ]}
+          />
+
+          <Card className="max-w-6xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl flex items-center gap-2">
                 <Palette className="h-8 w-8" />

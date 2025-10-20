@@ -10,6 +10,7 @@ import { ArrowLeft, Download, Palette, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToast } from "@/hooks/use-toast";
 import { useToolTracking } from "@/hooks/useToolTracking";
 import QRCode from "qrcode";
@@ -308,7 +309,36 @@ const QRGenerator = () => {
             Back to Tools
           </Button>
 
-          <div className="grid lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Choose QR Type",
+                description: "Select from URL, Text, WiFi, Email, SMS, Phone, or vCard. Each type has specific fields for that format."
+              },
+              {
+                title: "Enter Content",
+                description: "Fill in the required information. For URL, enter the web address. For WiFi, provide network name and password."
+              },
+              {
+                title: "Customize Appearance",
+                description: "Change foreground and background colors, adjust size, set error correction level, and optionally add a logo."
+              },
+              {
+                title: "Download QR Code",
+                description: "Choose your preferred format (PNG, SVG, or JPEG) and download. Higher error correction allows more logo coverage."
+              }
+            ]}
+            tips={[
+              { text: "Use High error correction (30%) when adding logos to QR codes" },
+              { text: "Test your QR code with multiple devices before printing" },
+              { text: "Maintain good contrast between foreground and background colors" },
+              { text: "Logo should cover no more than 30% of the QR code area" },
+              { text: "SVG format is best for print materials and scalability" }
+            ]}
+          />
+
+          <div className="grid lg:grid-cols-2 gap-6 max-w-6xl mx-auto mt-6">
             {/* Settings Panel */}
             <Card>
               <CardHeader>

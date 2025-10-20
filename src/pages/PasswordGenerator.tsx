@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useToolTracking } from "@/hooks/useToolTracking";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 
 interface PasswordStrength {
   score: number;
@@ -202,7 +203,36 @@ const PasswordGenerator = () => {
             Back to Tools
           </Button>
 
-          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Choose Mode",
+                description: "Select Single Password for one strong password, or Bulk Generate to create multiple passwords at once."
+              },
+              {
+                title: "Set Length",
+                description: "Use the slider to set password length. 16+ characters recommended for strong security."
+              },
+              {
+                title: "Select Character Types",
+                description: "Enable uppercase, lowercase, numbers, and symbols. More variety means stronger passwords."
+              },
+              {
+                title: "Generate & Copy",
+                description: "Click Generate to create your password. Use the copy button to add it to clipboard. Check the strength meter for security level."
+              }
+            ]}
+            tips={[
+              { text: "Use at least 16 characters for maximum security" },
+              { text: "Include all character types for stronger passwords" },
+              { text: "Avoid common patterns and dictionary words" },
+              { text: "Use Passphrase mode for memorable yet secure passwords" },
+              { text: "Never reuse passwords across different accounts" }
+            ]}
+          />
+
+          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto mt-6">
             {/* Settings Panel */}
             <Card className="lg:col-span-2">
               <CardHeader>

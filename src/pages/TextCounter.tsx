@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 const TextCounter = () => {
@@ -80,7 +81,35 @@ Reading Time: ${stats.readingTime}
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Enter or Paste Text",
+                description: "Type or paste your text into the text area. Statistics update automatically as you type."
+              },
+              {
+                title: "View Statistics",
+                description: "See real-time counts for characters, words, sentences, paragraphs, and estimated reading time."
+              },
+              {
+                title: "Copy Statistics",
+                description: "Click the copy button to copy all statistics to your clipboard for easy sharing or documentation."
+              },
+              {
+                title: "Clear Text",
+                description: "Use the clear button to remove all text and start fresh with a new document."
+              }
+            ]}
+            tips={[
+              { text: "Reading time is calculated at 200 words per minute (average reading speed)" },
+              { text: "Works great for blog posts, essays, and social media content" },
+              { text: "Character count includes spaces and punctuation" },
+              { text: "Perfect for meeting character limits on platforms like Twitter" }
+            ]}
+          />
+
+          <Card className="max-w-4xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Text Counter</CardTitle>
               <CardDescription>Count words, characters, and analyze your text</CardDescription>

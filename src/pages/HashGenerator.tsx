@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 const HashGenerator = () => {
@@ -73,7 +74,36 @@ const HashGenerator = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-3xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Enter Your Text",
+                description: "Type or paste the text you want to hash into the input text area."
+              },
+              {
+                title: "Select Algorithm",
+                description: "Choose from MD5, SHA-1, SHA-256, SHA-512, or other hash algorithms depending on your security needs."
+              },
+              {
+                title: "Generate Hash",
+                description: "Click the Generate Hash button to create the cryptographic hash of your text."
+              },
+              {
+                title: "Copy Result",
+                description: "Use the copy button to copy the hash to your clipboard for use in your applications or verification."
+              }
+            ]}
+            tips={[
+              { text: "SHA-256 and SHA-512 are recommended for security purposes" },
+              { text: "MD5 and SHA-1 are deprecated for security but useful for checksums" },
+              { text: "Same input always produces the same hash output" },
+              { text: "Great for password hashing, file integrity checks, and data verification" },
+              { text: "Hashing is one-way - you cannot reverse a hash to get original text" }
+            ]}
+          />
+
+          <Card className="max-w-3xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl flex items-center gap-2">
                 <Hash className="h-8 w-8" />

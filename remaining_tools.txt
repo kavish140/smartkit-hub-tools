@@ -1,0 +1,39 @@
+﻿# Tools that already have HowToUse:
+# - Calculator.tsx 
+# - UnitConverter.tsx 
+# - QRGenerator.tsx 
+# - PasswordGenerator.tsx 
+# - AgeCalculator.tsx 
+
+# Remaining 31 tools to add HowToUse:
+TextCounter.tsx
+ColorPicker.tsx
+HashGenerator.tsx
+JSONFormatter.tsx
+Base64Encoder.tsx
+AudioConverter.tsx
+CaseConverter.tsx
+ChartGenerator.tsx
+CodeBeautifier.tsx
+CronGenerator.tsx
+CryptoPrices.tsx
+CurrencyConverter.tsx
+DeviceInfo.tsx
+EmailValidator.tsx
+FileConverter.tsx
+GPACalculator.tsx
+GradientGenerator.tsx
+ImageCompressor.tsx
+IPLookup.tsx
+IsomerDiagrams.tsx
+LinkShortener.tsx
+LoremIpsumGenerator.tsx
+MarkdownConverter.tsx
+NewsFeed.tsx
+PomodoroTimer.tsx
+RegexTester.tsx
+RGBtoHEX.tsx
+UUIDGenerator.tsx
+WeatherForecast.tsx
+WorldClock.tsx
+YouTubeDownloader.tsx

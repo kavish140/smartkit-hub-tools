@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 const AgeCalculator = () => {
@@ -92,7 +93,35 @@ const AgeCalculator = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-2xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              {
+                title: "Enter Birth Date",
+                description: "Select or type your birth date in the first date field using the date picker."
+              },
+              {
+                title: "Choose Target Date",
+                description: "By default, it calculates your current age. Change the target date to calculate age on a future or past date."
+              },
+              {
+                title: "Click Calculate",
+                description: "Press the Calculate Age button to see detailed results including years, months, and days."
+              },
+              {
+                title: "View Results",
+                description: "See your age broken down in years, months, days, and total days lived. Results update instantly."
+              }
+            ]}
+            tips={[
+              { text: "Use the target date to see how old you'll be on future dates" },
+              { text: "Calculate age differences between any two dates" },
+              { text: "Perfect for legal age verification and milestone tracking" },
+              { text: "Total days calculation useful for anniversaries" }
+            ]}
+          />
+
+          <Card className="max-w-2xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Age Calculator</CardTitle>
               <CardDescription>Calculate your age and time differences precisely</CardDescription>
