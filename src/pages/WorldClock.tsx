@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface WorldTime {
   timezone: string;
@@ -14,6 +15,7 @@ interface WorldTime {
 }
 
 const WorldClock = () => {
+  useToolTracking("World Clock");
   const navigate = useNavigate();
   const [clocks, setClocks] = useState<WorldTime[]>([
     { timezone: "America/New_York", city: "New York", time: new Date() },

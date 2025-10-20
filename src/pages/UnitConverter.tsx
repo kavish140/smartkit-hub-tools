@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, ArrowRightLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToolTracking } from "@/hooks/useToolTracking";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const UnitConverter = () => {
+  useToolTracking("Unit Converter");
   const navigate = useNavigate();
   const [value, setValue] = useState("1");
   const [fromUnit, setFromUnit] = useState("meter");

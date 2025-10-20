@@ -11,9 +11,11 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useToolTracking } from "@/hooks/useToolTracking";
 import QRCode from "qrcode";
 
 const QRGenerator = () => {
+  useToolTracking("QR Code Generator");
   const navigate = useNavigate();
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);

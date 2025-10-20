@@ -8,6 +8,7 @@ import { ArrowLeft, Plus, Trash2, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface Course {
   id: number;
@@ -17,6 +18,7 @@ interface Course {
 }
 
 const GPACalculator = () => {
+  useToolTracking("GPA Calculator");
   const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([
     { id: 1, name: "", grade: "A", credits: 3 }

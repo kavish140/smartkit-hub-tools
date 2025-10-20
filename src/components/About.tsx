@@ -61,7 +61,7 @@ const About = () => {
         </div>
 
         <div className="mt-16 max-w-4xl mx-auto">
-          <Card className="border-2 border-primary/20 bg-gradient-to-r from-blue-50/50 to-purple-50/50">
+          <Card className="border-2 border-primary/20 bg-card">
             <CardContent className="p-8">
               <h3 className="text-2xl font-bold mb-4 text-center">About SmartKit.tech</h3>
               <div className="space-y-4 text-muted-foreground">

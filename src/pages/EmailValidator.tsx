@@ -7,8 +7,10 @@ import { ArrowLeft, Check, X, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 const EmailValidator = () => {
+  useToolTracking("Email Validator");
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [isValid, setIsValid] = useState<boolean | null>(null);

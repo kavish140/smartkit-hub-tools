@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Atom, Download, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface Isomer {
   name: string;
@@ -17,6 +18,7 @@ interface Isomer {
 type MoleculeType = "alkane" | "alkene" | "alkyne";
 
 const IsomerDiagrams = () => {
+  useToolTracking("Isomer Diagrams");
   const [activeTab, setActiveTab] = useState<MoleculeType>("alkane");
   const [carbonCount, setCarbonCount] = useState<number>(4);
   const [isomers, setIsomers] = useState<Isomer[]>([]);

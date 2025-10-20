@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface CryptoData {
   id: string;
@@ -22,6 +23,7 @@ interface CryptoData {
 }
 
 const CryptoPrices = () => {
+  useToolTracking("Crypto Prices");
   const navigate = useNavigate();
   const { toast } = useToast();
   

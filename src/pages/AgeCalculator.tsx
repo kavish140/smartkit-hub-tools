@@ -7,8 +7,10 @@ import { ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 const AgeCalculator = () => {
+  useToolTracking("Age Calculator");
   const navigate = useNavigate();
   const [birthDate, setBirthDate] = useState("");
   const [targetDate, setTargetDate] = useState(new Date().toISOString().split('T')[0]);

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, RefreshCw, ArrowLeft, Check, Shield, AlertTriangle, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useToolTracking } from "@/hooks/useToolTracking";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -22,6 +23,7 @@ interface PasswordStrength {
 }
 
 const PasswordGenerator = () => {
+  useToolTracking("Password Generator");
   const navigate = useNavigate();
   const { toast } = useToast();
   const [password, setPassword] = useState("GeneratePassword123!");

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
@@ -25,6 +26,7 @@ interface ConversionFormat {
 }
 
 const FileConverter = () => {
+  useToolTracking("File Converter");
   const navigate = useNavigate();
   const { toast } = useToast();
   const [files, setFiles] = useState<File[]>([]);

@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 import { Bar, Line, Pie, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -38,6 +39,7 @@ ChartJS.register(
 );
 
 const ChartGenerator = () => {
+  useToolTracking("Chart Generator");
   const navigate = useNavigate();
   const { toast } = useToast();
   

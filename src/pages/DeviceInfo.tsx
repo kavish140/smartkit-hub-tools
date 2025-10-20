@@ -6,8 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToolTracking } from "@/hooks/useToolTracking";
 
 const DeviceInfo = () => {
+  useToolTracking("Device Info");
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deviceInfo, setDeviceInfo] = useState({
