@@ -2,10 +2,27 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter, ChevronLeft, ChevronRight, TrendingUp, Activity } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { 
+  LineChart, 
+  Line, 
+  BarChart, 
+  Bar, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer,
+  Area,
+  AreaChart
+} from 'recharts';
 
 const ADMIN_PASSWORD = "changeme123"; // Change this to a strong password!
 const VISITS_PER_PAGE = 5;
@@ -32,6 +49,17 @@ interface LocationStat {
   count: number;
 }
 
+interface DailyVisit {
+  date: string;
+  visits: number;
+  uniqueVisitors: number;
+}
+
+interface BrowserStat {
+  name: string;
+  value: number;
+}
+
 interface Stats {
   totalVisitors: number;
   uniqueVisitors: number;
@@ -39,6 +67,9 @@ interface Stats {
   devices: DeviceStat[];
   locations: LocationStat[];
   recentVisits: Visit[];
+  dailyVisits: DailyVisit[];
+  browsers: BrowserStat[];
+  botPercentage: number;
 }
 
 export default function Admin() {
@@ -54,6 +85,9 @@ export default function Admin() {
     devices: [],
     locations: [],
     recentVisits: [],
+    dailyVisits: [],
+    browsers: [],
+    botPercentage: 0,
   });
   const [loading, setLoading] = useState(false);
 
@@ -104,6 +138,46 @@ export default function Admin() {
           .sort((a, b) => b.count - a.count)
           .slice(0, 5); // Top 5 countries
 
+        // Browser breakdown
+        const browserCounts: { [key: string]: number } = {};
+        visits.forEach(v => {
+          browserCounts[v.browser || 'Unknown'] = (browserCounts[v.browser || 'Unknown'] || 0) + 1;
+        });
+        const browsers = Object.entries(browserCounts)
+          .map(([name, value]) => ({ name, value }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 5); // Top 5 browsers
+
+        // Daily visits for last 7 days
+        const dailyVisitsMap: { [key: string]: { visits: Set<string>, total: number } } = {};
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          return date.toISOString().split('T')[0];
+        }).reverse();
+
+        last7Days.forEach(date => {
+          dailyVisitsMap[date] = { visits: new Set(), total: 0 };
+        });
+
+        visits.forEach(v => {
+          const date = new Date(v.timestamp).toISOString().split('T')[0];
+          if (dailyVisitsMap[date]) {
+            dailyVisitsMap[date].total += 1;
+            if (v.ip) dailyVisitsMap[date].visits.add(v.ip);
+          }
+        });
+
+        const dailyVisits = last7Days.map(date => ({
+          date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          visits: dailyVisitsMap[date].total,
+          uniqueVisitors: dailyVisitsMap[date].visits.size,
+        }));
+
+        // Bot percentage
+        const botCount = visits.filter(v => v.is_bot).length;
+        const botPercentage = totalVisitors > 0 ? Math.round((botCount / totalVisitors) * 100) : 0;
+
         setStats({
           totalVisitors,
           uniqueVisitors: uniqueIPs,
@@ -111,6 +185,9 @@ export default function Admin() {
           devices,
           locations,
           recentVisits: visits.slice(0, 10), // Latest 10 visits
+          dailyVisits,
+          browsers,
+          botPercentage,
         });
       }
     } catch (error) {
@@ -222,7 +299,7 @@ export default function Admin() {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
@@ -236,7 +313,7 @@ export default function Admin() {
                   <p className="text-5xl font-bold mb-2">{stats.totalVisitors}</p>
                   <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-1 w-fit">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
-                    <p className="text-sm">{stats.uniqueVisitors} unique visitors</p>
+                    <p className="text-sm">{stats.uniqueVisitors} unique</p>
                   </div>
                 </div>
                 <div className="w-20 h-20 bg-white/10 rounded-full -mr-4 -mt-4"></div>
@@ -261,65 +338,169 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-orange-500 to-red-500 text-white overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
+                      <Activity className="h-5 w-5 text-white" />
+                    </div>
+                    <p className="text-sm font-medium opacity-90">Bot Traffic</p>
+                  </div>
+                  <p className="text-5xl font-bold mb-2">{stats.botPercentage}%</p>
+                  <p className="text-sm opacity-90">Automated visitors</p>
+                </div>
+                <div className="w-20 h-20 bg-white/10 rounded-full -mr-4 -mt-4"></div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Devices and Locations Grid */}
+        {/* Visitor Trend Chart */}
+        <Card className="mb-8 border-2 border-purple-100 shadow-lg bg-white">
+          <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50">
+            <CardTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-white" />
+              </div>
+              Visitor Trends (Last 7 Days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={stats.dailyVisits}>
+                <defs>
+                  <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorUnique" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ec4899" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#ec4899" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="date" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                  }} 
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Area type="monotone" dataKey="visits" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorVisits)" name="Total Visits" />
+                <Area type="monotone" dataKey="uniqueVisitors" stroke="#ec4899" fillOpacity={1} fill="url(#colorUnique)" name="Unique Visitors" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Browser & Device Analytics */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Browser Pie Chart */}
+          <Card className="border-2 border-blue-100 shadow-lg bg-white">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <Globe className="h-4 w-4 text-white" />
+                </div>
+                Browser Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={stats.browsers}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {stats.browsers.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'][index % 5]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Device Bar Chart */}
           <Card className="border-2 border-green-100 shadow-lg bg-white">
             <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
               <CardTitle className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                   <Smartphone className="h-4 w-4 text-white" />
                 </div>
-                <span>Devices</span>
+                Device Breakdown
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              {stats.devices.length > 0 ? (
-                <ul className="space-y-3">
-                  {stats.devices.map(device => (
-                    <li key={device.type} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:shadow-md transition-shadow">
-                      <span className="font-medium text-gray-700">{device.type}</span>
-                      <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{device.count}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-center text-muted-foreground py-4">No device data yet</p>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card className="border-2 border-orange-100 shadow-lg bg-white">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
-              <CardTitle className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
-                  <Globe className="h-4 w-4 text-white" />
-                </div>
-                <span>Top Locations</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              {stats.locations.length > 0 ? (
-                <ul className="space-y-3">
-                  {stats.locations.map((loc, index) => (
-                    <li key={loc.country} className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {index + 1}
-                        </span>
-                        <span className="font-medium text-gray-700">{loc.country}</span>
-                      </div>
-                      <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">{loc.count}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-center text-muted-foreground py-4">No location data yet</p>
-              )}
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={stats.devices}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="type" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '2px solid #e5e7eb', 
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }} 
+                  />
+                  <Bar dataKey="count" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#059669" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
+
+        {/* Top Locations */}
+        <Card className="mb-8 border-2 border-orange-100 shadow-lg bg-white">
+          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
+            <CardTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                <Globe className="h-4 w-4 text-white" />
+              </div>
+              <span>Top Locations</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {stats.locations.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {stats.locations.map((loc, index) => (
+                  <div key={loc.country} className="text-center p-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl hover:shadow-md transition-shadow border-2 border-orange-100">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                      {index + 1}
+                    </div>
+                    <p className="font-semibold text-gray-700 mb-1">{loc.country}</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">{loc.count}</p>
+                    <p className="text-xs text-gray-500 mt-1">visits</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-4">No location data yet</p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Recent Visits Section */}
         <Card className="border-2 border-indigo-100 shadow-xl bg-white">
