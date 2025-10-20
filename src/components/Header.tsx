@@ -2,6 +2,11 @@ import { Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
+  const scrollToTools = () => {
+    const toolsSection = document.getElementById('tools');
+    toolsSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -27,7 +32,7 @@ const Header = () => {
             </a>
           </nav>
 
-          <Button variant="default" className="bg-gradient-primary border-0">
+          <Button variant="default" className="bg-gradient-primary border-0" onClick={scrollToTools}>
             Get Started
           </Button>
         </div>

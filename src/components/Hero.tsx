@@ -2,6 +2,16 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
+  const scrollToTools = () => {
+    const toolsSection = document.getElementById('tools');
+    toolsSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById('about');
+    aboutSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section className="relative overflow-hidden bg-gradient-subtle py-20 md:py-32">
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -27,10 +37,10 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-primary border-0 shadow-glow">
+            <Button size="lg" className="bg-gradient-primary border-0 shadow-glow" onClick={scrollToTools}>
               Explore Tools
             </Button>
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" onClick={scrollToAbout}>
               Learn More
             </Button>
           </div>
