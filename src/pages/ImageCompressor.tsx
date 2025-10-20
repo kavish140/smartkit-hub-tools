@@ -113,7 +113,23 @@ const ImageCompressor = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Upload Image", description: "Click to browse or drag & drop your image file (JPG, PNG, WebP supported)." },
+              { title: "Adjust Quality", description: "Use the slider to set compression level. Lower quality = smaller file size." },
+              { title: "Preview Result", description: "See side-by-side comparison of original and compressed images." },
+              { title: "Download", description: "Click Download to save the compressed image with reduced file size." }
+            ]}
+            tips={[
+              { text: "70-80% quality usually gives best size/quality balance" },
+              { text: "WebP format offers better compression than JPG" },
+              { text: "Perfect for optimizing images for web and mobile" },
+              { text: "File size reduction shown in real-time" }
+            ]}
+          />
+
+          <Card className="max-w-4xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Image Compressor</CardTitle>
               <CardDescription>Reduce image file sizes without quality loss</CardDescription>

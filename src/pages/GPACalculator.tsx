@@ -103,7 +103,23 @@ const GPACalculator = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Select GPA Scale", description: "Choose between 4.0 scale (standard) or 5.0 scale (weighted for honors/AP courses)." },
+              { title: "Add Courses", description: "Click 'Add Course' to enter your course name, letter grade, and credit hours." },
+              { title: "Enter Grades", description: "Select grades from A+ to F for each course. Credits typically range from 1-4." },
+              { title: "Calculate GPA", description: "Click Calculate to see your GPA with color-coded results and total credits earned." }
+            ]}
+            tips={[
+              { text: "GPA 3.5+ is excellent (green), 3.0+ is good (blue)" },
+              { text: "Use 5.0 scale if your school weights honors/AP classes" },
+              { text: "Most courses are 3-4 credits, labs are often 1-2" },
+              { text: "Track semester and cumulative GPA separately" }
+            ]}
+          />
+
+          <Card className="max-w-4xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">GPA Calculator</CardTitle>
               <CardDescription>Calculate your GPA and track academic performance</CardDescription>

@@ -1,0 +1,205 @@
+=== HowToUse Templates for Remaining 28 Tools ===
+
+This file contains the HowToUse JSX components to be inserted into each tool file.
+Insert location: After the "Back to Tools" Button, before the main Card.
+
+---
+JSONFormatter.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Paste JSON", description: "Copy and paste your JSON data into the left input area." },
+              { title: "Format or Validate", description: "Click Format to beautify or Minify to compress. The tool automatically validates your JSON." },
+              { title: "View Results", description: "See formatted JSON on the right with syntax highlighting and validation status." },
+              { title: "Copy Output", description: "Use the copy button to copy the formatted or minified JSON to your clipboard." }
+            ]}
+            tips={[
+              { text: "Invalid JSON will show error messages with line numbers" },
+              { text: "Formatting makes JSON human-readable with proper indentation" },
+              { text: "Minifying removes whitespace for smaller file sizes" },
+              { text: "Great for debugging API responses and configuration files" }
+            ]}
+          />
+
+---
+Base64Encoder.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Mode", description: "Select Encode to convert text to Base64, or Decode to convert Base64 back to text." },
+              { title: "Enter Text", description: "Type or paste your text in the input area." },
+              { title: "Instant Conversion", description: "The conversion happens automatically as you type." },
+              { title: "Copy Result", description: "Click the copy button to copy the encoded or decoded text." }
+            ]}
+            tips={[
+              { text: "Base64 is commonly used for encoding binary data in text format" },
+              { text: "Perfect for embedding images in HTML/CSS or API requests" },
+              { text: "Decoding invalid Base64 will show an error message" },
+              { text: "Base64 increases data size by approximately 33%" }
+            ]}
+          />
+
+---
+RGBtoHEX.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Conversion Type", description: "Select RGB to HEX or HEX to RGB conversion mode." },
+              { title: "Enter Values", description: "Input RGB values (0-255) or HEX code (#RRGGBB)." },
+              { title: "See Live Preview", description: "View the color preview and converted values in real-time." },
+              { title: "Copy Format", description: "Copy the result in your preferred format (HEX, RGB, HSL)." }
+            ]}
+            tips={[
+              { text: "HEX codes start with # followed by 6 hexadecimal digits" },
+              { text: "RGB values range from 0 to 255 for each color channel" },
+              { text: "HSL format is great for adjusting lightness and saturation" },
+              { text: "Use the color preview to verify your conversion" }
+            ]}
+          />
+
+---
+UUIDGenerator.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Select Version", description: "Choose UUID v4 (random) or v1 (timestamp-based) format." },
+              { title: "Set Quantity", description: "Choose how many UUIDs to generate (1-100)." },
+              { title: "Generate", description: "Click Generate to create unique identifiers instantly." },
+              { title: "Copy UUIDs", description: "Copy individual UUIDs or all at once to your clipboard." }
+            ]}
+            tips={[
+              { text: "UUID v4 is recommended for most use cases (completely random)" },
+              { text: "UUID v1 includes timestamp information" },
+              { text: "UUIDs are globally unique with extremely low collision probability" },
+              { text: "Perfect for database primary keys, session IDs, and unique identifiers" }
+            ]}
+          />
+
+---
+EmailValidator.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Enter Email", description: "Type or paste an email address in the input field." },
+              { title: "Instant Validation", description: "The tool validates format, syntax, and checks for common mistakes." },
+              { title: "View Results", description: "See validation status with detailed checks (format, domain, syntax)." },
+              { title: "Verify Multiple", description: "Test multiple email addresses to ensure they're valid before sending." }
+            ]}
+            tips={[
+              { text: "Checks email format according to RFC 5322 standards" },
+              { text: "Validates domain format and common TLDs" },
+              { text: "Does not verify if the email account actually exists" },
+              { text: "Great for form validation and data cleaning" }
+            ]}
+          />
+
+---
+MarkdownConverter.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Write Markdown", description: "Type or paste your Markdown syntax in the editor on the left." },
+              { title: "See Live Preview", description: "View real-time HTML preview on the right as you type." },
+              { title: "Use Templates", description: "Start with pre-made templates for docs, blogs, or README files." },
+              { title: "Download HTML", description: "Export your converted HTML for use in websites or documentation." }
+            ]}
+            tips={[
+              { text: "Supports headers, bold, italic, lists, links, and code blocks" },
+              { text: "Use ``` for code blocks with syntax highlighting" },
+              { text: "Templates provide starting structures for common documents" },
+              { text: "Perfect for creating documentation and blog posts" }
+            ]}
+          />
+
+---
+GradientGenerator.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Gradient Type", description: "Select Linear, Radial, or Conic gradient style." },
+              { title: "Add Color Stops", description: "Click + to add colors and adjust their positions on the gradient." },
+              { title: "Adjust Angle/Position", description: "Set gradient direction for linear or center point for radial gradients." },
+              { title: "Copy CSS Code", description: "Get CSS, SCSS, or Tailwind code to use in your projects." }
+            ]}
+            tips={[
+              { text: "Use presets for quick inspiration and common gradient styles" },
+              { text: "Linear gradients are great for backgrounds and headers" },
+              { text: "Radial gradients create spotlight and circular effects" },
+              { text: "Conic gradients perfect for color wheels and circular progress" }
+            ]}
+          />
+
+---
+CronGenerator.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Build Visually", description: "Use dropdowns to select minutes, hours, days, months, and weekdays." },
+              { title: "Or Use Presets", description: "Choose from 10+ common schedules like daily, weekly, or monthly." },
+              { title: "View Expression", description: "See the generated cron expression and human-readable description." },
+              { title: "Copy & Use", description: "Copy the cron expression for use in schedulers, scripts, or cron jobs." }
+            ]}
+            tips={[
+              { text: "Cron format: minute hour day month weekday" },
+              { text: "* means 'every' (e.g., * * * * * = every minute)" },
+              { text: "Use presets for common schedules to save time" },
+              { text: "Test your cron expression before deploying to production" }
+            ]}
+          />
+
+---
+LoremIpsumGenerator.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Type", description: "Select Paragraphs, Sentences, or Words format." },
+              { title: "Set Quantity", description: "Use the slider to choose how much placeholder text to generate." },
+              { title: "Use Presets", description: "Quick options for small, medium, or large text blocks." },
+              { title: "Copy Text", description: "Copy generated lorem ipsum for mockups, designs, or testing." }
+            ]}
+            tips={[
+              { text: "Lorem ipsum is standard placeholder text since the 1500s" },
+              { text: "Perfect for design mockups and content placeholders" },
+              { text: "Word count helps estimate content length for layouts" },
+              { text: "Use paragraphs for body text, sentences for headlines" }
+            ]}
+          />
+
+---
+RegexTester.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Enter Regex Pattern", description: "Type your regular expression in the pattern field." },
+              { title: "Add Test Text", description: "Paste or type text to test your regex against." },
+              { title: "See Live Matches", description: "Matches highlight in real-time with capture groups shown separately." },
+              { title: "Use Common Patterns", description: "Load pre-made patterns for emails, URLs, phone numbers, and more." }
+            ]}
+            tips={[
+              { text: "Use flags: i (case insensitive), g (global), m (multiline)" },
+              { text: "Common patterns library saves time for validation tasks" },
+              { text: "Capture groups shown separately for parsing data" },
+              { text: "Great for form validation and text processing" }
+            ]}
+          />
+
+---
+CaseConverter.tsx:
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Enter Text", description: "Type or paste your text into the input area." },
+              { title: "Choose Conversion", description: "Click any of the 11 conversion buttons to transform your text." },
+              { title: "Preview Result", description: "See the converted text instantly in the output area." },
+              { title: "Copy Format", description: "One-click copy to use the converted text anywhere." }
+            ]}
+            tips={[
+              { text: "camelCase and PascalCase common for programming" },
+              { text: "snake_case popular in Python and databases" },
+              { text: "kebab-case used in URLs and CSS classes" },
+              { text: "SCREAMING_SNAKE_CASE for constants" }
+            ]}
+          />
+
+[Continue with remaining 17 tools...]
+

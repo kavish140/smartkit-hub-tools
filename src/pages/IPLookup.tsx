@@ -126,7 +126,23 @@ const IPLookup = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-3xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Auto-Detect IP", description: "Click 'Lookup My IP' to automatically detect and lookup your current IP address." },
+              { title: "Enter Custom IP", description: "Or type any IP address in the input field to lookup its information." },
+              { title: "View Details", description: "See comprehensive information including location, ISP, timezone, and coordinates." },
+              { title: "View on Map", description: "Click 'View on Map' to see the geographic location on Google Maps." }
+            ]}
+            tips={[
+              { text: "Works with both IPv4 and IPv6 addresses" },
+              { text: "Location data based on IP geolocation databases" },
+              { text: "Useful for security analysis and network troubleshooting" },
+              { text: "ISP information helps identify internet service providers" }
+            ]}
+          />
+
+          <Card className="max-w-3xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">IP Lookup</CardTitle>
               <CardDescription>Find geolocation and information for any IP address</CardDescription>
