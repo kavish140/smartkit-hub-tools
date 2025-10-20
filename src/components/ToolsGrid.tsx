@@ -34,6 +34,9 @@ import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
 import { useState } from "react";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const tools = [
   {
@@ -251,6 +254,11 @@ const tools = [
 const ToolsGrid = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  
+  // Initialize keyboard shortcuts
+  useKeyboardShortcuts();
 
   const handleToolClick = (path?: string) => {
     if (path) {
@@ -258,11 +266,18 @@ const ToolsGrid = () => {
     }
   };
 
-  const filteredTools = tools.filter(tool => 
-    tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Get unique categories
+  const categories = ["all", ...Array.from(new Set(tools.map(tool => tool.category)))];
+
+  const filteredTools = tools.filter(tool => {
+    const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === "all" || tool.category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <section id="tools" className="py-20 bg-background">
@@ -276,20 +291,35 @@ const ToolsGrid = () => {
           </p>
         </div>
 
-        <div className="max-w-xl mx-auto mb-12 animate-fade-in">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search tools by name, description, or category..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 bg-card border-primary/20 focus:border-primary shadow-elegant"
-            />
+        <div className="max-w-4xl mx-auto mb-12 animate-fade-in">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search tools by name, description, or category..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 bg-card border-primary/20 focus:border-primary shadow-elegant"
+              />
+            </div>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full md:w-[200px] h-12 bg-card border-primary/20">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category === "all" ? "All Categories" : category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          {searchQuery && (
-            <p className="text-sm text-muted-foreground mt-2">
+          {(searchQuery || selectedCategory !== "all") && (
+            <p className="text-sm text-muted-foreground">
               Found {filteredTools.length} tool{filteredTools.length !== 1 ? 's' : ''}
+              {selectedCategory !== "all" && ` in ${selectedCategory}`}
             </p>
           )}
         </div>
@@ -297,7 +327,12 @@ const ToolsGrid = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredTools.map((tool, index) => (
             <div key={tool.title} className="animate-scale-in" style={{ animationDelay: `${index * 0.05}s` }}>
-              <ToolCard {...tool} onClick={() => handleToolClick(tool.path)} />
+              <ToolCard 
+                {...tool} 
+                onClick={() => handleToolClick(tool.path)}
+                isFavorite={isFavorite(tool.title)}
+                onToggleFavorite={() => toggleFavorite(tool.title)}
+              />
             </div>
           ))}
         </div>

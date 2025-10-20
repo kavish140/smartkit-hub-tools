@@ -1,5 +1,6 @@
 import { Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "./ThemeToggle";
 
 const Header = () => {
   const scrollToTools = () => {
@@ -32,9 +33,12 @@ const Header = () => {
             </a>
           </nav>
 
-          <Button variant="default" className="bg-gradient-primary border-0" onClick={scrollToTools}>
-            Get Started
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button variant="default" className="bg-gradient-primary border-0" onClick={scrollToTools}>
+              Get Started
+            </Button>
+          </div>
         </div>
       </div>
     </header>
