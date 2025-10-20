@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter, ChevronLeft, ChevronRight, TrendingUp, Activity } from "lucide-react";
+import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter, ChevronLeft, ChevronRight, TrendingUp, Activity, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -24,8 +24,9 @@ import {
   AreaChart
 } from 'recharts';
 
-const ADMIN_PASSWORD = "changeme123"; // Change this to a strong password!
+const ADMIN_PASSWORD = "K@vish49101284";
 const VISITS_PER_PAGE = 5;
+const REMEMBER_ME_KEY = "admin_remember_me";
 
 interface Visit {
   id: string;
@@ -75,6 +76,7 @@ interface Stats {
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [showBotsOnly, setShowBotsOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,6 +92,14 @@ export default function Admin() {
     botPercentage: 0,
   });
   const [loading, setLoading] = useState(false);
+
+  // Check if user is already authenticated via localStorage
+  useEffect(() => {
+    const remembered = localStorage.getItem(REMEMBER_ME_KEY);
+    if (remembered === "true") {
+      setAuthenticated(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (authenticated) {
@@ -202,9 +212,22 @@ export default function Admin() {
     if (password === ADMIN_PASSWORD) {
       setAuthenticated(true);
       setError("");
+      
+      // Save to localStorage if "Remember Me" is checked
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_ME_KEY, "true");
+      } else {
+        localStorage.removeItem(REMEMBER_ME_KEY);
+      }
     } else {
       setError("Incorrect password");
     }
+  };
+
+  const handleLogout = () => {
+    setAuthenticated(false);
+    setPassword("");
+    localStorage.removeItem(REMEMBER_ME_KEY);
   };
 
   if (!authenticated) {
@@ -239,6 +262,24 @@ export default function Admin() {
                   </div>
                 )}
               </div>
+              
+              {/* Remember Me Checkbox */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2 cursor-pointer"
+                />
+                <Label 
+                  htmlFor="remember-me" 
+                  className="text-sm font-medium text-gray-700 cursor-pointer select-none"
+                >
+                  Remember me on this device
+                </Label>
+              </div>
+
               <Button type="submit" className="w-full h-12 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg">
                 Access Dashboard
               </Button>
@@ -255,8 +296,8 @@ export default function Admin() {
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header Section */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center gap-3 mb-4 bg-white rounded-2xl shadow-lg px-6 py-3">
+        <div className="flex items-center justify-between mb-10">
+          <div className="inline-flex items-center justify-center gap-3 bg-white rounded-2xl shadow-lg px-6 py-3">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
@@ -267,6 +308,16 @@ export default function Admin() {
               <p className="text-sm text-muted-foreground">Real-time insights</p>
             </div>
           </div>
+          
+          {/* Logout Button */}
+          <Button 
+            onClick={handleLogout}
+            variant="outline"
+            className="bg-white hover:bg-red-50 border-2 border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 shadow-md"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
         </div>
 
         {/* Bot Filter Toggle */}
