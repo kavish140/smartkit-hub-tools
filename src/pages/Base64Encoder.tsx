@@ -19,37 +19,45 @@ const Base64Encoder = () => {
   const [output, setOutput] = useState("");
   const [mode, setMode] = useState<"encode" | "decode">("encode");
 
-  const encodeBase64 = () => {
+  const encodeBase64 = (text: string) => {
     try {
-      const encoded = btoa(unescape(encodeURIComponent(input)));
+      const encoded = btoa(unescape(encodeURIComponent(text)));
       setOutput(encoded);
     } catch (error) {
-      toast({
-        title: "Encoding Error",
-        description: "Failed to encode text",
-        variant: "destructive",
-      });
+      setOutput("");
     }
   };
 
-  const decodeBase64 = () => {
+  const decodeBase64 = (text: string) => {
     try {
-      const decoded = decodeURIComponent(escape(atob(input)));
+      const decoded = decodeURIComponent(escape(atob(text)));
       setOutput(decoded);
     } catch (error) {
-      toast({
-        title: "Decoding Error",
-        description: "Invalid Base64 string",
-        variant: "destructive",
-      });
+      setOutput("");
     }
   };
 
-  const handleConvert = () => {
-    if (mode === "encode") {
-      encodeBase64();
+  const handleInputChange = (value: string) => {
+    setInput(value);
+    if (value.trim()) {
+      if (mode === "encode") {
+        encodeBase64(value);
+      } else {
+        decodeBase64(value);
+      }
     } else {
-      decodeBase64();
+      setOutput("");
+    }
+  };
+
+  const handleModeChange = (newMode: "encode" | "decode") => {
+    setMode(newMode);
+    if (input.trim()) {
+      if (newMode === "encode") {
+        encodeBase64(input);
+      } else {
+        decodeBase64(input);
+      }
     }
   };
 
@@ -68,9 +76,18 @@ const Base64Encoder = () => {
   };
 
   const swapInputOutput = () => {
+    const temp = input;
     setInput(output);
-    setOutput(input);
-    setMode(mode === "encode" ? "decode" : "encode");
+    setOutput(temp);
+    const newMode = mode === "encode" ? "decode" : "encode";
+    setMode(newMode);
+    if (output.trim()) {
+      if (newMode === "encode") {
+        encodeBase64(output);
+      } else {
+        decodeBase64(output);
+      }
+    }
   };
 
   return (
@@ -109,7 +126,7 @@ const Base64Encoder = () => {
               <CardDescription>Encode and decode Base64 strings easily</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Tabs value={mode} onValueChange={(v) => setMode(v as "encode" | "decode")}>
+              <Tabs value={mode} onValueChange={(v) => handleModeChange(v as "encode" | "decode")}>
                 <TabsList className="grid grid-cols-2 w-full">
                   <TabsTrigger value="encode">Encode</TabsTrigger>
                   <TabsTrigger value="decode">Decode</TabsTrigger>
@@ -124,7 +141,7 @@ const Base64Encoder = () => {
                   <Textarea
                     placeholder={mode === "encode" ? "Enter text to encode..." : "Enter Base64 string to decode..."}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => handleInputChange(e.target.value)}
                     className="min-h-[200px] font-mono"
                   />
                 </div>
@@ -152,14 +169,7 @@ const Base64Encoder = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <Button 
-                  className="bg-gradient-primary border-0" 
-                  onClick={handleConvert}
-                  disabled={!input}
-                >
-                  {mode === "encode" ? "Encode" : "Decode"}
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Button 
                   variant="outline"
                   onClick={swapInputOutput}

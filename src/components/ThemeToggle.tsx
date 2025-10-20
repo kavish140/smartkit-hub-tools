@@ -12,14 +12,27 @@ const ThemeToggle = () => {
     const initialTheme = savedTheme || systemTheme;
     
     setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
+    applyTheme(initialTheme);
   }, []);
+
+  const applyTheme = (newTheme: "light" | "dark") => {
+    const root = document.documentElement;
+    
+    // Remove both classes first
+    root.classList.remove("light", "dark");
+    
+    // Add the correct class
+    root.classList.add(newTheme);
+    
+    // Also update the data attribute for more specific targeting
+    root.setAttribute("data-theme", newTheme);
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    applyTheme(newTheme);
   };
 
   return (
