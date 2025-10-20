@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, BarChart3, Globe, Smartphone, Calendar, Users } from "lucide-react";
+import { Eye, BarChart3, Globe, Smartphone, Calendar, Users, Filter } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const ADMIN_PASSWORD = "changeme123"; // Change this to a strong password!
 
@@ -16,6 +18,7 @@ interface Visit {
   city: string | null;
   ip: string | null;
   user_agent: string | null;
+  is_bot: boolean | null;
 }
 
 interface DeviceStat {
@@ -41,6 +44,7 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState("");
+  const [showBotsOnly, setShowBotsOnly] = useState(false);
   const [stats, setStats] = useState<Stats>({
     totalVisitors: 0,
     uniqueVisitors: 0,
@@ -55,16 +59,23 @@ export default function Admin() {
     if (authenticated) {
       fetchStats();
     }
-  }, [authenticated]);
+  }, [authenticated, showBotsOnly]);
 
   const fetchStats = async () => {
     setLoading(true);
     try {
-      // Fetch all visits
-      const { data: visits, error } = await supabase
+      // Fetch all visits (filter bots if toggle is off)
+      let query = supabase
         .from('visits')
         .select('*')
         .order('timestamp', { ascending: false });
+      
+      // Filter out bots if showBotsOnly is false
+      if (!showBotsOnly) {
+        query = query.or('is_bot.is.null,is_bot.eq.false');
+      }
+
+      const { data: visits, error } = await query;
 
       if (error) throw error;
 
@@ -148,7 +159,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BarChart3 className="h-10 w-10 text-purple-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -156,9 +167,33 @@ export default function Admin() {
             </h1>
           </div>
           <p className="text-muted-foreground text-lg">
-            View user stats, device info, locations, and more (connect to analytics API for real data)
+            Real-time visitor statistics and analytics
           </p>
         </div>
+
+        {/* Bot Filter Toggle */}
+        <Card className="mb-6">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="h-5 w-5 text-blue-600" />
+                <Label htmlFor="bot-filter" className="text-base font-semibold cursor-pointer">
+                  Show All Visits (including bots)
+                </Label>
+              </div>
+              <Switch
+                id="bot-filter"
+                checked={showBotsOnly}
+                onCheckedChange={setShowBotsOnly}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {showBotsOnly 
+                ? "Showing all traffic including search engine crawlers and bots" 
+                : "Showing real human visitors only (bots filtered out)"}
+            </p>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
@@ -241,7 +276,12 @@ export default function Admin() {
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {stats.recentVisits.map((visit, index) => (
                   <div key={index} className="border-b pb-2 text-sm">
-                    <p><strong>Time:</strong> {new Date(visit.timestamp).toLocaleString()}</p>
+                    <div className="flex items-center justify-between mb-1">
+                      <p><strong>Time:</strong> {new Date(visit.timestamp).toLocaleString()}</p>
+                      {visit.is_bot && (
+                        <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">🤖 Bot</span>
+                      )}
+                    </div>
                     <p><strong>Device:</strong> {visit.device} | <strong>Browser:</strong> {visit.browser}</p>
                     <p><strong>Location:</strong> {visit.city ? `${visit.city}, ` : ''}{visit.country || 'Unknown'}</p>
                     <p><strong>IP:</strong> {visit.ip || 'N/A'}</p>

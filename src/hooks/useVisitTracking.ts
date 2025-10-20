@@ -8,6 +8,7 @@ interface VisitData {
   city: string | null;
   ip: string | null;
   user_agent: string;
+  is_bot: boolean;
 }
 
 export const useVisitTracking = () => {
@@ -16,6 +17,15 @@ export const useVisitTracking = () => {
       try {
         // Get device info
         const userAgent = navigator.userAgent;
+        
+        // Detect if it's a bot
+        const botPatterns = [
+          /bot/i, /crawler/i, /spider/i, /crawling/i, /slurp/i,
+          /mediapartners/i, /apis-google/i, /headless/i, /phantom/i,
+          /lighthouse/i, /gtmetrix/i, /pingdom/i, /uptime/i
+        ];
+        const isBot = botPatterns.some(pattern => pattern.test(userAgent));
+        
         let device = 'Desktop';
         if (/mobile/i.test(userAgent)) {
           device = 'Mobile';
@@ -56,6 +66,7 @@ export const useVisitTracking = () => {
           city,
           ip,
           user_agent: userAgent,
+          is_bot: isBot,
         };
 
         const { error } = await supabase.from('visits').insert(visitData);
