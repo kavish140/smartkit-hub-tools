@@ -36,6 +36,7 @@ import FileConverter from "./pages/FileConverter";
 import AudioConverter from "./pages/AudioConverter";
 import IsomerDiagrams from "./pages/IsomerDiagrams";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,6 +85,7 @@ const App = () => (
           <Route path="/audio-converter" element={<AudioConverter />} />
           <Route path="/isomer-diagrams" element={<IsomerDiagrams />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
