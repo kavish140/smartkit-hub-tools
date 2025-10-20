@@ -143,7 +143,23 @@ const CurrencyConverter = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-3xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Enter Amount", description: "Type the amount you want to convert in the 'From' field." },
+              { title: "Select Currencies", description: "Choose source and target currencies from the dropdown menus." },
+              { title: "View Result", description: "See instant conversion with live exchange rates." },
+              { title: "Swap Currencies", description: "Use the swap button to quickly reverse the conversion direction." }
+            ]}
+            tips={[
+              { text: "Exchange rates update in real-time" },
+              { text: "Supports major world currencies (USD, EUR, GBP, JPY, etc.)" },
+              { text: "Perfect for travel planning and international transactions" },
+              { text: "Historical rate information helps track currency trends" }
+            ]}
+          />
+
+          <Card className="max-w-3xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Currency Converter</CardTitle>
               <CardDescription>Convert between world currencies with live rates</CardDescription>

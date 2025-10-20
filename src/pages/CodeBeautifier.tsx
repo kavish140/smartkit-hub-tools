@@ -177,7 +177,23 @@ const CodeBeautifier = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-6xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Select Language", description: "Choose HTML, CSS, or JavaScript tab based on your code type." },
+              { title: "Paste Code", description: "Paste your minified or messy code into the input area." },
+              { title: "Format Code", description: "Click the Format button to beautify your code with proper indentation." },
+              { title: "Copy Result", description: "Use the copy button to copy the formatted code to your clipboard." }
+            ]}
+            tips={[
+              { text: "Proper indentation makes code easier to read and maintain" },
+              { text: "Works with minified production code" },
+              { text: "Great for debugging compressed code" },
+              { text: "Helps standardize code formatting across teams" }
+            ]}
+          />
+
+          <Card className="max-w-6xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Code Beautifier</CardTitle>
               <CardDescription>Format HTML, CSS, and JavaScript code</CardDescription>

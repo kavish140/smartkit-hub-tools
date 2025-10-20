@@ -169,7 +169,23 @@ const DeviceInfo = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-4xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "View Device Info", description: "Instantly see comprehensive information about your device, browser, and network." },
+              { title: "Copy Individual Values", description: "Click the copy icon next to any value to copy it to clipboard." },
+              { title: "Copy All Info", description: "Use the 'Copy All' button to copy all device information at once." },
+              { title: "Check Online Status", description: "Monitor your internet connection status in real-time." }
+            ]}
+            tips={[
+              { text: "User agent shows browser and operating system details" },
+              { text: "Screen resolution helps with responsive design testing" },
+              { text: "Useful for troubleshooting and technical support" },
+              { text: "All information is gathered client-side for privacy" }
+            ]}
+          />
+
+          <Card className="max-w-3xl mx-auto mt-6">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>

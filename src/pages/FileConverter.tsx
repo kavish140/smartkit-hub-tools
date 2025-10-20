@@ -537,7 +537,23 @@ const FileConverter = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-5xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Upload Files", description: "Drag & drop or click to select one or multiple files to convert." },
+              { title: "Choose Output Format", description: "Select your desired output format from the dropdown (images, documents, spreadsheets)." },
+              { title: "Start Conversion", description: "Click Convert to process your files. Progress bar shows conversion status." },
+              { title: "Download Results", description: "Converted files download automatically. Supports batch conversion!" }
+            ]}
+            tips={[
+              { text: "Supports images (JPG, PNG, WebP, GIF, BMP), documents (PDF, TXT, HTML, MD), and spreadsheets (CSV, Excel)" },
+              { text: "Batch processing saves time when converting multiple files" },
+              { text: "Files are processed locally in your browser for privacy" },
+              { text: "Image quality is preserved during conversion" }
+            ]}
+          />
+
+          <Card className="max-w-5xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Universal File Converter</CardTitle>
               <CardDescription>Convert images, documents, and spreadsheets - Batch processing supported</CardDescription>

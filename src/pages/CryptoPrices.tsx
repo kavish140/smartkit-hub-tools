@@ -111,7 +111,23 @@ const CryptoPrices = () => {
             Back to Tools
           </Button>
 
-          <Card className="max-w-6xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "View Live Prices", description: "See real-time cryptocurrency prices for major coins like Bitcoin, Ethereum, and more." },
+              { title: "Search Coins", description: "Use the search bar to find specific cryptocurrencies quickly." },
+              { title: "Refresh Data", description: "Click the refresh button to get the latest market prices and changes." },
+              { title: "Track Changes", description: "View 24-hour price changes with color-coded indicators (green = up, red = down)." }
+            ]}
+            tips={[
+              { text: "Prices update in real-time from cryptocurrency exchanges" },
+              { text: "Market cap shows the total value of all coins in circulation" },
+              { text: "24h change helps identify trending coins" },
+              { text: "Great for quick market overview and portfolio tracking" }
+            ]}
+          />
+
+          <Card className="max-w-6xl mx-auto mt-6">
             <CardHeader>
               <CardTitle className="text-3xl">Crypto Prices</CardTitle>
               <CardDescription>Track live cryptocurrency prices and market trends</CardDescription>

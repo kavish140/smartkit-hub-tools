@@ -198,7 +198,23 @@ const ChartGenerator = () => {
             Back to Tools
           </Button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+          {/* How to Use Guide */}
+          <HowToUse
+            steps={[
+              { title: "Choose Chart Type", description: "Select from Bar, Line, Pie, or Doughnut charts." },
+              { title: "Enter Data", description: "Add datasets with labels and values. Use + button to add more data points." },
+              { title: "Customize", description: "Set chart title, colors, and dataset labels for clarity." },
+              { title: "Export Chart", description: "Download as PNG image or copy the configuration for later use." }
+            ]}
+            tips={[
+              { text: "Bar charts are great for comparing values" },
+              { text: "Line charts show trends over time" },
+              { text: "Pie charts display proportions and percentages" },
+              { text: "Use clear labels for better data comprehension" }
+            ]}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto mt-6">
             {/* Chart Configuration */}
             <Card>
               <CardHeader>
