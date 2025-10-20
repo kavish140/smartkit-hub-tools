@@ -1,6 +1,8 @@
 import { Code2, Mail, Github, Twitter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
@@ -54,9 +56,12 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                <button 
+                  onClick={() => navigate("/privacy-policy")}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-left"
+                >
                   Privacy Policy
-                </a>
+                </button>
               </li>
               <li>
                 <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
