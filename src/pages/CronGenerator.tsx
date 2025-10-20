@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useToolTracking } from "@/hooks/useToolTracking";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HowToUse from "@/components/HowToUse";
 
 const CronGenerator = () => {
   useToolTracking("Cron Generator");
