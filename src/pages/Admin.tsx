@@ -130,25 +130,39 @@ export default function Admin() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-blue-600" />
-              Admin Login
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 p-6">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <Card className="w-full max-w-md shadow-2xl border-0 relative z-10">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <Eye className="h-8 w-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Admin Dashboard
             </CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">Enter password to access analytics</p>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <Input
-                type="password"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-              {error && <p className="text-red-600 text-sm">{error}</p>}
-              <Button type="submit" className="w-full bg-gradient-primary border-0">Login</Button>
+          <CardContent className="pt-6">
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Enter admin password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  className="h-12 text-lg border-2 focus:border-purple-500"
+                />
+                {error && (
+                  <div className="flex items-center gap-2 mt-2 text-red-600 text-sm bg-red-50 p-2 rounded">
+                    <span>⚠️</span>
+                    <span>{error}</span>
+                  </div>
+                )}
+              </div>
+              <Button type="submit" className="w-full h-12 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg">
+                Access Dashboard
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -157,116 +171,162 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <BarChart3 className="h-10 w-10 text-purple-600" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Admin Analytics Dashboard
-            </h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Header Section */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center gap-3 mb-4 bg-white rounded-2xl shadow-lg px-6 py-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
+              <BarChart3 className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Analytics Dashboard
+              </h1>
+              <p className="text-sm text-muted-foreground">Real-time insights</p>
+            </div>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Real-time visitor statistics and analytics
-          </p>
         </div>
 
         {/* Bot Filter Toggle */}
-        <Card className="mb-6">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Filter className="h-5 w-5 text-blue-600" />
-                <Label htmlFor="bot-filter" className="text-base font-semibold cursor-pointer">
-                  Show All Visits (including bots)
-                </Label>
+        <Card className="mb-8 border-2 border-purple-100 shadow-lg bg-white/80 backdrop-blur">
+          <CardContent className="py-5">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <Filter className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <Label htmlFor="bot-filter" className="text-base font-semibold cursor-pointer block">
+                    Show All Visits
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {showBotsOnly 
+                      ? "Including bots and crawlers" 
+                      : "Real human visitors only"}
+                  </p>
+                </div>
               </div>
               <Switch
                 id="bot-filter"
                 checked={showBotsOnly}
                 onCheckedChange={setShowBotsOnly}
+                className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-pink-600"
               />
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              {showBotsOnly 
-                ? "Showing all traffic including search engine crawlers and bots" 
-                : "Showing real human visitors only (bots filtered out)"}
-            </p>
           </CardContent>
         </Card>
 
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-600" />
-                Visitors
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{stats.totalVisitors}</p>
-              <p className="text-muted-foreground">Total Visitors</p>
-              <p className="text-lg mt-2">{stats.uniqueVisitors} unique</p>
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
+                      <Users className="h-5 w-5 text-white" />
+                    </div>
+                    <p className="text-sm font-medium opacity-90">Visitors</p>
+                  </div>
+                  <p className="text-5xl font-bold mb-2">{stats.totalVisitors}</p>
+                  <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-1 w-fit">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <p className="text-sm">{stats.uniqueVisitors} unique visitors</p>
+                  </div>
+                </div>
+                <div className="w-20 h-20 bg-white/10 rounded-full -mr-4 -mt-4"></div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-purple-600" />
-                Page Views
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{stats.pageViews}</p>
-              <p className="text-muted-foreground">Total Page Views</p>
+          
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
+                      <BarChart3 className="h-5 w-5 text-white" />
+                    </div>
+                    <p className="text-sm font-medium opacity-90">Page Views</p>
+                  </div>
+                  <p className="text-5xl font-bold mb-2">{stats.pageViews}</p>
+                  <p className="text-sm opacity-90">Total interactions</p>
+                </div>
+                <div className="w-20 h-20 bg-white/10 rounded-full -mr-4 -mt-4"></div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Devices and Locations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
+          <Card className="border-2 border-green-100 shadow-lg bg-white">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
               <CardTitle className="flex items-center gap-2">
-                <Smartphone className="h-5 w-5 text-green-600" />
-                Devices
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                  <Smartphone className="h-4 w-4 text-white" />
+                </div>
+                <span>Devices</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {stats.devices.map(device => (
-                  <li key={device.type} className="flex justify-between">
-                    <span>{device.type}</span>
-                    <span className="font-bold">{device.count}</span>
-                  </li>
-                ))}
-              </ul>
+            <CardContent className="pt-6">
+              {stats.devices.length > 0 ? (
+                <ul className="space-y-3">
+                  {stats.devices.map(device => (
+                    <li key={device.type} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:shadow-md transition-shadow">
+                      <span className="font-medium text-gray-700">{device.type}</span>
+                      <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{device.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center text-muted-foreground py-4">No device data yet</p>
+              )}
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
+          
+          <Card className="border-2 border-orange-100 shadow-lg bg-white">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
               <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-orange-600" />
-                Locations
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                  <Globe className="h-4 w-4 text-white" />
+                </div>
+                <span>Top Locations</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {stats.locations.map(loc => (
-                  <li key={loc.country} className="flex justify-between">
-                    <span>{loc.country}</span>
-                    <span className="font-bold">{loc.count}</span>
-                  </li>
-                ))}
-              </ul>
+            <CardContent className="pt-6">
+              {stats.locations.length > 0 ? (
+                <ul className="space-y-3">
+                  {stats.locations.map((loc, index) => (
+                    <li key={loc.country} className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {index + 1}
+                        </span>
+                        <span className="font-medium text-gray-700">{loc.country}</span>
+                      </div>
+                      <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">{loc.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center text-muted-foreground py-4">No location data yet</p>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
+        {/* Recent Visits Section */}
+        <Card className="border-2 border-indigo-100 shadow-xl bg-white">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-indigo-600" />
-              Recent Visits
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <Calendar className="h-4 w-4 text-white" />
+              </div>
+              <span>Recent Visits</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
