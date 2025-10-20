@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, BarChart3, Globe, Smartphone, Calendar, Users } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 const ADMIN_PASSWORD = "changeme123"; // Change this to a strong password!
 
@@ -10,6 +11,71 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState("");
+  const [stats, setStats] = useState({
+    totalVisitors: 0,
+    uniqueVisitors: 0,
+    pageViews: 0,
+    devices: [] as { type: string; count: number }[],
+    locations: [] as { country: string; count: number }[],
+    recentVisits: [] as any[],
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (authenticated) {
+      fetchStats();
+    }
+  }, [authenticated]);
+
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      // Fetch all visits
+      const { data: visits, error } = await supabase
+        .from('visits')
+        .select('*')
+        .order('timestamp', { ascending: false });
+
+      if (error) throw error;
+
+      if (visits) {
+        // Calculate stats
+        const totalVisitors = visits.length;
+        const uniqueIPs = new Set(visits.map(v => v.ip).filter(Boolean)).size;
+        
+        // Device breakdown
+        const deviceCounts: { [key: string]: number } = {};
+        visits.forEach(v => {
+          deviceCounts[v.device || 'Unknown'] = (deviceCounts[v.device || 'Unknown'] || 0) + 1;
+        });
+        const devices = Object.entries(deviceCounts).map(([type, count]) => ({ type, count }));
+
+        // Location breakdown
+        const locationCounts: { [key: string]: number } = {};
+        visits.forEach(v => {
+          const country = v.country || 'Unknown';
+          locationCounts[country] = (locationCounts[country] || 0) + 1;
+        });
+        const locations = Object.entries(locationCounts)
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5); // Top 5 countries
+
+        setStats({
+          totalVisitors,
+          uniqueVisitors: uniqueIPs,
+          pageViews: totalVisitors,
+          devices,
+          locations,
+          recentVisits: visits.slice(0, 10), // Latest 10 visits
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,24 +85,6 @@ export default function Admin() {
     } else {
       setError("Incorrect password");
     }
-  };
-
-  // Placeholder stats (replace with real analytics API integration)
-  const stats = {
-    totalVisitors: 0,
-    uniqueVisitors: 0,
-    pageViews: 0,
-    devices: [
-      { type: "Desktop", count: 0 },
-      { type: "Mobile", count: 0 },
-      { type: "Tablet", count: 0 },
-    ],
-    locations: [
-      { country: "India", count: 0 },
-      { country: "USA", count: 0 },
-      { country: "Other", count: 0 },
-    ],
-    recent: [],
   };
 
   if (!authenticated) {
@@ -157,7 +205,22 @@ export default function Admin() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Connect to analytics API to show recent visits by date, device, and location.</p>
+            {loading ? (
+              <p className="text-muted-foreground">Loading...</p>
+            ) : stats.recentVisits.length > 0 ? (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {stats.recentVisits.map((visit, index) => (
+                  <div key={index} className="border-b pb-2 text-sm">
+                    <p><strong>Time:</strong> {new Date(visit.timestamp).toLocaleString()}</p>
+                    <p><strong>Device:</strong> {visit.device} | <strong>Browser:</strong> {visit.browser}</p>
+                    <p><strong>Location:</strong> {visit.city ? `${visit.city}, ` : ''}{visit.country || 'Unknown'}</p>
+                    <p><strong>IP:</strong> {visit.ip || 'N/A'}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No visits recorded yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>
