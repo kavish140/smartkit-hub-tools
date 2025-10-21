@@ -52,7 +52,7 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .dark {
+  html.dark, body.dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
@@ -90,5 +90,9 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+  body.dark {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
