@@ -45,35 +45,29 @@ const WeatherForecast = () => {
     setLoading(true);
     try {
       // Step 1: Get coordinates from city name using geocoding API
-      // Use CORS proxy for geocoding API
+      // Use AllOrigins CORS proxy for geocoding API
       const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
-      const geocodeProxyUrl = `https://corsproxy.io/?${encodeURIComponent(geocodeUrl)}`;
+      const geocodeProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(geocodeUrl)}`;
       const geocodeResponse = await fetch(geocodeProxyUrl);
-      
       if (!geocodeResponse.ok) {
         throw new Error("Failed to find city");
       }
-      
-      const geocodeData = await geocodeResponse.json();
-      
+      const geocodeProxyData = await geocodeResponse.json();
+      const geocodeData = JSON.parse(geocodeProxyData.contents);
       if (!geocodeData.results || geocodeData.results.length === 0) {
         throw new Error("City not found");
       }
-      
       const location = geocodeData.results[0];
       const { latitude, longitude, name, country } = location;
-      
-      // Step 2: Get weather data using coordinates (Open-Meteo is free, no API key needed)
-      // Use CORS proxy for weather API
+      // Use AllOrigins CORS proxy for weather API
       const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl,visibility&timezone=auto`;
-      const weatherProxyUrl = `https://corsproxy.io/?${encodeURIComponent(weatherUrl)}`;
+      const weatherProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(weatherUrl)}`;
       const weatherResponse = await fetch(weatherProxyUrl);
-      
       if (!weatherResponse.ok) {
         throw new Error("Failed to fetch weather data");
       }
-      
-      const weatherData = await weatherResponse.json();
+      const weatherProxyData = await weatherResponse.json();
+      const weatherData = JSON.parse(weatherProxyData.contents);
       const current = weatherData.current;
       
       // Map weather codes to conditions
@@ -265,7 +259,7 @@ const WeatherForecast = () => {
                   >
                     Open-Meteo
                   </a>
-                  {' '}using a public CORS proxy. No API key required! If you see a fetch error, the proxy may be temporarily unavailable.
+                  {' '}using the AllOrigins CORS proxy. No API key required! If you see a fetch error, the proxy may be temporarily unavailable.
                 </p>
               </div>
             </CardContent>
