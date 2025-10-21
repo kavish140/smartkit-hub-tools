@@ -115,9 +115,10 @@ const WeatherForecast = () => {
         description: `Weather data for ${name} fetched successfully`,
       });
     } catch (error) {
+      console.error("Weather fetch error:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to fetch weather data. Please check the city name.",
+        description: error instanceof Error ? error.message : "Failed to fetch weather data. Please try again.",
         variant: "destructive",
       });
     }
@@ -250,19 +251,19 @@ const WeatherForecast = () => {
                 </div>
               )}
 
-              <div className="bg-green-50 p-4 rounded-lg text-sm text-green-900">
-                <p className="font-medium mb-1">✅ Live Weather Data Enabled!</p>
-                <p className="text-xs">
-                  Your API key is configured. Weather data is fetched in real-time from{" "}
+              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg text-sm border border-green-200 dark:border-green-800">
+                <p className="font-medium mb-1 text-green-900 dark:text-green-100">✅ Live Weather Data Enabled!</p>
+                <p className="text-xs text-green-800 dark:text-green-200">
+                  Weather data is fetched in real-time from{" "}
                   <a 
-                    href="https://openweathermap.org/api" 
+                    href="https://open-meteo.com" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="underline font-medium"
                   >
-                    OpenWeatherMap
+                    Open-Meteo
                   </a>
-                  {" "}with 1,000 free requests per day.
+                  {" "}- completely free with no API key required!
                 </p>
               </div>
             </CardContent>
