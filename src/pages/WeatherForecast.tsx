@@ -45,9 +45,10 @@ const WeatherForecast = () => {
     setLoading(true);
     try {
       // Step 1: Get coordinates from city name using geocoding API
-      const geocodeResponse = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
-      );
+      // Use CORS proxy for geocoding API
+      const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
+      const geocodeProxyUrl = `https://corsproxy.io/?${encodeURIComponent(geocodeUrl)}`;
+      const geocodeResponse = await fetch(geocodeProxyUrl);
       
       if (!geocodeResponse.ok) {
         throw new Error("Failed to find city");
@@ -63,9 +64,10 @@ const WeatherForecast = () => {
       const { latitude, longitude, name, country } = location;
       
       // Step 2: Get weather data using coordinates (Open-Meteo is free, no API key needed)
-      const weatherResponse = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl,visibility&timezone=auto`
-      );
+      // Use CORS proxy for weather API
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl,visibility&timezone=auto`;
+      const weatherProxyUrl = `https://corsproxy.io/?${encodeURIComponent(weatherUrl)}`;
+      const weatherResponse = await fetch(weatherProxyUrl);
       
       if (!weatherResponse.ok) {
         throw new Error("Failed to fetch weather data");
@@ -254,16 +256,16 @@ const WeatherForecast = () => {
               <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg text-sm border border-green-200 dark:border-green-800">
                 <p className="font-medium mb-1 text-green-900 dark:text-green-100">✅ Live Weather Data Enabled!</p>
                 <p className="text-xs text-green-800 dark:text-green-200">
-                  Weather data is fetched in real-time from{" "}
-                  <a 
-                    href="https://open-meteo.com" 
-                    target="_blank" 
+                  Weather data is fetched in real-time from{' '}
+                  <a
+                    href="https://open-meteo.com"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="underline font-medium"
                   >
                     Open-Meteo
                   </a>
-                  {" "}- completely free with no API key required!
+                  {' '}using a public CORS proxy. No API key required! If you see a fetch error, the proxy may be temporarily unavailable.
                 </p>
               </div>
             </CardContent>
