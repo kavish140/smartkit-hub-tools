@@ -1,14 +1,41 @@
+# SmartKit.tech - Robots.txt
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://aismartkit.tech/sitemap.xml
+
+# Crawl-delay for specific bots (optional)
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 0
 
+# Social media crawlers
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: LinkedInBot
 Allow: /
+
+User-agent: Pinterestbot
+Allow: /
+
+# Block admin pages if any
+Disallow: /admin
+Disallow: /api/
+Disallow: /*.json$
+
+# Allow all tools
+Allow: /calculator
+Allow: /password-generator
+Allow: /qr-generator
+Allow: /unit-converter

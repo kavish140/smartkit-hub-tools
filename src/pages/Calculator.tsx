@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowToUse from "@/components/HowToUse";
+import SEO from "@/components/SEO";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface HistoryItem {
@@ -304,6 +305,25 @@ const Calculator = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title="Free Online Calculator - Basic & Scientific"
+        description="Free online calculator with basic and scientific modes. Calculate complex math operations, trigonometry, logarithms, and more. Features memory functions and calculation history."
+        keywords="online calculator, free calculator, scientific calculator, math calculator, basic calculator, calculator online"
+        canonical="https://aismartkit.tech/calculator"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Online Calculator",
+          "description": "Free online calculator with basic and scientific modes",
+          "url": "https://aismartkit.tech/calculator",
+          "applicationCategory": "UtilityApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }}
+      />
       <Header />
       <main className="flex-1 bg-gradient-subtle py-12">
         <div className="container mx-auto px-4">
