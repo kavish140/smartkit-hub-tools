@@ -52,7 +52,7 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  html.dark, body.dark {
+  .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
@@ -80,6 +80,11 @@ All colors MUST be HSL.
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 250 70% 60%;
+    
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(250 70% 60%), hsl(280 70% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(185 85% 55%), hsl(200 90% 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(222 47% 11%), hsl(222 47% 13%));
   }
 }
 
@@ -90,9 +95,5 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-  }
-  body.dark {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
   }
 }
