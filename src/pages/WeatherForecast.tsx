@@ -44,56 +44,81 @@ const WeatherForecast = () => {
 
     setLoading(true);
     try {
-      // Using OpenWeatherMap API (free tier) - API key configured
-      const API_KEY = "2fcb96a4890744e9970111815251410";
-      
-      // Free endpoint with live weather data
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+      // Step 1: Get coordinates from city name using geocoding API
+      const geocodeResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
       );
       
-      if (!response.ok) {
-        throw new Error("City not found or API error");
+      if (!geocodeResponse.ok) {
+        throw new Error("Failed to find city");
       }
       
-      const data = await response.json();
+      const geocodeData = await geocodeResponse.json();
+      
+      if (!geocodeData.results || geocodeData.results.length === 0) {
+        throw new Error("City not found");
+      }
+      
+      const location = geocodeData.results[0];
+      const { latitude, longitude, name, country } = location;
+      
+      // Step 2: Get weather data using coordinates (Open-Meteo is free, no API key needed)
+      const weatherResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl,visibility&timezone=auto`
+      );
+      
+      if (!weatherResponse.ok) {
+        throw new Error("Failed to fetch weather data");
+      }
+      
+      const weatherData = await weatherResponse.json();
+      const current = weatherData.current;
+      
+      // Map weather codes to conditions
+      const getWeatherCondition = (code: number): string => {
+        if (code === 0) return "Clear";
+        if (code <= 3) return "Partly Cloudy";
+        if (code <= 48) return "Foggy";
+        if (code <= 67) return "Rainy";
+        if (code <= 77) return "Snowy";
+        if (code <= 82) return "Showers";
+        if (code <= 99) return "Thunderstorm";
+        return "Clear";
+      };
+      
+      const getWeatherIcon = (code: number): string => {
+        if (code === 0) return "01d";
+        if (code <= 3) return "02d";
+        if (code <= 48) return "50d";
+        if (code <= 67) return "10d";
+        if (code <= 77) return "13d";
+        if (code <= 82) return "09d";
+        if (code <= 99) return "11d";
+        return "01d";
+      };
       
       setWeather({
-        location: data.name,
-        country: data.sys.country,
-        temperature: Math.round(data.main.temp),
-        feelsLike: Math.round(data.main.feels_like),
-        condition: data.weather[0].main,
-        humidity: data.main.humidity,
-        windSpeed: Math.round(data.wind.speed * 3.6), // m/s to km/h
-        pressure: data.main.pressure,
-        visibility: Math.round(data.visibility / 1000), // meters to km
-        icon: data.weather[0].icon,
+        location: name,
+        country: country || "Unknown",
+        temperature: Math.round(current.temperature_2m),
+        feelsLike: Math.round(current.apparent_temperature),
+        condition: getWeatherCondition(current.weather_code),
+        humidity: current.relative_humidity_2m,
+        windSpeed: Math.round(current.wind_speed_10m),
+        pressure: Math.round(current.pressure_msl),
+        visibility: Math.round(current.visibility / 1000), // meters to km
+        icon: getWeatherIcon(current.weather_code),
       });
       
       toast({
         title: "Weather Loaded",
-        description: `Weather data for ${data.name} fetched successfully`,
+        description: `Weather data for ${name} fetched successfully`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch weather data. Please check the city name or add your API key.",
+        description: error instanceof Error ? error.message : "Failed to fetch weather data. Please check the city name.",
         variant: "destructive",
-      });
-      
-      // Demo data for testing
-      setWeather({
-        location: city,
-        country: "Demo",
-        temperature: 22,
-        feelsLike: 20,
-        condition: "Clear",
-        humidity: 65,
-        windSpeed: 15,
-        pressure: 1013,
-        visibility: 10,
-        icon: "01d",
       });
     }
     setLoading(false);
