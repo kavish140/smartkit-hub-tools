@@ -71,11 +71,11 @@ const Contact = () => {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
+              <div className="bg-muted/50 p-6 rounded-lg border border-border">
                 <p className="text-sm text-center text-muted-foreground">
                   <strong>Note:</strong> For privacy policy inquiries or data-related questions, 
                   please refer to our{" "}
-                  <a href="/privacy-policy" className="text-blue-600 hover:underline">
+                  <a href="/privacy-policy" className="text-primary hover:underline">
                     Privacy Policy
                   </a>{" "}
                   page or contact us directly.
