@@ -45,70 +45,38 @@ const WeatherForecast = () => {
     setLoading(true);
     try {
       // Step 1: Get coordinates from city name using geocoding API
-      // Use AllOrigins CORS proxy for geocoding API
-      const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
-      const geocodeProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(geocodeUrl)}`;
-      const geocodeResponse = await fetch(geocodeProxyUrl);
-      if (!geocodeResponse.ok) {
-        throw new Error("Failed to find city");
+      // Use WeatherAPI (weatherapi.com) for geocoding + weather
+      // API key taken from your screenshot / provided value
+      const weatherApiKey = "9bf2e38d7d2e47f39fc111733251410";
+      // WeatherAPI supports searching by q parameter (city name) and returns location + current in one call
+      const waUrl = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${encodeURIComponent(city)}&aqi=no`;
+      const waResponse = await fetch(waUrl);
+      if (!waResponse.ok) {
+        // bubble up error message from WeatherAPI if possible
+        const text = await waResponse.text();
+        throw new Error(`Failed to fetch weather data: ${text}`);
       }
-      const geocodeProxyData = await geocodeResponse.json();
-      const geocodeData = JSON.parse(geocodeProxyData.contents);
-      if (!geocodeData.results || geocodeData.results.length === 0) {
-        throw new Error("City not found");
-      }
-      const location = geocodeData.results[0];
-      const { latitude, longitude, name, country } = location;
-      // Use AllOrigins CORS proxy for weather API
-      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl,visibility&timezone=auto`;
-      const weatherProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(weatherUrl)}`;
-      const weatherResponse = await fetch(weatherProxyUrl);
-      if (!weatherResponse.ok) {
-        throw new Error("Failed to fetch weather data");
-      }
-      const weatherProxyData = await weatherResponse.json();
-      const weatherData = JSON.parse(weatherProxyData.contents);
-      const current = weatherData.current;
-      
-      // Map weather codes to conditions
-      const getWeatherCondition = (code: number): string => {
-        if (code === 0) return "Clear";
-        if (code <= 3) return "Partly Cloudy";
-        if (code <= 48) return "Foggy";
-        if (code <= 67) return "Rainy";
-        if (code <= 77) return "Snowy";
-        if (code <= 82) return "Showers";
-        if (code <= 99) return "Thunderstorm";
-        return "Clear";
-      };
-      
-      const getWeatherIcon = (code: number): string => {
-        if (code === 0) return "01d";
-        if (code <= 3) return "02d";
-        if (code <= 48) return "50d";
-        if (code <= 67) return "10d";
-        if (code <= 77) return "13d";
-        if (code <= 82) return "09d";
-        if (code <= 99) return "11d";
-        return "01d";
-      };
-      
+      const waData = await waResponse.json();
+      // Map WeatherAPI response to our WeatherData shape
+      const loc = waData.location || {};
+      const cur = waData.current || {};
       setWeather({
-        location: name,
-        country: country || "Unknown",
-        temperature: Math.round(current.temperature_2m),
-        feelsLike: Math.round(current.apparent_temperature),
-        condition: getWeatherCondition(current.weather_code),
-        humidity: current.relative_humidity_2m,
-        windSpeed: Math.round(current.wind_speed_10m),
-        pressure: Math.round(current.pressure_msl),
-        visibility: Math.round(current.visibility / 1000), // meters to km
-        icon: getWeatherIcon(current.weather_code),
+        location: loc.name || city,
+        country: loc.country || "Unknown",
+        temperature: Math.round(cur.temp_c ?? 0),
+        feelsLike: Math.round(cur.feelslike_c ?? 0),
+        condition: (cur.condition && cur.condition.text) || "Unknown",
+        humidity: cur.humidity ?? 0,
+        windSpeed: Math.round(cur.wind_kph ?? 0),
+        pressure: Math.round(cur.pressure_mb ?? 0),
+        visibility: Math.round((cur.vis_km ?? 0)),
+        icon: (cur.condition && cur.condition.icon) || "",
       });
       
+      // Weather data loaded successfully
       toast({
         title: "Weather Loaded",
-        description: `Weather data for ${name} fetched successfully`,
+        description: `Weather data for ${loc.name || city} fetched successfully`,
       });
     } catch (error) {
       console.error("Weather fetch error:", error);
@@ -252,14 +220,14 @@ const WeatherForecast = () => {
                 <p className="text-xs text-green-800 dark:text-green-200">
                   Weather data is fetched in real-time from{' '}
                   <a
-                    href="https://open-meteo.com"
+                    href="https://openweathermap.org/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline font-medium"
                   >
-                    Open-Meteo
+                    OpenWeatherMap
                   </a>
-                  {' '}using the AllOrigins CORS proxy. No API key required! If you see a fetch error, the proxy may be temporarily unavailable.
+                  {' '}using your API key. If you see a fetch error, please check your network or API key limits.
                 </p>
               </div>
             </CardContent>
