@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowToUse from "@/components/HowToUse";
+import SEO from "@/components/SEO";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 const ImageCompressor = () => {
@@ -102,6 +103,11 @@ const ImageCompressor = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="Image Compressor"
+        description="Compress images in the browser to reduce file size while preserving quality. Supports JPEG/WebP output and shows before/after comparison." 
+        keywords="image compressor, compress image, reduce image size, image optimizer, webp, jpeg" 
+      />
       <Header />
       <main className="flex-1 bg-gradient-subtle py-12">
         <div className="container mx-auto px-4">
@@ -244,6 +250,104 @@ const ImageCompressor = () => {
                 </ul>
               </div>
             </CardContent>
+            {/* Detailed explanatory content for SEO (600+ words) */}
+            <div className="prose max-w-4xl mx-auto mt-8 text-sm text-muted-foreground">
+              <h2>About the Image Compressor</h2>
+              <p>
+                Images often account for the largest portion of a web page’s payload. The
+                Image Compressor helps you reduce file size without sacrificing visible
+                quality — ideal when optimizing pages for faster load times, lower mobile
+                data usage, or meeting upload limits. This tool performs client-side
+                compression, so your images never leave your browser unless you explicitly
+                upload them elsewhere.
+              </p>
+
+              <h3>How compression works</h3>
+              <p>
+                Compression reduces file size by removing redundant information and using
+                more efficient encoding formats. Lossy compression (e.g., JPEG) discards
+                some image detail to achieve smaller files, while lossless formats retain
+                exact image data. The quality slider controls the trade-off between size
+                and fidelity; a setting around 70–80% often gives good visual results with
+                meaningful size reductions.
+              </p>
+
+              <h3>Practical tips for best results</h3>
+              <p>
+                When optimizing for web, resize large images to the exact pixel dimensions
+                required by your layout before compression. Use WebP when possible for
+                better compression ratios, but provide fallbacks for older browsers if
+                needed. Preview images at multiple zoom levels to ensure that compression
+                artifacts are acceptable. For photographs, slightly lower quality usually
+                yields substantial savings; for graphics with text or line art, higher
+                quality settings preserve sharpness.
+              </p>
+
+              <h3>Use cases</h3>
+              <p>
+                - Web performance: Reduce page weight and improve Core Web Vitals scores.
+                - Mobile: Lower bandwidth usage for users on limited data plans.
+                - Email: Ensure attachments stay within size limits without reformatting.
+                - Archival: Create smaller preview images for catalogs and galleries.
+              </p>
+
+              <h3>Privacy and security</h3>
+              <p>
+                All compression is performed in your browser — we do not upload images to
+                our servers. This keeps private photos or documents local to your device.
+                If you need server-side batch processing or integration into a CI system,
+                consider a secure server or cloud function that runs trusted image
+                libraries behind controlled access.
+              </p>
+
+              <h3>Troubleshooting & limitations</h3>
+              <p>
+                Extremely small quality values will produce visible artifacts. If your
+                original image has transparency (PNG), converting to JPEG will lose
+                transparency; WebP can keep transparency and still compress efficiently.
+                Very large images may take longer to compress in the browser; downscale
+                them first for faster results. For professional-grade workflows, use a
+                desktop tool or server-side pipeline that supports advanced options like
+                progressive JPEGs and chroma subsampling.
+              </p>
+
+              <h3>Related tools</h3>
+              <p>
+                Combine this with our <a href="/qr-generator">QR Generator</a> for
+                producing optimized QR images for print, and our
+                <a href="/password-generator"> Password Generator</a> when creating secure
+                tokens or credentials to embed in documentation. See the <a href="/privacy-policy">Privacy Policy</a>
+                for more details on how we handle data.
+              </p>
+
+              <h3>Advanced workflow notes</h3>
+              <p>
+                For designers and developers, integrate compression into your build or
+                CI pipeline using server-side tools when processing large numbers of
+                images. This tool is best for ad-hoc optimization and quick previews.
+                For automated processing use libraries like Sharp, imagemin, or cloud
+                services which allow fine-grained control over chroma subsampling,
+                progressive encoding, and format conversion.
+              </p>
+
+              <h3>SEO and performance impact</h3>
+              <p>
+                Optimizing images reduces page weight and speeds up rendering which
+                directly improves user experience and search rankings. Smaller images
+                reduce TTFB and improve LCP (Largest Contentful Paint) metrics. Always
+                balance visual quality with performance needs and test metrics after
+                optimization.
+              </p>
+
+              <h3>File formats & compatibility</h3>
+              <p>
+                WebP generally offers better compression for photos but check browser
+                support for your audience. JPEG is widely compatible and excellent for
+                photographic content; PNG is better for graphics with transparency. Our
+                tool supports conversion workflows locally, but be mindful that converting
+                between formats may change color profiles and transparency handling.
+              </p>
+            </div>
           </Card>
         </div>
       </main>

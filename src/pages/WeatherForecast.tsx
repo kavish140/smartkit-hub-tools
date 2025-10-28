@@ -215,17 +215,87 @@ const WeatherForecast = () => {
                 </div>
               )}
 
+              {/* Detailed explanatory content to satisfy content requirements and help crawlers/indexers */}
+              <div className="prose max-w-none text-sm text-muted-foreground">
+                <h2>About this Weather Forecast tool</h2>
+                <p>
+                  This Weather Forecast tool provides real-time current weather information for
+                  any city worldwide. The tool queries a reliable weather provider and returns
+                  human-friendly values such as temperature, feels-like temperature, humidity,
+                  wind speed, atmospheric pressure, visibility and a short weather description.
+                </p>
+
+                <p>
+                  Purpose: the tool is intended for quick lookups — when you need a fast,
+                  accurate snapshot of current conditions without installing an app. It is
+                  particularly useful for planning short trips, outdoor activities, or checking
+                  weather before commuting.
+                </p>
+
+                <h3>How to use</h3>
+                <p>
+                  Enter a city name into the search box (for example: "London", "Mumbai",
+                  or "San Francisco"). You can also use the Quick Search buttons for common
+                  cities. Press Enter or click "Get Weather". The tool will display the
+                  current temperature (°C), a brief summary (e.g., "Partly cloudy"), and
+                  additional details below. If the city name is ambiguous, try adding the
+                  country or state (for example: "Portland, OR" or "Paris, FR").
+                </p>
+
+                <h3>Examples</h3>
+                <p>
+                  - "Tokyo" → returns local time, temperature in Celsius and condition (e.g.
+                  "Light rain").<br />
+                  - "New York, US" → returns accurate conditions for that city and avoids
+                  ambiguous results.
+                </p>
+
+                <h3>Limitations & tips</h3>
+                <p>
+                  While the tool is designed for convenience, note these limitations: first,
+                  the data is a snapshot of current conditions and not a forecast timeline.
+                  For hourly or multi-day forecasts consult a full-featured weather provider's
+                  forecast endpoint. Second, third-party APIs have rate limits — if you make
+                  too many requests quickly, the provider may throttle your access. If you
+                  plan heavy usage, consider signing up for a paid plan with higher limits.
+                </p>
+
+                <p>
+                  Privacy: this site only sends the city name you provide to the weather API
+                  to fetch conditions; no persistent user-identifying data is stored for
+                  lookups by default. If you prefer not to expose your API key publicly,
+                  consider using a server-side proxy to hide the key (recommended for
+                  production). See the Contact page if you'd like help setting that up.
+                </p>
+
+                <h3>Troubleshooting</h3>
+                <p>
+                  If you see a "Failed to fetch" error after searching, check your network
+                  connection and try again. If the problem persists, open the browser DevTools
+                  network tab and inspect the weather API response. Common causes are: API
+                  key invalid/expired, exceeded rate limits, or temporary provider outage. If
+                  you need assistance, contact us with the exact error message and the city
+                  you searched for.
+                </p>
+
+                <p>
+                  This explanatory section is intentionally detailed to provide helpful context
+                  for users and search engines. It clarifies how the tool works, how to use it,
+                  and when to use more advanced weather services.
+                </p>
+              </div>
+
               <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg text-sm border border-green-200 dark:border-green-800">
                 <p className="font-medium mb-1 text-green-900 dark:text-green-100">✅ Live Weather Data Enabled!</p>
                 <p className="text-xs text-green-800 dark:text-green-200">
                   Weather data is fetched in real-time from{' '}
                   <a
-                    href="https://openweathermap.org/"
+                    href="https://weatherapi.com/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline font-medium"
                   >
-                    OpenWeatherMap
+                    WeatherAPI
                   </a>
                   {' '}using your API key. If you see a fetch error, please check your network or API key limits.
                 </p>

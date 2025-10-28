@@ -37,6 +37,9 @@ import FileConverter from "./pages/FileConverter";
 import AudioConverter from "./pages/AudioConverter";
 import IsomerDiagrams from "./pages/IsomerDiagrams";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import About from "./pages/About";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import MarkdownConverter from "./pages/MarkdownConverter";
 import GradientGenerator from "./pages/GradientGenerator";
@@ -101,6 +104,9 @@ const App = () => {
           <Route path="/regex-tester" element={<RegexTester />} />
           <Route path="/case-converter" element={<CaseConverter />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

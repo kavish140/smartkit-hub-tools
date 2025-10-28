@@ -40,9 +40,9 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-left">
                   About Us
-                </a>
+                </button>
               </li>
               <li>
                 <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -64,14 +64,20 @@ const Footer = () => {
                 </button>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                <button 
+                  onClick={() => navigate("/terms")}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-left"
+                >
                   Terms of Service
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
+                <button 
+                  onClick={() => navigate("/contact")}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-left"
+                >
                   Contact
-                </a>
+                </button>
               </li>
             </ul>
           </div>

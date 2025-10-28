@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowToUse from "@/components/HowToUse";
+import SEO from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useToolTracking } from "@/hooks/useToolTracking";
 import QRCode from "qrcode";
@@ -297,6 +298,11 @@ const QRGenerator = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="QR Code Generator"
+        description="Create custom QR codes with logos, colors, and error correction options. Download PNG/JPEG/WEBP and use for print or web." 
+        keywords="qr code generator, qr maker, custom qr, download qr, qr with logo"
+      />
       <Header />
       <main className="flex-1 bg-gradient-subtle py-12">
         <div className="container mx-auto px-4">
@@ -561,6 +567,111 @@ const QRGenerator = () => {
                 )}
               </CardContent>
             </Card>
+            {/* Long-form explanatory content for SEO (600+ words) */}
+            <div className="prose max-w-4xl mx-auto mt-8 text-sm text-muted-foreground">
+              <h2>About the QR Code Generator</h2>
+              <p>
+                QR codes are a compact way to encode information — URLs, contact cards,
+                Wi‑Fi credentials, and more — into a scannable image. This QR Code
+                Generator gives you precise control over the generated code: change size,
+                foreground and background colors, error correction level, and optionally
+                embed a logo for branding. It is ideal for creating codes for marketing
+                materials, business cards, event signage, or secure one-time links.
+              </p>
+
+              <h3>What you can encode</h3>
+              <p>
+                You can encode any text or URL; common use cases include website links,
+                vCard contact cards, Wi‑Fi network parameters, SMS templates, and
+                payment or ticketing tokens. The generator treats input as raw text, so
+                you may format vCard and Wi‑Fi payloads according to the destination
+                application’s requirements for best compatibility.
+              </p>
+
+              <h3>Customization & error correction</h3>
+              <p>
+                Error correction is an important QR feature: choosing a higher level (Q/H)
+                lets the code remain readable even if part of it is obscured — for
+                example, by a centrally placed logo or light damage after printing.
+                Higher correction increases the number of modules and can slightly affect
+                scannability under very tight contrast, so always test on multiple devices.
+                For logos, keep coverage under 30% and use a white backdrop behind the
+                logo to preserve contrast.
+              </p>
+
+              <h3>Design best practices</h3>
+              <p>
+                Maintain strong contrast between foreground and background colors. Dark
+                foreground on a light background is the most reliable. Avoid gradients or
+                patterns that reduce readability. For print, use the SVG or high-resolution
+                PNG output to preserve sharp edges. When adding logos, prefer vector
+                formats or high-DPI raster images to avoid blurring when scaled.
+              </p>
+
+              <h3>Use cases and examples</h3>
+              <p>
+                Marketing: place QR codes on flyers and posters that link to landing
+                pages or promo codes. Events: embed schedule links or registration tokens.
+                Business: print vCard QR codes on business cards to transfer contact
+                details quickly. Logistics: use QR tags for asset tracking. Each use case
+                benefits from testing: scan the final output with several phone models and
+                at different sizes before distributing widely.
+              </p>
+
+              <h3>Troubleshooting</h3>
+              <p>
+                If a code won’t scan, try increasing size or error correction, simplify the
+                content (shorten URLs), or change color contrast. Online scanners and
+                native phone camera apps can behave differently; always validate using the
+                target devices. If you receive an overflow error, it means the data is too
+                large for the selected error correction level — reduce content length or
+                lower correction.
+              </p>
+
+              <h3>Privacy & distribution</h3>
+              <p>
+                Generation occurs in your browser, and we do not upload textual content to
+                our servers. When sharing QR codes that contain sensitive data (Wi‑Fi
+                passwords, private links), prefer short-lived tokens or server-side
+                redirects that expire after use. For public campaigns, combine QR codes
+                with UTM parameters for analytics while protecting personally identifiable
+                information.
+              </p>
+
+              <h3>Related tools</h3>
+              <p>
+                Use our <a href="/image-compressor">Image Compressor</a> to optimize
+                exported PNGs for web delivery, or the <a href="/password-generator">Password Generator</a>
+                to create secure tokens that you encode in QR codes for temporary access.
+              </p>
+              <h3>Accessibility and scanning reliability</h3>
+              <p>
+                Ensure your QR codes are accessible: provide a short human-readable URL
+                or an alternative CTA near the code for users who cannot scan images.
+                For visually impaired users, include descriptive alt text when embedding
+                QR codes on web pages. Scanning reliability depends on contrast, size,
+                and print quality — always test in the final medium and at the sizes you
+                plan to distribute.
+              </p>
+
+              <h3>Measuring success</h3>
+              <p>
+                If you use QR codes in marketing, add UTM parameters or short redirect
+                links to track scans in analytics platforms. Short-lived redirect URLs can
+                help you control access and measure engagement while keeping the encoded
+                payload small. For campaigns, A/B test different placements and sizes to
+                determine the most effective presentation.
+              </p>
+
+              <h3>Printing & production notes</h3>
+              <p>
+                When printing QR codes, vector SVGs produce the sharpest results. For
+                large-format prints like banners, a high-resolution PNG (300+ DPI) is
+                recommended. Keep quiet zones (margins) around the code free from
+                graphics and text. If your design overlays images or patterns near the
+                QR, increase error correction and verify scanning from different angles.
+              </p>
+            </div>
           </div>
         </div>
       </main>
