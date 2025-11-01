@@ -1,0 +1,22 @@
+{
+  "name": "smartkit-chatbot-api",
+  "version": "1.0.0",
+  "description": "Backend API for AI Chatbot with Gemini and ElevenLabs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["ai", "chatbot", "gemini", "elevenlabs"],
+  "author": "Kavish",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
