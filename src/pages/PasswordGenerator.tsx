@@ -16,6 +16,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowToUse from "@/components/HowToUse";
 import SEO from "@/components/SEO";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface PasswordStrength {
   score: number;
@@ -497,92 +498,124 @@ const PasswordGenerator = () => {
               </CardContent>
             </Card>
 
-            {/* Long-form explanatory content for SEO & AdSense (600+ words) */}
-            <div className="prose max-w-4xl mx-auto mt-8 text-sm text-muted-foreground">
-              <h2>About the Password Generator</h2>
-              <p>
-                Strong, unique passwords are one of the simplest and most effective
-                defenses against account takeover. The Password Generator on SmartKit.tech
-                is built to help you create credentials that are resilient to modern attacks
-                — without needing to memorize complex strings. Whether you are securing a
-                bank account, an email address, or a throwaway test account, this tool
-                provides configurable options so you can tailor entropy, length, and
-                character sets to meet both personal needs and site-specific policies.
-              </p>
+          {/* Long-form explanatory content for SEO & AdSense (600+ words) - Collapsible */}
+          <div className="max-w-4xl mx-auto mt-8">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="about">
+                <AccordionTrigger className="text-left font-semibold">About the Password Generator</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    Strong, unique passwords are one of the simplest and most effective
+                    defenses against account takeover. The Password Generator on SmartKit.tech
+                    is built to help you create credentials that are resilient to modern attacks
+                    — without needing to memorize complex strings. Whether you are securing a
+                    bank account, an email address, or a throwaway test account, this tool
+                    provides configurable options so you can tailor entropy, length, and
+                    character sets to meet both personal needs and site-specific policies.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>What makes a password strong?</h3>
-              <p>
-                A password's strength is measured by entropy — effectively the unpredictability
-                of the character sequence. Length and variety of character types (uppercase,
-                lowercase, numbers, symbols) increase entropy exponentially. For example,
-                increasing length from 8 to 16 characters and including multiple character
-                classes dramatically increases the number of possible combinations, making
-                brute-force attacks infeasible for practical purposes.
-              </p>
+              <AccordionItem value="strength">
+                <AccordionTrigger className="text-left font-semibold">What makes a password strong?</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    A password's strength is measured by entropy — effectively the unpredictability
+                    of the character sequence. Length and variety of character types (uppercase,
+                    lowercase, numbers, symbols) increase entropy exponentially. For example,
+                    increasing length from 8 to 16 characters and including multiple character
+                    classes dramatically increases the number of possible combinations, making
+                    brute-force attacks infeasible for practical purposes.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>How this tool generates secure passwords</h3>
-              <p>
-                This generator builds a character pool based on your selected options and
-                samples characters uniformly at random from that pool. If you enable the
-                "require each type" option, the generator ensures at least one character
-                from each selected class is included — a useful measure for websites that
-                enforce complexity rules. You can exclude ambiguous characters (like l, 1,
-                O, 0) to reduce transcription errors when manually entering passwords.
-              </p>
+              <AccordionItem value="how-it-works">
+                <AccordionTrigger className="text-left font-semibold">How this tool generates secure passwords</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    This generator builds a character pool based on your selected options and
+                    samples characters uniformly at random from that pool. If you enable the
+                    "require each type" option, the generator ensures at least one character
+                    from each selected class is included — a useful measure for websites that
+                    enforce complexity rules. You can exclude ambiguous characters (like l, 1,
+                    O, 0) to reduce transcription errors when manually entering passwords.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>Recommended settings & practical tips</h3>
-              <p>
-                For most users, we recommend a minimum of 16 characters with all character
-                types enabled. Passphrases (longer sequences of words) are also an excellent
-                option when memorability is important; a trustworthy password manager can
-                store these for you. Avoid reusing passwords across services — if one site is
-                compromised, reused passwords allow attackers to pivot. Use the bulk
-                generation feature when creating login credentials for teams; export the
-                results directly into a secure password manager or encrypted vault, and
-                rotate those credentials regularly.
-              </p>
+              <AccordionItem value="tips">
+                <AccordionTrigger className="text-left font-semibold">Recommended settings & practical tips</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    For most users, we recommend a minimum of 16 characters with all character
+                    types enabled. Passphrases (longer sequences of words) are also an excellent
+                    option when memorability is important; a trustworthy password manager can
+                    store these for you. Avoid reusing passwords across services — if one site is
+                    compromised, reused passwords allow attackers to pivot. Use the bulk
+                    generation feature when creating login credentials for teams; export the
+                    results directly into a secure password manager or encrypted vault, and
+                    rotate those credentials regularly.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>Real-world examples</h3>
-              <p>
-                Example strong password (random): <code>g7#fV9q!zR2mT%hL</code><br />
-                Example passphrase (memorable): <em>maple+river*blue!76</em><br />
-                Both of these exceed common minimums and avoid dictionary phrases that are
-                vulnerable to targeted guessing.
-              </p>
+              <AccordionItem value="examples">
+                <AccordionTrigger className="text-left font-semibold">Real-world examples</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    Example strong password (random): <code>g7#fV9q!zR2mT%hL</code><br />
+                    Example passphrase (memorable): <em>maple+river*blue!76</em><br />
+                    Both of these exceed common minimums and avoid dictionary phrases that are
+                    vulnerable to targeted guessing.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>Security considerations and privacy</h3>
-              <p>
-                All generation in this tool happens locally in your browser — nothing is
-                transmitted to our servers — which reduces exposure and preserves your
-                privacy. Nevertheless, be cautious with bulk exports: do not email plain
-                text lists or store passwords in unencrypted cloud storage. For teams,
-                integrate with a dedicated password manager that supports secure sharing and
-                access controls.
-              </p>
+              <AccordionItem value="security">
+                <AccordionTrigger className="text-left font-semibold">Security considerations and privacy</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    All generation in this tool happens locally in your browser — nothing is
+                    transmitted to our servers — which reduces exposure and preserves your
+                    privacy. Nevertheless, be cautious with bulk exports: do not email plain
+                    text lists or store passwords in unencrypted cloud storage. For teams,
+                    integrate with a dedicated password manager that supports secure sharing and
+                    access controls.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>When to use passphrases vs. complex passwords</h3>
-              <p>
-                Use passphrases when you need something easier to remember but still highly
-                secure; combine unrelated words, punctuation, and numbers (e.g.,
-                "Velvet+Coffee*42!River"). Use randomized complex passwords for services where
-                machine-generated credentials are acceptable and you rely on a password
-                manager to store them. Both approaches are valid; the key is uniqueness and
-                sufficient length.
-              </p>
+              <AccordionItem value="passphrases">
+                <AccordionTrigger className="text-left font-semibold">When to use passphrases vs. complex passwords</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    Use passphrases when you need something easier to remember but still highly
+                    secure; combine unrelated words, punctuation, and numbers (e.g.,
+                    "Velvet+Coffee*42!River"). Use randomized complex passwords for services where
+                    machine-generated credentials are acceptable and you rely on a password
+                    manager to store them. Both approaches are valid; the key is uniqueness and
+                    sufficient length.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
 
-              <h3>Related tools and next steps</h3>
-              <p>
-                For related utilities, see our <a href="/qr-generator">QR Generator</a> to
-                create secure QR-based credentials and our <a href="/image-compressor">Image Compressor</a>
-                to optimize images for documentation and onboarding. For compliance and
-                policies, consult our <a href="/privacy-policy">Privacy Policy</a> and
-                <a href="/terms">Terms of Service</a>. If you want help integrating this
-                tool into a team workflow or hiding API keys server-side, visit the
-                <a href="/contact">Contact</a> page to get in touch.
-              </p>
-            </div>
-
-            {/* Info Panel */}
+              <AccordionItem value="related">
+                <AccordionTrigger className="text-left font-semibold">Related tools and next steps</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  <p>
+                    For related utilities, see our <a href="/qr-generator" className="underline">QR Generator</a> to
+                    create secure QR-based credentials and our <a href="/image-compressor" className="underline">Image Compressor</a>
+                    {' '}to optimize images for documentation and onboarding. For compliance and
+                    policies, consult our <a href="/privacy-policy" className="underline">Privacy Policy</a> and
+                    <a href="/terms" className="underline"> Terms of Service</a>. If you want help integrating this
+                    tool into a team workflow or hiding API keys server-side, visit the
+                    <a href="/contact" className="underline"> Contact</a> page to get in touch.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>            {/* Info Panel */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
