@@ -31,7 +31,8 @@ import {
   Atom,
   Shapes,
   Type,
-  TestTube2
+  TestTube2,
+  MessageSquare
 } from "lucide-react";
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
@@ -293,6 +294,13 @@ const tools = [
     icon: Type,
     category: "Developer",
     path: "/case-converter"
+  },
+  {
+    title: "AI Chatbot",
+    description: "Voice-enabled AI assistant powered by Gemini",
+    icon: MessageSquare,
+    category: "AI",
+    path: "/ai-chatbot"
   }
 ];
 

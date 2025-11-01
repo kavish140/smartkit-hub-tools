@@ -48,6 +48,7 @@ import CronGenerator from "./pages/CronGenerator";
 import LoremIpsumGenerator from "./pages/LoremIpsumGenerator";
 import RegexTester from "./pages/RegexTester";
 import CaseConverter from "./pages/CaseConverter";
+import AIChatbot from "./pages/AIChatbot";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,6 +106,7 @@ const App = () => {
           <Route path="/lorem-ipsum-generator" element={<LoremIpsumGenerator />} />
           <Route path="/regex-tester" element={<RegexTester />} />
           <Route path="/case-converter" element={<CaseConverter />} />
+          <Route path="/ai-chatbot" element={<AIChatbot />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<TermsOfService />} />
