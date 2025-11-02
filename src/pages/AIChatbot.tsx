@@ -42,8 +42,12 @@ const AIChatbot = () => {
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
   
   // API Keys state - pre-configured or user's own
-  const [geminiApiKey, setGeminiApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || "");
-  const [elevenLabsApiKey, setElevenLabsApiKey] = useState(import.meta.env.VITE_ELEVENLABS_API_KEY || "");
+  // In production, these will be embedded during build time
+  const defaultGeminiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+  const defaultElevenLabsKey = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
+  
+  const [geminiApiKey, setGeminiApiKey] = useState(defaultGeminiKey);
+  const [elevenLabsApiKey, setElevenLabsApiKey] = useState(defaultElevenLabsKey);
   const [showApiKeys, setShowApiKeys] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,11 +55,25 @@ const AIChatbot = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Load saved API keys from localStorage if they exist
+    // Load saved API keys from localStorage if they exist, otherwise use defaults
     const savedGeminiKey = localStorage.getItem("gemini_api_key");
     const savedElevenKey = localStorage.getItem("elevenlabs_api_key");
-    if (savedGeminiKey) setGeminiApiKey(savedGeminiKey);
-    if (savedElevenKey) setElevenLabsApiKey(savedElevenKey);
+    
+    if (savedGeminiKey) {
+      setGeminiApiKey(savedGeminiKey);
+    } else if (defaultGeminiKey) {
+      setGeminiApiKey(defaultGeminiKey);
+    }
+    
+    if (savedElevenKey) {
+      setElevenLabsApiKey(savedElevenKey);
+    } else if (defaultElevenLabsKey) {
+      setElevenLabsApiKey(defaultElevenLabsKey);
+    }
+    
+    // Debug: Log if environment variables are loaded (only first 10 chars for security)
+    console.log("Gemini API Key loaded:", defaultGeminiKey ? `${defaultGeminiKey.substring(0, 10)}...` : "NOT FOUND");
+    console.log("ElevenLabs API Key loaded:", defaultElevenLabsKey ? `${defaultElevenLabsKey.substring(0, 10)}...` : "NOT FOUND");
 
     // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {

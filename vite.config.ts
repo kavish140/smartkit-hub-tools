@@ -16,9 +16,4 @@ export default defineConfig(({ mode }) => ({
     },
   },
   base: "/", // For custom domain (aismartkit.tech)
-  define: {
-    // Explicitly define environment variables for production builds
-    'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(process.env.VITE_GEMINI_API_KEY || ''),
-    'import.meta.env.VITE_ELEVENLABS_API_KEY': JSON.stringify(process.env.VITE_ELEVENLABS_API_KEY || ''),
-  },
 }));
