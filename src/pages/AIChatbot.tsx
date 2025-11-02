@@ -41,9 +41,9 @@ const AIChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
   
-  // Default API keys (users can override if they want)
-  const [geminiApiKey, setGeminiApiKey] = useState("AIzaSyC-BlgasLsoKLqN05QaDFJg0Ar-gFdjDxQ");
-  const [elevenLabsApiKey, setElevenLabsApiKey] = useState("sk_be8cacf10b4a8ec62da98453eabedfc3f24f18d13c6acc2c");
+  // API Keys state - pre-configured or user's own
+  const [geminiApiKey, setGeminiApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || "");
+  const [elevenLabsApiKey, setElevenLabsApiKey] = useState(import.meta.env.VITE_ELEVENLABS_API_KEY || "");
   const [showApiKeys, setShowApiKeys] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
