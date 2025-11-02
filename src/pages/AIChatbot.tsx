@@ -41,10 +41,12 @@ const AIChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
   
-  // API Keys state - pre-configured or user's own
-  // In production, these will be embedded during build time
-  const defaultGeminiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-  const defaultElevenLabsKey = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
+  // API Keys - hardcoded fallback if env variables don't work
+  const FALLBACK_GEMINI_KEY = "AIzaSyC-BlgasLsoKLqN05QaDFJg0Ar-gFdjDxQ";
+  const FALLBACK_ELEVENLABS_KEY = "sk_be8cacf10b4a8ec62da98453eabedfc3f24f18d13c6acc2c";
+  
+  const defaultGeminiKey = import.meta.env.VITE_GEMINI_API_KEY || FALLBACK_GEMINI_KEY;
+  const defaultElevenLabsKey = import.meta.env.VITE_ELEVENLABS_API_KEY || FALLBACK_ELEVENLABS_KEY;
   
   const [geminiApiKey, setGeminiApiKey] = useState(defaultGeminiKey);
   const [elevenLabsApiKey, setElevenLabsApiKey] = useState(defaultElevenLabsKey);
