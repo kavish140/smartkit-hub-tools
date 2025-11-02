@@ -40,13 +40,23 @@ const AIChatbot = () => {
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
-  const [apiUrl] = useState("http://localhost:3001/api");
+  
+  // Default API keys (users can override if they want)
+  const [geminiApiKey, setGeminiApiKey] = useState("AIzaSyC-BlgasLsoKLqN05QaDFJg0Ar-gFdjDxQ");
+  const [elevenLabsApiKey, setElevenLabsApiKey] = useState("sk_be8cacf10b4a8ec62da98453eabedfc3f24f18d13c6acc2c");
+  const [showApiKeys, setShowApiKeys] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    // Load saved API keys from localStorage if they exist
+    const savedGeminiKey = localStorage.getItem("gemini_api_key");
+    const savedElevenKey = localStorage.getItem("elevenlabs_api_key");
+    if (savedGeminiKey) setGeminiApiKey(savedGeminiKey);
+    if (savedElevenKey) setElevenLabsApiKey(savedElevenKey);
+
     // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
@@ -80,6 +90,15 @@ const AIChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const saveApiKeys = () => {
+    if (geminiApiKey) localStorage.setItem("gemini_api_key", geminiApiKey);
+    if (elevenLabsApiKey) localStorage.setItem("elevenlabs_api_key", elevenLabsApiKey);
+    toast({
+      title: "API Keys Saved",
+      description: "Your API keys have been saved locally in your browser.",
+    });
+  };
+
   const toggleListening = () => {
     if (!recognitionRef.current) {
       toast({
@@ -100,22 +119,31 @@ const AIChatbot = () => {
   };
 
   const speakText = async (text: string) => {
-    if (!isVoiceEnabled) return;
+    if (!isVoiceEnabled || !elevenLabsApiKey) return;
 
     try {
-      const response = await fetch(`${apiUrl}/tts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: text,
-          voiceId: selectedVoice,
-        }),
-      });
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}`,
+        {
+          method: "POST",
+          headers: {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": elevenLabsApiKey,
+          },
+          body: JSON.stringify({
+            text: text,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Text-to-speech error");
+        throw new Error("ElevenLabs API error");
       }
 
       const audioBlob = await response.blob();
@@ -131,7 +159,7 @@ const AIChatbot = () => {
       console.error("Text-to-speech error:", error);
       toast({
         title: "Voice Error",
-        description: "Could not generate speech. Check if the API server is running.",
+        description: "Could not generate speech. Check your ElevenLabs API key or quota.",
         variant: "destructive",
       });
     }
@@ -139,6 +167,16 @@ const AIChatbot = () => {
 
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
+
+    if (!geminiApiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please configure your Gemini API key to use the chatbot.",
+        variant: "destructive",
+      });
+      setShowApiKeys(true);
+      return;
+    }
 
     const userMessage: Message = {
       role: "user",
@@ -151,23 +189,34 @@ const AIChatbot = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${apiUrl}/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          systemPrompt: systemPrompt,
-        }),
-      });
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `${systemPrompt}\n\nUser: ${userMessage.content}`,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Chat API error");
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Gemini API error");
       }
 
       const data = await response.json();
-      const aiResponse = data.response;
+      const aiResponse = data.candidates[0].content.parts[0].text;
 
       const assistantMessage: Message = {
         role: "assistant",
@@ -185,7 +234,7 @@ const AIChatbot = () => {
       console.error("Chat error:", error);
       toast({
         title: "Error",
-        description: "Failed to get AI response. Make sure the API server is running on port 3001.",
+        description: "Failed to get AI response. Please check your API key and try again.",
         variant: "destructive",
       });
     } finally {
@@ -259,12 +308,72 @@ const AIChatbot = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Status Banner */}
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground">
-                    ✅ <strong>Ready to use!</strong> AI chatbot is powered by your backend API. 
-                    Make sure the server is running on <code className="bg-background px-1 rounded">localhost:3001</code>
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <p className="text-sm">
+                    ✅ <strong>Ready to use!</strong> The chatbot is pre-configured with default API keys. 
+                    You can use it immediately or <button 
+                      onClick={() => setShowApiKeys(!showApiKeys)} 
+                      className="underline text-primary hover:text-primary/80"
+                    >
+                      {showApiKeys ? 'hide' : 'customize'} your own API keys
+                    </button>.
                   </p>
                 </div>
+
+                {/* API Configuration (Collapsible) */}
+                {showApiKeys && (
+                  <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                    <h3 className="font-semibold text-sm">API Configuration (Optional)</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="gemini-key">Gemini API Key</Label>
+                        <Input
+                          id="gemini-key"
+                          type="password"
+                          placeholder="AIzaSy..."
+                          value={geminiApiKey}
+                          onChange={(e) => setGeminiApiKey(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Get your free key from{" "}
+                          <a
+                            href="https://aistudio.google.com/app/apikey"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                          >
+                            Google AI Studio
+                          </a>
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="elevenlabs-key">ElevenLabs API Key (for voice)</Label>
+                        <Input
+                          id="elevenlabs-key"
+                          type="password"
+                          placeholder="sk_..."
+                          value={elevenLabsApiKey}
+                          onChange={(e) => setElevenLabsApiKey(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Get your key from{" "}
+                          <a
+                            href="https://elevenlabs.io/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                          >
+                            ElevenLabs
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={saveApiKeys} variant="outline" size="sm">
+                      Save My API Keys Locally
+                    </Button>
+                  </div>
+                )}
 
                 {/* Voice Settings */}
                 <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
@@ -273,6 +382,7 @@ const AIChatbot = () => {
                       id="voice-enabled"
                       checked={isVoiceEnabled}
                       onCheckedChange={setIsVoiceEnabled}
+                      disabled={!elevenLabsApiKey}
                     />
                     <Label htmlFor="voice-enabled" className="cursor-pointer">
                       Enable Voice Output
@@ -442,24 +552,9 @@ const AIChatbot = () => {
                 <CardTitle>How to Use</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm mb-2">⚠️ Server Setup Required</h4>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Before using the chatbot, start the API server:
-                  </p>
-                  <code className="block bg-background px-3 py-2 rounded text-xs">
-                    cd server<br/>
-                    npm install<br/>
-                    npm start
-                  </code>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Server will run on <strong>http://localhost:3001</strong>
-                  </p>
-                </div>
-                
                 <ol className="list-decimal list-inside space-y-2 text-sm">
-                  <li>Make sure the backend API server is running (see above)</li>
-                  <li>Customize the system prompt to change AI behavior</li>
+                  <li><strong>Just start chatting!</strong> The tool is pre-configured and ready to use</li>
+                  <li>Optionally customize the system prompt to change AI behavior</li>
                   <li>Toggle voice output and select your preferred voice</li>
                   <li>Type your message or click the microphone to use voice input</li>
                   <li>Press Enter or click Send to get AI responses</li>
@@ -467,10 +562,18 @@ const AIChatbot = () => {
                 </ol>
 
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm mb-2">ℹ️ Note</h4>
+                  <h4 className="font-semibold text-sm mb-2">💡 Tip: Use Your Own API Keys</h4>
                   <p className="text-xs text-muted-foreground">
-                    Your API keys are stored securely in the <code className="bg-background px-1 rounded">server/.env</code> file 
-                    and never exposed to the frontend. This provides better security than storing keys in the browser.
+                    The default keys have usage limits shared by all users. For unlimited use, click 
+                    "customize your own API keys" above and add your free Gemini API key from Google AI Studio.
+                  </p>
+                </div>
+
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-sm mb-2">⚠️ Privacy Note</h4>
+                  <p className="text-xs text-muted-foreground">
+                    API keys are stored locally in your browser only. Your conversations are sent directly 
+                    to Google/ElevenLabs servers and are not stored on our servers.
                   </p>
                 </div>
               </CardContent>
