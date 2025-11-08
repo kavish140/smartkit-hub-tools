@@ -210,7 +210,7 @@ const AIChatbot = () => {
 
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
         {
           method: "POST",
           headers: {
@@ -231,11 +231,18 @@ const AIChatbot = () => {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Gemini API error");
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Gemini API Error:", errorData);
+        throw new Error(errorData.error?.message || `API Error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log("Gemini API Response:", data);
+      
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        throw new Error("Invalid response format from Gemini API");
+      }
+      
       const aiResponse = data.candidates[0].content.parts[0].text;
 
       const assistantMessage: Message = {
@@ -250,11 +257,12 @@ const AIChatbot = () => {
       if (isVoiceEnabled) {
         await speakText(aiResponse);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
+      const errorMessage = error?.message || "Unknown error occurred";
       toast({
         title: "Error",
-        description: "Failed to get AI response. Please check your API key and try again.",
+        description: errorMessage.includes("API") ? errorMessage : "Failed to get AI response. Please check your API key and try again.",
         variant: "destructive",
       });
     } finally {
