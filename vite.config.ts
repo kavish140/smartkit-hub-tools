@@ -17,3 +17,4 @@ export default defineConfig(({ mode }) => ({
   },
   base: "/", // For custom domain (aismartkit.tech)
 }));
+
