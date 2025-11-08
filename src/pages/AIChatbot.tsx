@@ -188,6 +188,8 @@ const AIChatbot = () => {
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
 
+    console.log("Gemini API Key being used:", geminiApiKey ? `${geminiApiKey.substring(0, 15)}...` : "NOT FOUND");
+
     if (!geminiApiKey) {
       toast({
         title: "API Key Required",
@@ -209,8 +211,11 @@ const AIChatbot = () => {
     setIsLoading(true);
 
     try {
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+      console.log("Making request to:", apiUrl.replace(geminiApiKey, "***"));
+      
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+        apiUrl,
         {
           method: "POST",
           headers: {
