@@ -206,13 +206,22 @@ const AIChatbot = () => {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputText("");
     setIsLoading(true);
 
     try {
+      // Build conversation history in Gemini format
+      const conversationText = newMessages
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .join('\n\n');
+      
+      const fullPrompt = `${systemPrompt}\n\n${conversationText}`;
+      
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
       console.log("Making request to:", apiUrl.replace(geminiApiKey, "***"));
+      console.log("Prompt:", fullPrompt.substring(0, 200) + "...");
       
       const response = await fetch(
         apiUrl,
@@ -226,7 +235,7 @@ const AIChatbot = () => {
               {
                 parts: [
                   {
-                    text: `${systemPrompt}\n\nUser: ${userMessage.content}`,
+                    text: fullPrompt,
                   },
                 ],
               },
