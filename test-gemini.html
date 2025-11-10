@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gemini API Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
+        #response { background: #f0f0f0; padding: 15px; margin-top: 20px; border-radius: 8px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        input { padding: 10px; font-size: 16px; width: 100%; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Gemini API Direct Test</h1>
+    <p>This will test if your API key works directly</p>
+    
+    <input type="text" id="message" placeholder="Type a message..." value="Hello">
+    <button onclick="testGemini()">Send Message</button>
+    
+    <div id="response"></div>
+    
+    <script>
+        const GEMINI_API_KEY = "AIzaSyC-BlgasLsoKLqN05QaDFJg0Ar-gFdjDxQ";
+        
+        async function testGemini() {
+            const message = document.getElementById('message').value;
+            const responseDiv = document.getElementById('response');
+            
+            responseDiv.innerHTML = '<p>Sending request...</p>';
+            
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                
+                console.log('Requesting:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: message
+                            }]
+                        }]
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Error:', errorData);
+                    responseDiv.innerHTML = `<p class="error"><strong>Error ${response.status}:</strong> ${JSON.stringify(errorData, null, 2)}</p>`;
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('Success:', data);
+                
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                responseDiv.innerHTML = `<p class="success"><strong>Success!</strong></p><p>${aiResponse}</p>`;
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                responseDiv.innerHTML = `<p class="error"><strong>Fetch Error:</strong> ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
