@@ -219,7 +219,7 @@ const AIChatbot = () => {
       
       const fullPrompt = `${systemPrompt}\n\n${conversationText}`;
       
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`;
       console.log("Making request to:", apiUrl.replace(geminiApiKey, "***"));
       console.log("Prompt:", fullPrompt.substring(0, 200) + "...");
       
