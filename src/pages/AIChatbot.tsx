@@ -42,7 +42,7 @@ const AIChatbot = () => {
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
   
   // API Keys - hardcoded fallback if env variables don't work
-  const FALLBACK_GEMINI_KEY = "AIzaSyC-BlgasLsoKLqN05QaDFJg0Ar-gFdjDxQ";
+  const FALLBACK_GEMINI_KEY = "AIzaSyAOZnuW9Lao7-KSc89CqSdE4C33brB7eAY";
   const FALLBACK_ELEVENLABS_KEY = "sk_be8cacf10b4a8ec62da98453eabedfc3f24f18d13c6acc2c";
   
   const defaultGeminiKey = import.meta.env.VITE_GEMINI_API_KEY || FALLBACK_GEMINI_KEY;
