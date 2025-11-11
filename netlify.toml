@@ -1,14 +1,11 @@
 [build]
-  publish = "dist"
   command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[headers]
-  for = "/*"
-  [headers.values]
-    # Prevent caching during rapid development; adjust for production as needed
-    Cache-Control = "no-cache"
