@@ -1,7 +1,6 @@
 [build]
-  base = "smartkit-hub-tools-main"
   command = "npm run build"
-  publish = "smartkit-hub-tools-main/dist"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
