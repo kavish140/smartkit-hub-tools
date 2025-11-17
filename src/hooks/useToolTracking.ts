@@ -45,13 +45,20 @@ export const useToolTracking = (toolName: string) => {
           sessionStorage.setItem('session_id', sessionId);
         }
 
-        // Get IP and location from free API
+        // Get IP and location from free API with timeout
         let ip = null;
         let country = null;
         let city = null;
 
         try {
-          const response = await fetch('https://ipapi.co/json/');
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+          
+          const response = await fetch('https://ipapi.co/json/', {
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          
           if (response.ok) {
             const data = await response.json();
             ip = data.ip;
@@ -59,7 +66,7 @@ export const useToolTracking = (toolName: string) => {
             city = data.city;
           }
         } catch (error) {
-          // Silently fail - IP lookup is optional
+          // IP lookup failed or timed out - continue without it
         }
 
         // Insert tool usage data into Supabase
@@ -75,13 +82,20 @@ export const useToolTracking = (toolName: string) => {
           is_bot: isBot,
         };
 
-        const { error } = await supabase.from('tool_usage').insert(toolUsageData);
-
-        if (error) {
-          // Silently fail - tracking is optional
+        // Retry logic for Supabase insert
+        let retries = 2;
+        while (retries > 0) {
+          const { error } = await supabase.from('tool_usage').insert(toolUsageData);
+          
+          if (!error) break;
+          
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          }
         }
       } catch (error) {
-        // Silently fail - tracking is optional
+        // Tracking failed completely - continue silently
       }
     };
 
