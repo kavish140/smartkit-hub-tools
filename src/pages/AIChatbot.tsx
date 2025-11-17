@@ -51,7 +51,7 @@ const AIChatbot = () => {
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
+  const [systemPrompt, setSystemPrompt] = useState("You are a helpful, friendly, and expressive AI assistant named Jarvis. When appropriate, use emotional language, exclamations, and varied tone. For jokes, be enthusiastic and playful! For serious topics, be thoughtful and empathetic. Use punctuation like ! and ? to convey emotion. Keep responses natural and conversational.");
   const [showSettings, setShowSettings] = useState(false);
   
   const [groqApiKey, setGroqApiKey] = useState(
@@ -209,10 +209,12 @@ const AIChatbot = () => {
           },
           body: JSON.stringify({
             text: text,
-            model_id: "eleven_multilingual_v2",
+            model_id: "eleven_turbo_v2_5", // Faster, more expressive model
             voice_settings: {
-              stability: 0.5,
-              similarity_boost: 0.75,
+              stability: 0.3, // Lower = more expressive and varied
+              similarity_boost: 0.8, // Higher = more character-like
+              style: 0.5, // Added style for emotional range
+              use_speaker_boost: true // Enhance emotional expression
             },
           }),
         }
@@ -302,8 +304,11 @@ const AIChatbot = () => {
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
             messages: groqMessages,
-            temperature: 0.7,
-            max_tokens: 1024
+            temperature: 0.9, // Higher = more creative and expressive
+            max_tokens: 1024,
+            top_p: 0.95, // Increased for more varied responses
+            frequency_penalty: 0.3, // Reduce repetition
+            presence_penalty: 0.2 // Encourage diverse vocabulary
           }),
         }
       );
@@ -558,6 +563,15 @@ const AIChatbot = () => {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {isVoiceEnabled && (
+                    <div className="col-span-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <p className="text-xs font-semibold mb-1">🎭 Expressive Voice Mode Active</p>
+                      <p className="text-xs text-muted-foreground">
+                        AI responses are optimized for emotional delivery with varied tone, enthusiasm, and natural speech patterns. Perfect for jokes, stories, and engaging conversations!
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* System Prompt */}
@@ -570,6 +584,9 @@ const AIChatbot = () => {
                     placeholder="Define how the AI should behave..."
                     rows={3}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    💡 Tip: The default prompt encourages expressive, emotional responses for better voice output
+                  </p>
                 </div>
 
                 <Button onClick={saveSettings} className="w-full">
