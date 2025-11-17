@@ -45,8 +45,8 @@ const QuickAccess = () => {
   const { favorites } = useFavorites();
   const { recentTools } = useRecentTools();
   const navigate = useNavigate();
-  const [favoritesOpen, setFavoritesOpen] = useState(true);
-  const [recentOpen, setRecentOpen] = useState(true);
+  const [favoritesOpen, setFavoritesOpen] = useState(false);
+  const [recentOpen, setRecentOpen] = useState(false);
 
   const favoriteToolsData = toolsData.filter(tool => favorites.includes(tool.title));
   const recentToolsData = recentTools
