@@ -55,7 +55,7 @@ export const useVisitTracking = () => {
             city = data.city;
           }
         } catch (error) {
-          console.error('Error fetching IP info:', error);
+          // Silently fail - IP lookup is optional
         }
 
         // Insert visit data into Supabase
@@ -72,10 +72,10 @@ export const useVisitTracking = () => {
         const { error } = await supabase.from('visits').insert(visitData);
 
         if (error) {
-          console.error('Error tracking visit:', error);
+          // Silently fail - tracking is optional
         }
       } catch (error) {
-        console.error('Error in visit tracking:', error);
+        // Silently fail - tracking is optional
       }
     };
 

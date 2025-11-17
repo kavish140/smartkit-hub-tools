@@ -59,7 +59,7 @@ export const useToolTracking = (toolName: string) => {
             city = data.city;
           }
         } catch (error) {
-          console.error('Error fetching IP info:', error);
+          // Silently fail - IP lookup is optional
         }
 
         // Insert tool usage data into Supabase
@@ -78,10 +78,10 @@ export const useToolTracking = (toolName: string) => {
         const { error } = await supabase.from('tool_usage').insert(toolUsageData);
 
         if (error) {
-          console.error('Error tracking tool usage:', error);
+          // Silently fail - tracking is optional
         }
       } catch (error) {
-        console.error('Error in tool usage tracking:', error);
+        // Silently fail - tracking is optional
       }
     };
 
