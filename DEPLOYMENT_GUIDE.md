@@ -10,7 +10,7 @@ Your SmartKit Hub Tools is now ready to be deployed to GitHub Pages!
 
 ### **Step 1: Initialize Git Repository** (if not already done)
 
-```powershell
+```powershell 
 cd s:\smartkit\smartkit-hub-tools-main\smartkit-hub-tools-main
 git init
 git add .
