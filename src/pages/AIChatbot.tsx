@@ -599,6 +599,7 @@ const AIChatbot = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Messages Area */}
