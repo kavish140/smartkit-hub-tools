@@ -1,16 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Send, Mic, MicOff, Volume2, VolumeX, Trash2, Copy, Download } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Send, Mic, MicOff, VolumeX, Trash2, Copy, Settings, MessageSquare, Plus, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
@@ -18,6 +15,14 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+}
+
+interface ChatHistory {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const VOICE_OPTIONS = [
@@ -30,9 +35,16 @@ const VOICE_OPTIONS = [
 
 const AIChatbot = () => {
   useToolTracking("AI Chatbot");
-  const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Chat History Management
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>(() => {
+    const saved = localStorage.getItem("chatHistories");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0].id);
@@ -40,6 +52,7 @@ const AIChatbot = () => {
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
+  const [showSettings, setShowSettings] = useState(false);
   
   const [groqApiKey, setGroqApiKey] = useState(
     () => localStorage.getItem("groqApiKey") || import.meta.env.VITE_GROQ_API_KEY || ""
@@ -47,7 +60,6 @@ const AIChatbot = () => {
   const [elevenLabsApiKey, setElevenLabsApiKey] = useState(
     () => localStorage.getItem("elevenLabsApiKey") || import.meta.env.VITE_ELEVENLABS_API_KEY || ""
   );
-  const [showApiKeys, setShowApiKeys] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -95,12 +107,71 @@ const AIChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const saveApiKeys = () => {
+  // Save chat histories to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("chatHistories", JSON.stringify(chatHistories));
+  }, [chatHistories]);
+
+  // Update current chat when messages change
+  useEffect(() => {
+    if (currentChatId && messages.length > 0) {
+      setChatHistories(prev => prev.map(chat => 
+        chat.id === currentChatId 
+          ? { ...chat, messages, updatedAt: new Date(), title: generateChatTitle(messages) }
+          : chat
+      ));
+    }
+  }, [messages, currentChatId]);
+
+  const generateChatTitle = (msgs: Message[]) => {
+    const firstUserMsg = msgs.find(m => m.role === "user");
+    if (!firstUserMsg) return "New Chat";
+    return firstUserMsg.content.slice(0, 30) + (firstUserMsg.content.length > 30 ? "..." : "");
+  };
+
+  const startNewChat = () => {
+    const newChat: ChatHistory = {
+      id: Date.now().toString(),
+      title: "New Chat",
+      messages: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    setChatHistories(prev => [newChat, ...prev]);
+    setCurrentChatId(newChat.id);
+    setMessages([]);
+    setInputText("");
+  };
+
+  const loadChat = (chatId: string) => {
+    const chat = chatHistories.find(c => c.id === chatId);
+    if (chat) {
+      setCurrentChatId(chatId);
+      setMessages(chat.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })));
+    }
+  };
+
+  const deleteChat = (chatId: string) => {
+    setChatHistories(prev => prev.filter(c => c.id !== chatId));
+    if (currentChatId === chatId) {
+      setCurrentChatId(null);
+      setMessages([]);
+    }
+  };
+
+  const clearAllHistory = () => {
+    setChatHistories([]);
+    setCurrentChatId(null);
+    setMessages([]);
+  };
+
+  const saveSettings = () => {
     if (groqApiKey) localStorage.setItem("groqApiKey", groqApiKey);
     if (elevenLabsApiKey) localStorage.setItem("elevenLabsApiKey", elevenLabsApiKey);
+    setShowSettings(false);
     toast({
-      title: "API Keys Saved",
-      description: "Your API keys have been saved locally in your browser.",
+      title: "Settings Saved",
+      description: "Your settings have been saved locally.",
     });
   };
 
@@ -176,11 +247,24 @@ const AIChatbot = () => {
     if (!groqApiKey) {
       toast({
         title: "API Key Required",
-        description: "Please configure your Groq API key to use the chatbot.",
+        description: "Please configure your Groq API key in settings.",
         variant: "destructive",
       });
-      setShowApiKeys(true);
+      setShowSettings(true);
       return;
+    }
+
+    // Create new chat if none exists
+    if (!currentChatId) {
+      const newChat: ChatHistory = {
+        id: Date.now().toString(),
+        title: inputText.slice(0, 30) + (inputText.length > 30 ? "..." : ""),
+        messages: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      setChatHistories(prev => [newChat, ...prev]);
+      setCurrentChatId(newChat.id);
     }
 
     const userMessage: Message = {
@@ -301,103 +385,152 @@ const AIChatbot = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex h-screen bg-background">
       <SEO
         title="AI Chatbot with Voice - Groq & ElevenLabs | AI SmartKit"
         description="Advanced AI chatbot powered by Groq (Llama 3.3) with voice input/output using ElevenLabs. Chat naturally with text or voice, customize voices, and get intelligent responses."
         keywords="AI chatbot, voice assistant, Groq AI, Llama 3, ElevenLabs, voice chat, AI assistant, speech recognition, text to speech"
       />
-      <Header />
-      <main className="flex-1 bg-gradient-subtle py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <Button
-              onClick={() => navigate("/")}
-              variant="ghost"
-              className="mb-6"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Tools
-            </Button>
+      
+      {/* Sidebar - Chat History */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 border-r bg-muted/30 flex flex-col overflow-hidden`}>
+        <div className="p-4 border-b flex items-center justify-between">
+          <h2 className="font-semibold">Chat History</h2>
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="lg:hidden">
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="p-2 border-b">
+          <Button onClick={startNewChat} className="w-full" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            New Chat
+          </Button>
+        </div>
 
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-3xl">AI Chatbot with Voice</CardTitle>
-                <CardDescription>
-                  Chat with an advanced AI assistant powered by Groq AI (Llama 3.3). Enable voice for natural conversations.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Status Banner */}
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                  <p className="text-sm">
-                    ✅ <strong>Ready to use!</strong> The chatbot is pre-configured with default API keys. 
-                    You can use it immediately or <button 
-                      onClick={() => setShowApiKeys(!showApiKeys)} 
-                      className="underline text-primary hover:text-primary/80"
-                    >
-                      {showApiKeys ? 'hide' : 'customize'} your own API keys
-                    </button>.
-                  </p>
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          {chatHistories.map((chat) => (
+            <div key={chat.id} className="group relative">
+              <button
+                onClick={() => loadChat(chat.id)}
+                className={`w-full text-left p-2 rounded text-sm hover:bg-muted transition-colors ${
+                  currentChatId === chat.id ? 'bg-muted' : ''
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate">{chat.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(chat.updatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteChat(chat.id);
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {chatHistories.length > 0 && (
+          <div className="p-2 border-t">
+            <Button onClick={clearAllHistory} variant="outline" size="sm" className="w-full">
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear All
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <div className="border-b p-4 flex items-center justify-between bg-background">
+          <div className="flex items-center gap-3">
+            {!sidebarOpen && (
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+            <h1 className="text-lg font-semibold">AI Chatbot</h1>
+          </div>
+          
+          <Dialog open={showSettings} onOpenChange={setShowSettings}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Settings</DialogTitle>
+                <DialogDescription>Configure your AI chatbot settings</DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6 py-4">
+                {/* API Keys */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-sm">API Configuration</h3>
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="groq-key">Groq API Key</Label>
+                      <Input
+                        id="groq-key"
+                        type="password"
+                        placeholder="gsk_..."
+                        value={groqApiKey}
+                        onChange={(e) => setGroqApiKey(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Get your free key from{" "}
+                        <a
+                          href="https://console.groq.com/keys"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          Groq Console
+                        </a>
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="elevenlabs-key">ElevenLabs API Key (for voice)</Label>
+                      <Input
+                        id="elevenlabs-key"
+                        type="password"
+                        placeholder="sk_..."
+                        value={elevenLabsApiKey}
+                        onChange={(e) => setElevenLabsApiKey(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Get your key from{" "}
+                        <a
+                          href="https://elevenlabs.io/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          ElevenLabs
+                        </a>
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* API Configuration (Collapsible) */}
-                {showApiKeys && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                    <h3 className="font-semibold text-sm">API Configuration (Optional)</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="groq-key">Groq API Key</Label>
-                        <Input
-                          id="groq-key"
-                          type="password"
-                          placeholder="gsk_..."
-                          value={groqApiKey}
-                          onChange={(e) => setGroqApiKey(e.target.value)}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Get your free key from{" "}
-                          <a
-                            href="https://console.groq.com/keys"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline"
-                          >
-                            Groq Console
-                          </a>
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="elevenlabs-key">ElevenLabs API Key (for voice)</Label>
-                        <Input
-                          id="elevenlabs-key"
-                          type="password"
-                          placeholder="sk_..."
-                          value={elevenLabsApiKey}
-                          onChange={(e) => setElevenLabsApiKey(e.target.value)}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Get your key from{" "}
-                          <a
-                            href="https://elevenlabs.io/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline"
-                          >
-                            ElevenLabs
-                          </a>
-                        </p>
-                      </div>
-                    </div>
-                    <Button onClick={saveApiKeys} variant="outline" size="sm">
-                      Save My API Keys Locally
-                    </Button>
-                  </div>
-                )}
-
                 {/* Voice Settings */}
-                <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-sm">Voice Settings</h3>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="voice-enabled"
@@ -425,17 +558,6 @@ const AIChatbot = () => {
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <div className="flex items-center justify-end space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={stopAudio}
-                      disabled={!audioRef.current}
-                    >
-                      <VolumeX className="h-4 w-4" />
-                    </Button>
-                  </div>
                 </div>
 
                 {/* System Prompt */}
@@ -446,163 +568,166 @@ const AIChatbot = () => {
                     value={systemPrompt}
                     onChange={(e) => setSystemPrompt(e.target.value)}
                     placeholder="Define how the AI should behave..."
-                    rows={2}
+                    rows={3}
                   />
                 </div>
 
-                {/* Chat Messages */}
-                <div className="border rounded-lg p-4 h-[400px] overflow-y-auto bg-background">
-                  {messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      <p>Start a conversation with the AI assistant...</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {messages.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${
-                            message.role === "user" ? "justify-end" : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`max-w-[80%] rounded-lg p-3 ${
-                              message.role === "user"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted"
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="text-sm whitespace-pre-wrap break-words">
-                                {message.content}
-                              </p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 flex-shrink-0"
-                                onClick={() => copyMessage(message.content)}
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            <p className="text-xs opacity-70 mt-1">
-                              {message.timestamp.toLocaleTimeString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                      {isLoading && (
-                        <div className="flex justify-start">
-                          <div className="bg-muted rounded-lg p-3">
-                            <p className="text-sm">Thinking...</p>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  )}
-                </div>
+                <Button onClick={saveSettings} className="w-full">
+                  Save Settings
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-                {/* Input Area */}
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Type your message or use voice input..."
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                      disabled={isLoading}
-                    />
-                    <Button
-                      onClick={toggleListening}
-                      variant={isListening ? "destructive" : "outline"}
-                      size="icon"
-                      disabled={isLoading}
-                    >
-                      {isListening ? (
-                        <MicOff className="h-4 w-4" />
-                      ) : (
-                        <Mic className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      onClick={sendMessage}
-                      disabled={!inputText.trim() || isLoading}
-                      size="icon"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {isListening && (
-                    <p className="text-sm text-muted-foreground animate-pulse">
-                      Listening... Speak now
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+              <MessageSquare className="h-12 w-12 text-muted-foreground" />
+              <div>
+                <h2 className="text-2xl font-semibold mb-2">Start a conversation</h2>
+                <p className="text-muted-foreground">Type a message below to chat with AI</p>
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto space-y-6">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex gap-3 ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                      {message.content}
                     </p>
-                  )}
+                    <div className="flex items-center justify-between gap-2 mt-2">
+                      <span className="text-xs opacity-60">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => copyMessage(message.content)}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={clearChat}
-                    variant="outline"
-                    disabled={messages.length === 0}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Clear Chat
-                  </Button>
-                  <Button
-                    onClick={exportChat}
-                    variant="outline"
-                    disabled={messages.length === 0}
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Export Chat
-                  </Button>
+              ))}
+              {isLoading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="bg-muted rounded-2xl px-4 py-3">
+                    <div className="flex gap-1">
+                      <div className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
 
-            {/* How to Use */}
-            <Card>
-              <CardHeader>
-                <CardTitle>How to Use</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ol className="list-decimal list-inside space-y-2 text-sm">
-                  <li><strong>Just start chatting!</strong> The tool is pre-configured and ready to use</li>
-                  <li>Optionally customize the system prompt to change AI behavior</li>
-                  <li>Toggle voice output and select your preferred voice</li>
-                  <li>Type your message or click the microphone to use voice input</li>
-                  <li>Press Enter or click Send to get AI responses</li>
-                  <li>Copy messages, export chat history, or clear conversation anytime</li>
-                </ol>
+        {/* Input Area */}
+        <div className="border-t bg-background p-4">
+          <div className="max-w-3xl mx-auto space-y-2">
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="Message AI..."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                disabled={isLoading}
+                className="min-h-[50px] max-h-[200px] resize-none"
+                rows={1}
+              />
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={toggleListening}
+                  variant={isListening ? "destructive" : "outline"}
+                  size="icon"
+                  disabled={isLoading}
+                  title="Voice input"
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+                <Button
+                  onClick={sendMessage}
+                  disabled={!inputText.trim() || isLoading}
+                  size="icon"
+                  title="Send message"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {isListening && (
+              <p className="text-xs text-muted-foreground text-center animate-pulse">
+                🎤 Listening... Speak now
+              </p>
+            )}
+            
+            {/* How to use link */}
+            <div className="text-center">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-xs text-foreground hover:underline">
+                    How to use
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>How to Use AI Chatbot</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <ol className="list-decimal list-inside space-y-2 text-sm">
+                      <li>Type your message in the input box or use voice input (microphone icon)</li>
+                      <li>Press Enter or click Send to get AI responses</li>
+                      <li>Click Settings (gear icon) to configure API keys, voice options, and system prompt</li>
+                      <li>View and manage your chat history in the sidebar</li>
+                      <li>Start new conversations with the "New Chat" button</li>
+                      <li>Enable voice output in settings to hear AI responses</li>
+                    </ol>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm mb-2">💡 Tip: Use Your Own API Keys</h4>
-                  <p className="text-xs text-muted-foreground">
-                    The default keys have usage limits shared by all users. For unlimited use, click 
-                    "customize your own API keys" above and add your free Gemini API key from Google AI Studio.
-                  </p>
-                </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <p className="text-xs font-semibold mb-1">💡 Tip</p>
+                      <p className="text-xs text-muted-foreground">
+                        The chatbot works out of the box with default API keys. For unlimited usage, add your own free API keys from Groq Console.
+                      </p>
+                    </div>
 
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm mb-2">⚠️ Privacy Note</h4>
-                  <p className="text-xs text-muted-foreground">
-                    API keys are stored locally in your browser only. Your conversations are sent directly 
-                    to Google/ElevenLabs servers and are not stored on our servers.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                      <p className="text-xs font-semibold mb-1">🔒 Privacy</p>
+                      <p className="text-xs text-muted-foreground">
+                        All chats and settings are stored locally in your browser. Nothing is sent to our servers.
+                      </p>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 };
