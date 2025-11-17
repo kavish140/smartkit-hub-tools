@@ -68,7 +68,7 @@ const QuickAccess = () => {
               <Collapsible open={favoritesOpen} onOpenChange={setFavoritesOpen}>
                 <CardContent className="pt-6">
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" className="w-full justify-between p-0 h-auto hover:bg-transparent mb-4">
+                    <Button variant="ghost" className="w-full justify-between p-2 h-auto mb-4">
                       <div className="flex items-center gap-2">
                         <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
                         <h3 className="text-lg font-semibold">Your Favorites</h3>
@@ -101,7 +101,7 @@ const QuickAccess = () => {
               <Collapsible open={recentOpen} onOpenChange={setRecentOpen}>
                 <CardContent className="pt-6">
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" className="w-full justify-between p-0 h-auto hover:bg-transparent mb-4">
+                    <Button variant="ghost" className="w-full justify-between p-2 h-auto mb-4">
                       <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-blue-500" />
                         <h3 className="text-lg font-semibold">Recently Used</h3>
