@@ -1,9 +1,11 @@
-import { Star, Clock } from "lucide-react";
+import { Star, Clock, ChevronDown } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentTools } from "@/hooks/useRecentTools";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { useState } from "react";
 
 // Import the tools array (we'll need to export it from ToolsGrid)
 const toolsData = [
@@ -43,6 +45,8 @@ const QuickAccess = () => {
   const { favorites } = useFavorites();
   const { recentTools } = useRecentTools();
   const navigate = useNavigate();
+  const [favoritesOpen, setFavoritesOpen] = useState(true);
+  const [recentOpen, setRecentOpen] = useState(true);
 
   const favoriteToolsData = toolsData.filter(tool => favorites.includes(tool.title));
   const recentToolsData = recentTools
@@ -61,48 +65,66 @@ const QuickAccess = () => {
           {/* Favorites */}
           {favoriteToolsData.length > 0 && (
             <Card className="border-primary/20 bg-card/80 backdrop-blur">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                  <h3 className="text-lg font-semibold">Your Favorites</h3>
-                </div>
-                <div className="space-y-2">
-                  {favoriteToolsData.map(tool => (
-                    <Button
-                      key={tool.title}
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onClick={() => navigate(tool.path)}
-                    >
-                      {tool.title}
+              <Collapsible open={favoritesOpen} onOpenChange={setFavoritesOpen}>
+                <CardContent className="pt-6">
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-between p-0 h-auto hover:bg-transparent mb-4">
+                      <div className="flex items-center gap-2">
+                        <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                        <h3 className="text-lg font-semibold">Your Favorites</h3>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${favoritesOpen ? 'rotate-180' : ''}`} />
                     </Button>
-                  ))}
-                </div>
-              </CardContent>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="space-y-2">
+                      {favoriteToolsData.map(tool => (
+                        <Button
+                          key={tool.title}
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => navigate(tool.path)}
+                        >
+                          {tool.title}
+                        </Button>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </CardContent>
+              </Collapsible>
             </Card>
           )}
 
           {/* Recent Tools */}
           {recentToolsData.length > 0 && (
             <Card className="border-primary/20 bg-card/80 backdrop-blur">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Clock className="h-5 w-5 text-blue-500" />
-                  <h3 className="text-lg font-semibold">Recently Used</h3>
-                </div>
-                <div className="space-y-2">
-                  {recentToolsData.map(tool => tool && (
-                    <Button
-                      key={tool.title}
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onClick={() => navigate(tool.path)}
-                    >
-                      {tool.title}
+              <Collapsible open={recentOpen} onOpenChange={setRecentOpen}>
+                <CardContent className="pt-6">
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-between p-0 h-auto hover:bg-transparent mb-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-blue-500" />
+                        <h3 className="text-lg font-semibold">Recently Used</h3>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${recentOpen ? 'rotate-180' : ''}`} />
                     </Button>
-                  ))}
-                </div>
-              </CardContent>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="space-y-2">
+                      {recentToolsData.map(tool => tool && (
+                        <Button
+                          key={tool.title}
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => navigate(tool.path)}
+                        >
+                          {tool.title}
+                        </Button>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </CardContent>
+              </Collapsible>
             </Card>
           )}
         </div>
