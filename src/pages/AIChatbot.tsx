@@ -41,15 +41,12 @@ const AIChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("You are a helpful AI assistant named Jarvis. Provide clear, concise, and friendly responses.");
   
-  // API Keys - hardcoded fallback if env variables don't work
-  const FALLBACK_GEMINI_KEY = "AIzaSyAOZnuW9Lao7-KSc89CqSdE4C33brB7eAY";
-  const FALLBACK_ELEVENLABS_KEY = "sk_be8cacf10b4a8ec62da98453eabedfc3f24f18d13c6acc2c";
-  
-  const defaultGeminiKey = import.meta.env.VITE_GEMINI_API_KEY || FALLBACK_GEMINI_KEY;
-  const defaultElevenLabsKey = import.meta.env.VITE_ELEVENLABS_API_KEY || FALLBACK_ELEVENLABS_KEY;
-  
-  const [geminiApiKey, setGeminiApiKey] = useState(defaultGeminiKey);
-  const [elevenLabsApiKey, setElevenLabsApiKey] = useState(defaultElevenLabsKey);
+  const [groqApiKey, setGroqApiKey] = useState(
+    () => localStorage.getItem("groqApiKey") || import.meta.env.VITE_GROQ_API_KEY || ""
+  );
+  const [elevenLabsApiKey, setElevenLabsApiKey] = useState(
+    () => localStorage.getItem("elevenLabsApiKey") || import.meta.env.VITE_ELEVENLABS_API_KEY || ""
+  );
   const [showApiKeys, setShowApiKeys] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,25 +54,13 @@ const AIChatbot = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Load saved API keys from localStorage if they exist, otherwise use defaults
-    const savedGeminiKey = localStorage.getItem("gemini_api_key");
-    const savedElevenKey = localStorage.getItem("elevenlabs_api_key");
-    
-    if (savedGeminiKey) {
-      setGeminiApiKey(savedGeminiKey);
-    } else if (defaultGeminiKey) {
-      setGeminiApiKey(defaultGeminiKey);
+    // Persist API keys to localStorage when they change
+    if (groqApiKey) {
+      localStorage.setItem("groqApiKey", groqApiKey);
     }
-    
-    if (savedElevenKey) {
-      setElevenLabsApiKey(savedElevenKey);
-    } else if (defaultElevenLabsKey) {
-      setElevenLabsApiKey(defaultElevenLabsKey);
+    if (elevenLabsApiKey) {
+      localStorage.setItem("elevenLabsApiKey", elevenLabsApiKey);
     }
-    
-    // Debug: Log if environment variables are loaded (only first 10 chars for security)
-    console.log("Gemini API Key loaded:", defaultGeminiKey ? `${defaultGeminiKey.substring(0, 10)}...` : "NOT FOUND");
-    console.log("ElevenLabs API Key loaded:", defaultElevenLabsKey ? `${defaultElevenLabsKey.substring(0, 10)}...` : "NOT FOUND");
 
     // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -111,8 +96,8 @@ const AIChatbot = () => {
   }, [messages]);
 
   const saveApiKeys = () => {
-    if (geminiApiKey) localStorage.setItem("gemini_api_key", geminiApiKey);
-    if (elevenLabsApiKey) localStorage.setItem("elevenlabs_api_key", elevenLabsApiKey);
+    if (groqApiKey) localStorage.setItem("groqApiKey", groqApiKey);
+    if (elevenLabsApiKey) localStorage.setItem("elevenLabsApiKey", elevenLabsApiKey);
     toast({
       title: "API Keys Saved",
       description: "Your API keys have been saved locally in your browser.",
@@ -188,12 +173,10 @@ const AIChatbot = () => {
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
 
-    console.log("Gemini API Key being used:", geminiApiKey ? `${geminiApiKey.substring(0, 15)}...` : "NOT FOUND");
-
-    if (!geminiApiKey) {
+    if (!groqApiKey) {
       toast({
         title: "API Key Required",
-        description: "Please configure your Gemini API key to use the chatbot.",
+        description: "Please configure your Groq API key to use the chatbot.",
         variant: "destructive",
       });
       setShowApiKeys(true);
@@ -212,52 +195,48 @@ const AIChatbot = () => {
     setIsLoading(true);
 
     try {
-      // Build conversation history in Gemini format
-      const conversationText = newMessages
-        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
-        .join('\n\n');
-      
-      const fullPrompt = `${systemPrompt}\n\n${conversationText}`;
-      
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-      console.log("Making request to:", apiUrl.replace(geminiApiKey, "***"));
-      console.log("Prompt:", fullPrompt.substring(0, 200) + "...");
+      // Build messages in OpenAI format for Groq
+      const groqMessages = [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        ...newMessages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      ];
       
       const response = await fetch(
-        apiUrl,
+        "https://api.groq.com/openai/v1/chat/completions",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${groqApiKey}`
           },
           body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: fullPrompt,
-                  },
-                ],
-              },
-            ],
+            model: "llama-3.3-70b-versatile",
+            messages: groqMessages,
+            temperature: 0.7,
+            max_tokens: 1024
           }),
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error("Gemini API Error:", errorData);
+        console.error("Groq API Error:", errorData);
         throw new Error(errorData.error?.message || `API Error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log("Gemini API Response:", data);
       
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-        throw new Error("Invalid response format from Gemini API");
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error("Invalid response format from Groq API");
       }
       
-      const aiResponse = data.candidates[0].content.parts[0].text;
+      const aiResponse = data.choices[0].message.content;
 
       const assistantMessage: Message = {
         role: "assistant",
@@ -324,9 +303,9 @@ const AIChatbot = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <SEO
-        title="AI Chatbot with Voice - Gemini & ElevenLabs | AI SmartKit"
-        description="Advanced AI chatbot powered by Google Gemini with voice input/output using ElevenLabs. Chat naturally with text or voice, customize voices, and get intelligent responses."
-        keywords="AI chatbot, voice assistant, Gemini AI, ElevenLabs, voice chat, AI assistant, speech recognition, text to speech"
+        title="AI Chatbot with Voice - Groq & ElevenLabs | AI SmartKit"
+        description="Advanced AI chatbot powered by Groq (Llama 3.3) with voice input/output using ElevenLabs. Chat naturally with text or voice, customize voices, and get intelligent responses."
+        keywords="AI chatbot, voice assistant, Groq AI, Llama 3, ElevenLabs, voice chat, AI assistant, speech recognition, text to speech"
       />
       <Header />
       <main className="flex-1 bg-gradient-subtle py-12">
@@ -345,7 +324,7 @@ const AIChatbot = () => {
               <CardHeader>
                 <CardTitle className="text-3xl">AI Chatbot with Voice</CardTitle>
                 <CardDescription>
-                  Chat with an advanced AI assistant powered by Google Gemini. Enable voice for natural conversations.
+                  Chat with an advanced AI assistant powered by Groq AI (Llama 3.3). Enable voice for natural conversations.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -368,23 +347,23 @@ const AIChatbot = () => {
                     <h3 className="font-semibold text-sm">API Configuration (Optional)</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="gemini-key">Gemini API Key</Label>
+                        <Label htmlFor="groq-key">Groq API Key</Label>
                         <Input
-                          id="gemini-key"
+                          id="groq-key"
                           type="password"
-                          placeholder="AIzaSy..."
-                          value={geminiApiKey}
-                          onChange={(e) => setGeminiApiKey(e.target.value)}
+                          placeholder="gsk_..."
+                          value={groqApiKey}
+                          onChange={(e) => setGroqApiKey(e.target.value)}
                         />
                         <p className="text-xs text-muted-foreground">
                           Get your free key from{" "}
                           <a
-                            href="https://aistudio.google.com/app/apikey"
+                            href="https://console.groq.com/keys"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="underline"
                           >
-                            Google AI Studio
+                            Groq Console
                           </a>
                         </p>
                       </div>
