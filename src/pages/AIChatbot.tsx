@@ -107,19 +107,51 @@ const AIChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Save chat histories to localStorage whenever they change
+  // Cleanup on unmount
   useEffect(() => {
-    localStorage.setItem("chatHistories", JSON.stringify(chatHistories));
+    return () => {
+      // Stop audio playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+        if (audioRef.current.src) {
+          URL.revokeObjectURL(audioRef.current.src);
+        }
+      }
+      // Stop speech recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  // Save chat histories to localStorage whenever they change (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem("chatHistories", JSON.stringify(chatHistories));
+    }, 500); // Debounce for 500ms
+    
+    return () => clearTimeout(timeoutId);
   }, [chatHistories]);
 
   // Update current chat when messages change
   useEffect(() => {
     if (currentChatId && messages.length > 0) {
-      setChatHistories(prev => prev.map(chat => 
-        chat.id === currentChatId 
-          ? { ...chat, messages, updatedAt: new Date(), title: generateChatTitle(messages) }
-          : chat
-      ));
+      const timeoutId = setTimeout(() => {
+        setChatHistories(prev => {
+          const currentChat = prev.find(c => c.id === currentChatId);
+          // Only update if messages actually changed
+          if (currentChat && JSON.stringify(currentChat.messages) !== JSON.stringify(messages)) {
+            return prev.map(chat => 
+              chat.id === currentChatId 
+                ? { ...chat, messages, updatedAt: new Date(), title: generateChatTitle(messages) }
+                : chat
+            );
+          }
+          return prev;
+        });
+      }, 300); // Debounce to avoid excessive updates
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [messages, currentChatId]);
 
@@ -229,9 +261,16 @@ const AIChatbot = () => {
       
       if (audioRef.current) {
         audioRef.current.pause();
+        // Clean up old audio URL to prevent memory leaks
+        if (audioRef.current.src) {
+          URL.revokeObjectURL(audioRef.current.src);
+        }
       }
       
       audioRef.current = new Audio(audioUrl);
+      audioRef.current.onended = () => {
+        URL.revokeObjectURL(audioUrl); // Clean up after playing
+      };
       audioRef.current.play();
     } catch (error) {
       console.error("Text-to-speech error:", error);
