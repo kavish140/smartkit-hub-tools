@@ -73,13 +73,16 @@ const Contact = () => {
               </div>
 
               <div className="bg-muted/50 p-6 rounded-lg border border-border">
+                <p className="text-sm text-center text-muted-foreground mb-2">
+                  <strong>💡 Quick Response:</strong> We typically respond within 24-48 hours on business days.
+                </p>
                 <p className="text-sm text-center text-muted-foreground">
-                  <strong>Note:</strong> For privacy policy inquiries or data-related questions, 
+                  For privacy policy inquiries or data-related questions, 
                   please refer to our{" "}
                   <a href="/privacy-policy" className="text-primary hover:underline">
                     Privacy Policy
                   </a>{" "}
-                  page or contact us directly.
+                  page.
                 </p>
               </div>
             </CardContent>

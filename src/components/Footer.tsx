@@ -42,18 +42,21 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#tools" className="text-muted-foreground hover:text-foreground transition-colors">
-                  All Tools
+                <a href="#tools" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+                  <span>•</span>
+                  <span>Browse All Tools</span>
                 </a>
               </li>
               <li>
-                <button onClick={navigateToAbout} className="text-muted-foreground hover:text-foreground transition-colors text-left">
-                  About Us
+                <button onClick={navigateToAbout} className="text-muted-foreground hover:text-foreground transition-colors text-left flex items-center gap-2">
+                  <span>•</span>
+                  <span>About SmartKit</span>
                 </button>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                  FAQ
+                <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+                  <span>•</span>
+                  <span>Get Support</span>
                 </a>
               </li>
             </ul>
@@ -90,8 +93,11 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm">
+        <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm space-y-2">
           <p>&copy; {new Date().getFullYear()} SmartKit.tech. All rights reserved.</p>
+          <p className="text-xs">
+            Made with ❤️ for productivity enthusiasts • All tools are free and always will be
+          </p>
         </div>
       </div>
     </footer>

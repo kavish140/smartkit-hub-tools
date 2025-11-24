@@ -32,10 +32,25 @@ const Hero = () => {
             </span>
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Access powerful utilities, converters, generators, and productivity tools 
+          <p className="text-xl text-muted-foreground mb-4 max-w-2xl mx-auto">
+            Access 30+ powerful utilities, converters, generators, and productivity tools 
             designed to make your daily tasks effortless and efficient.
           </p>
+          
+          <div className="flex flex-wrap gap-3 justify-center mb-8 text-sm">
+            <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
+              <span className="text-green-500">✓</span>
+              <span>100% Free</span>
+            </div>
+            <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
+              <span className="text-green-500">✓</span>
+              <span>No Registration</span>
+            </div>
+            <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
+              <span className="text-green-500">✓</span>
+              <span>Privacy First</span>
+            </div>
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-gradient-primary border-0 shadow-glow" onClick={scrollToTools}>

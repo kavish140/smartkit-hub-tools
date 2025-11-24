@@ -57,7 +57,22 @@ const QuickAccess = () => {
   const handleNavigate = useCallback((path: string) => navigate(path), [navigate]);
 
   if (favoriteToolsData.length === 0 && recentToolsData.length === 0) {
-    return null;
+    return (
+      <section className="py-12 bg-gradient-subtle">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="bg-card/50 backdrop-blur border border-border rounded-lg p-6">
+              <p className="text-muted-foreground mb-2">
+                💡 <strong>Quick Tip:</strong> Click the star icon on any tool to add it to your favorites for quick access!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Your recently used tools will also appear here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (

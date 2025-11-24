@@ -33,8 +33,11 @@ const About = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Why Choose <span className="bg-gradient-primary bg-clip-text text-transparent">SmartKit.tech</span>?
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            We've built a comprehensive toolkit designed to simplify your daily tasks and boost your productivity.
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-2">
+            A comprehensive toolkit designed to simplify your daily tasks and boost your productivity.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Trusted by thousands of users worldwide • No ads, no tracking, just tools that work
           </p>
         </div>
 

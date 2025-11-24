@@ -32,11 +32,13 @@ import {
   Shapes,
   Type,
   TestTube2,
-  MessageSquare
+  MessageSquare,
+  X
 } from "lucide-react";
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import { useState, useMemo, useCallback, memo } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -351,11 +353,20 @@ const ToolsGrid = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search tools by name, description, or category..."
+                placeholder="Search tools... (Press / or Ctrl+K to focus)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-12 bg-card border-primary/20 focus:border-primary shadow-elegant"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-full md:w-[200px] h-12 bg-card border-primary/20">
@@ -393,7 +404,25 @@ const ToolsGrid = () => {
 
         {filteredTools.length === 0 && (
           <div className="text-center py-12 animate-fade-in">
-            <p className="text-muted-foreground text-lg">No tools found matching "{searchQuery}"</p>
+            <div className="bg-muted/30 rounded-lg p-8 max-w-md mx-auto border border-border">
+              <p className="text-muted-foreground text-lg mb-4">No tools found matching "{searchQuery}"</p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>Try:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Using different keywords</li>
+                  <li>Checking for typos</li>
+                  <li>Selecting "All Categories"</li>
+                  <li>Browsing all tools below</li>
+                </ul>
+              </div>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
         )}
       </div>

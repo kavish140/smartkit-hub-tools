@@ -35,9 +35,11 @@ const ToolCard = memo(({ title, description, icon: Icon, category, onClick, isFa
                   e.stopPropagation();
                   onToggleFavorite();
                 }}
+                title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
               >
                 <Star 
-                  className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                  className={`h-4 w-4 transition-all ${isFavorite ? 'fill-yellow-400 text-yellow-400 scale-110' : 'text-muted-foreground'}`} 
                 />
               </Button>
             )}

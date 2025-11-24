@@ -555,12 +555,41 @@ const AIChatbot = () => {
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-              <MessageSquare className="h-12 w-12 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 p-4">
+              <MessageSquare className="h-16 w-16 text-muted-foreground" />
               <div>
-                <h2 className="text-2xl font-semibold mb-2">Start a conversation</h2>
-                <p className="text-muted-foreground">Type a message below to chat with AI</p>
+                <h2 className="text-2xl font-semibold mb-2">Welcome to Rhino Bot!</h2>
+                <p className="text-muted-foreground mb-4">Your AI assistant is ready to help. Try asking:</p>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl w-full">
+                <button
+                  onClick={() => setInputText("Tell me a fun fact about space")}
+                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                >
+                  <p className="text-sm font-medium">🚀 Tell me a fun fact about space</p>
+                </button>
+                <button
+                  onClick={() => setInputText("Explain quantum computing simply")}
+                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                >
+                  <p className="text-sm font-medium">💡 Explain quantum computing simply</p>
+                </button>
+                <button
+                  onClick={() => setInputText("Write a short motivational quote")}
+                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                >
+                  <p className="text-sm font-medium">✨ Write a motivational quote</p>
+                </button>
+                <button
+                  onClick={() => setInputText("Help me brainstorm ideas")}
+                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                >
+                  <p className="text-sm font-medium">🎨 Help me brainstorm ideas</p>
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">
+                🎙️ Tip: Enable voice mode in settings for hands-free conversations
+              </p>
             </div>
           ) : (
             <div className="max-w-3xl mx-auto space-y-6">
@@ -590,6 +619,7 @@ const AIChatbot = () => {
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => copyMessage(message.content)}
+                        title="Copy message"
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -618,7 +648,7 @@ const AIChatbot = () => {
           <div className="max-w-3xl mx-auto space-y-2">
             <div className="flex gap-2">
               <Textarea
-                placeholder="Message AI..."
+                placeholder="Message Rhino Bot... (Shift+Enter for new line)"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => {

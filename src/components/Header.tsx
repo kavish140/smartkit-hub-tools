@@ -1,6 +1,7 @@
 import { Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "./ThemeToggle";
+import HelpModal from "./HelpModal";
 import { useCallback, memo } from "react";
 
 const Header = () => {
@@ -35,6 +36,7 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <HelpModal />
             <ThemeToggle />
             <Button variant="default" className="bg-gradient-primary border-0" onClick={scrollToTools}>
               Get Started
