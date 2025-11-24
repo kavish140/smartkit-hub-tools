@@ -37,7 +37,7 @@ import {
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -401,4 +401,4 @@ const ToolsGrid = () => {
   );
 };
 
-export default ToolsGrid;
+export default memo(ToolsGrid);

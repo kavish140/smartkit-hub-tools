@@ -1,5 +1,6 @@
 import { Shield, Zap, Palette, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { memo } from "react";
 
 const About = () => {
   const features = [
@@ -89,4 +90,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default memo(About);

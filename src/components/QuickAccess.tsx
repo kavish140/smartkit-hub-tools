@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 
 // Import the tools array (we'll need to export it from ToolsGrid)
 const toolsData = [
@@ -135,4 +135,4 @@ const QuickAccess = () => {
   );
 };
 
-export default QuickAccess;
+export default memo(QuickAccess);

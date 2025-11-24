@@ -1,6 +1,7 @@
 import { Mail, Github, Twitter, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { memo } from "react";
 
 const Contact = () => {
   return (
@@ -89,4 +90,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default memo(Contact);
