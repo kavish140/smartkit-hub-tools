@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
+import SEO from "@/components/SEO";
 
 interface CryptoData {
   id: string;
@@ -100,6 +101,11 @@ const CryptoPrices = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title="Crypto Prices"
+        description="Track live cryptocurrency prices and market trends for Bitcoin, Ethereum, and 50+ coins"
+        keywords="crypto prices, cryptocurrency, bitcoin, ethereum, live crypto, market cap"
+      />
       <Header />
       <main className="flex-1 bg-gradient-subtle py-12">
         <div className="container mx-auto px-4">

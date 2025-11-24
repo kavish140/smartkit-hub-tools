@@ -11,6 +11,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
+import SEO from "@/components/SEO";
 
 const CurrencyConverter = () => {
   useToolTracking("Currency Converter");
@@ -101,14 +102,21 @@ const CurrencyConverter = () => {
     fetchRates();
   }, [fromCurrency]);
 
+  // Auto-convert when amount, currencies, or rates change
+  useEffect(() => {
+    if (amount && rates[toCurrency]) {
+      convert();
+    }
+  }, [amount, fromCurrency, toCurrency, rates]);
+
   const convert = () => {
     const inputAmount = parseFloat(amount);
-    if (isNaN(inputAmount) || !rates[toCurrency]) {
-      toast({
-        title: "Invalid Input",
-        description: "Please enter a valid amount",
-        variant: "destructive",
-      });
+    if (isNaN(inputAmount) || inputAmount === 0) {
+      setResult(0);
+      return;
+    }
+
+    if (!rates[toCurrency]) {
       return;
     }
 
@@ -132,6 +140,11 @@ const CurrencyConverter = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title="Currency Converter"
+        description="Convert between world currencies with live exchange rates for USD, EUR, GBP, JPY, and 25+ currencies"
+        keywords="currency converter, exchange rates, forex, currency exchange, convert money"
+      />
       <Header />
       <main className="flex-1 bg-gradient-subtle py-12">
         <div className="container mx-auto px-4">
