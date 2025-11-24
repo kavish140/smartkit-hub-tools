@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ interface ToolCardProps {
   onToggleFavorite?: () => void;
 }
 
-const ToolCard = ({ title, description, icon: Icon, category, onClick, isFavorite, onToggleFavorite }: ToolCardProps) => {
+const ToolCard = memo(({ title, description, icon: Icon, category, onClick, isFavorite, onToggleFavorite }: ToolCardProps) => {
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur-sm">
       <CardHeader>
@@ -57,6 +58,8 @@ const ToolCard = ({ title, description, icon: Icon, category, onClick, isFavorit
       </CardContent>
     </Card>
   );
-};
+});
+
+ToolCard.displayName = 'ToolCard';
 
 export default ToolCard;

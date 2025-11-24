@@ -1,12 +1,13 @@
 import { Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "./ThemeToggle";
+import { useCallback, memo } from "react";
 
 const Header = () => {
-  const scrollToTools = () => {
+  const scrollToTools = useCallback(() => {
     const toolsSection = document.getElementById('tools');
     toolsSection?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -45,4 +46,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default memo(Header);

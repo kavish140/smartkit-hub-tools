@@ -1,33 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const FAVORITES_KEY = 'smartkit_favorites';
 
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<string[]>([]);
-
-  useEffect(() => {
+  const [favorites, setFavorites] = useState<string[]>(() => {
     const stored = localStorage.getItem(FAVORITES_KEY);
     if (stored) {
       try {
-        setFavorites(JSON.parse(stored));
+        return JSON.parse(stored);
       } catch (e) {
         console.error('Error loading favorites:', e);
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
 
-  const toggleFavorite = (toolTitle: string) => {
+  useEffect(() => {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleFavorite = useCallback((toolTitle: string) => {
     setFavorites(prev => {
       const newFavorites = prev.includes(toolTitle)
         ? prev.filter(t => t !== toolTitle)
         : [...prev, toolTitle];
-      
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites));
       return newFavorites;
     });
-  };
+  }, []);
 
-  const isFavorite = (toolTitle: string) => favorites.includes(toolTitle);
+  const isFavorite = useCallback((toolTitle: string) => favorites.includes(toolTitle), [favorites]);
 
   return { favorites, toggleFavorite, isFavorite };
 };

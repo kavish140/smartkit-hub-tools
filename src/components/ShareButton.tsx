@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useCallback, memo, useMemo } from "react";
 
 interface ShareButtonProps {
   title: string;
@@ -16,10 +17,10 @@ interface ShareButtonProps {
 
 const ShareButton = ({ title, description, url }: ShareButtonProps) => {
   const { toast } = useToast();
-  const shareUrl = url || window.location.href;
-  const shareText = description || `Check out ${title} on SmartKit.tech`;
+  const shareUrl = useMemo(() => url || window.location.href, [url]);
+  const shareText = useMemo(() => description || `Check out ${title} on SmartKit.tech`, [title, description]);
 
-  const handleShare = async (platform: string) => {
+  const handleShare = useCallback(async (platform: string) => {
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
 
@@ -76,7 +77,7 @@ const ShareButton = ({ title, description, url }: ShareButtonProps) => {
     if (shareLink) {
       window.open(shareLink, "_blank", "width=600,height=400");
     }
-  };
+  }, [shareUrl, shareText, title, toast]);
 
   return (
     <DropdownMenu>
@@ -115,4 +116,4 @@ const ShareButton = ({ title, description, url }: ShareButtonProps) => {
   );
 };
 
-export default ShareButton;
+export default memo(ShareButton);

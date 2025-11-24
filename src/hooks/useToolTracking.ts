@@ -1,16 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRecentTools } from './useRecentTools';
 import { supabase } from '@/lib/supabaseClient';
 
 export const useToolTracking = (toolName: string) => {
   const { addRecentTool } = useRecentTools();
 
-  useEffect(() => {
-    // Add to recent tools when component mounts
-    addRecentTool(toolName);
-
-    // Track tool usage in Supabase
-    const trackToolUsage = async () => {
+  const trackToolUsage = useCallback(async () => {
       try {
         // Get device info
         const userAgent = navigator.userAgent;
@@ -97,8 +92,11 @@ export const useToolTracking = (toolName: string) => {
       } catch (error) {
         // Tracking failed completely - continue silently
       }
-    };
+    }, [toolName]);
 
+  useEffect(() => {
+    // Add to recent tools when component mounts
+    addRecentTool(toolName);
     trackToolUsage();
-  }, [toolName, addRecentTool]);
+  }, [toolName, addRecentTool, trackToolUsage]);
 };

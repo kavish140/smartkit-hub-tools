@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const RECENT_TOOLS_KEY = 'smartkit_recent_tools';
 const MAX_RECENT = 5;
@@ -9,20 +9,24 @@ interface RecentTool {
 }
 
 export const useRecentTools = () => {
-  const [recentTools, setRecentTools] = useState<RecentTool[]>([]);
-
-  useEffect(() => {
+  const [recentTools, setRecentTools] = useState<RecentTool[]>(() => {
     const stored = localStorage.getItem(RECENT_TOOLS_KEY);
     if (stored) {
       try {
-        setRecentTools(JSON.parse(stored));
+        return JSON.parse(stored);
       } catch (e) {
         console.error('Error loading recent tools:', e);
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
 
-  const addRecentTool = (toolTitle: string) => {
+  useEffect(() => {
+    localStorage.setItem(RECENT_TOOLS_KEY, JSON.stringify(recentTools));
+  }, [recentTools]);
+
+  const addRecentTool = useCallback((toolTitle: string) => {
     setRecentTools(prev => {
       // Remove if already exists
       const filtered = prev.filter(t => t.title !== toolTitle);
@@ -33,10 +37,9 @@ export const useRecentTools = () => {
         ...filtered
       ].slice(0, MAX_RECENT);
       
-      localStorage.setItem(RECENT_TOOLS_KEY, JSON.stringify(newRecent));
       return newRecent;
     });
-  };
+  }, []);
 
   return { recentTools, addRecentTool };
 };

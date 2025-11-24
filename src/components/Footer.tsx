@@ -1,8 +1,15 @@
 import { Code2, Mail, Github, Twitter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCallback, memo } from "react";
 
 const Footer = () => {
   const navigate = useNavigate();
+  
+  const navigateToAbout = useCallback(() => navigate('/about'), [navigate]);
+  const navigateToPrivacy = useCallback(() => navigate('/privacy-policy'), [navigate]);
+  const navigateToTerms = useCallback(() => navigate('/terms'), [navigate]);
+  const navigateToContact = useCallback(() => navigate('/contact'), [navigate]);
+  
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
@@ -40,7 +47,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-left">
+                <button onClick={navigateToAbout} className="text-muted-foreground hover:text-foreground transition-colors text-left">
                   About Us
                 </button>
               </li>
@@ -57,7 +64,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <button 
-                  onClick={() => navigate("/privacy-policy")}
+                  onClick={navigateToPrivacy}
                   className="text-muted-foreground hover:text-foreground transition-colors text-left"
                 >
                   Privacy Policy
@@ -65,7 +72,7 @@ const Footer = () => {
               </li>
               <li>
                 <button 
-                  onClick={() => navigate("/terms")}
+                  onClick={navigateToTerms}
                   className="text-muted-foreground hover:text-foreground transition-colors text-left"
                 >
                   Terms of Service
@@ -73,7 +80,7 @@ const Footer = () => {
               </li>
               <li>
                 <button 
-                  onClick={() => navigate("/contact")}
+                  onClick={navigateToContact}
                   className="text-muted-foreground hover:text-foreground transition-colors text-left"
                 >
                   Contact
@@ -91,4 +98,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default memo(Footer);

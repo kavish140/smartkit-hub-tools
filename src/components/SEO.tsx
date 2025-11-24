@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, memo } from "react";
 
 interface SEOProps {
   title: string;
@@ -9,7 +9,7 @@ interface SEOProps {
   structuredData?: object;
 }
 
-const SEO: React.FC<SEOProps> = ({
+const SEO: React.FC<SEOProps> = memo(({
   title,
   description,
   keywords = "",
@@ -86,6 +86,8 @@ const SEO: React.FC<SEOProps> = ({
   }, [title, description, keywords, canonical, ogImage, structuredData]);
 
   return null;
-};
+});
+
+SEO.displayName = 'SEO';
 
 export default SEO;

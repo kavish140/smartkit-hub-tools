@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 // Import the tools array (we'll need to export it from ToolsGrid)
 const toolsData = [
@@ -48,11 +48,13 @@ const QuickAccess = () => {
   const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [recentOpen, setRecentOpen] = useState(false);
 
-  const favoriteToolsData = toolsData.filter(tool => favorites.includes(tool.title));
-  const recentToolsData = recentTools
+  const favoriteToolsData = useMemo(() => toolsData.filter(tool => favorites.includes(tool.title)), [favorites]);
+  const recentToolsData = useMemo(() => recentTools
     .map(recent => toolsData.find(tool => tool.title === recent.title))
     .filter(Boolean)
-    .slice(0, 5);
+    .slice(0, 5), [recentTools]);
+
+  const handleNavigate = useCallback((path: string) => navigate(path), [navigate]);
 
   if (favoriteToolsData.length === 0 && recentToolsData.length === 0) {
     return null;
@@ -83,7 +85,7 @@ const QuickAccess = () => {
                           key={tool.title}
                           variant="ghost"
                           className="w-full justify-start"
-                          onClick={() => navigate(tool.path)}
+                          onClick={() => handleNavigate(tool.path)}
                         >
                           {tool.title}
                         </Button>
@@ -116,7 +118,7 @@ const QuickAccess = () => {
                           key={tool.title}
                           variant="ghost"
                           className="w-full justify-start"
-                          onClick={() => navigate(tool.path)}
+                          onClick={() => handleNavigate(tool.path)}
                         >
                           {tool.title}
                         </Button>

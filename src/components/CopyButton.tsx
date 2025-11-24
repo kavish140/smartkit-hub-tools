@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CopyButtonProps {
@@ -8,11 +8,11 @@ interface CopyButtonProps {
   label?: string;
 }
 
-const CopyButton = ({ text, label = "Copy" }: CopyButtonProps) => {
+const CopyButton = memo(({ text, label = "Copy" }: CopyButtonProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -28,7 +28,7 @@ const CopyButton = ({ text, label = "Copy" }: CopyButtonProps) => {
         variant: "destructive",
       });
     }
-  };
+  }, [text, toast]);
 
   return (
     <Button
@@ -50,6 +50,8 @@ const CopyButton = ({ text, label = "Copy" }: CopyButtonProps) => {
       )}
     </Button>
   );
-};
+});
+
+CopyButton.displayName = 'CopyButton';
 
 export default CopyButton;

@@ -1,10 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 export const useKeyboardShortcuts = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
       // Ctrl+K or Cmd+K - Focus search
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
@@ -45,8 +44,9 @@ export const useKeyboardShortcuts = () => {
           'Ctrl+/ - Show this help'
         );
       }
-    };
+    }, []);
 
+  useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {

@@ -37,12 +37,12 @@ import {
 import ToolCard from "./ToolCard";
 import { useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const tools = [
+const tools = useMemo(() => [
   {
     title: "Rhino Bot",
     description: "🔥 Trending - Voice-enabled AI assistant for natural conversations",
@@ -303,7 +303,7 @@ const tools = [
     category: "Developer",
     path: "/case-converter"
   }
-];
+], []);
 
 const ToolsGrid = () => {
   const navigate = useNavigate();
@@ -314,16 +314,16 @@ const ToolsGrid = () => {
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
 
-  const handleToolClick = (path?: string) => {
+  const handleToolClick = useCallback((path?: string) => {
     if (path) {
       navigate(path);
     }
-  };
+  }, [navigate]);
 
   // Get unique categories
-  const categories = ["all", ...Array.from(new Set(tools.map(tool => tool.category)))];
+  const categories = useMemo(() => ["all", ...Array.from(new Set(tools.map(tool => tool.category)))], []);
 
-  const filteredTools = tools.filter(tool => {
+  const filteredTools = useMemo(() => tools.filter(tool => {
     const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tool.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -331,7 +331,7 @@ const ToolsGrid = () => {
     const matchesCategory = selectedCategory === "all" || tool.category === selectedCategory;
     
     return matchesSearch && matchesCategory;
-  });
+  }), [searchQuery, selectedCategory]);
 
   return (
     <section id="tools" className="py-20 bg-background">

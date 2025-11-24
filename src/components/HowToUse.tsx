@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, Lightbulb, Keyboard, Info } from "lucide-react";
@@ -24,7 +24,7 @@ interface HowToUseProps {
   shortcuts?: Shortcut[];
 }
 
-const HowToUse: React.FC<HowToUseProps> = ({ steps, tips, shortcuts }) => {
+const HowToUse: React.FC<HowToUseProps> = memo(({ steps, tips, shortcuts }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -111,6 +111,8 @@ const HowToUse: React.FC<HowToUseProps> = ({ steps, tips, shortcuts }) => {
       </Collapsible>
     </Card>
   );
-};
+});
+
+HowToUse.displayName = 'HowToUse';
 
 export default HowToUse;

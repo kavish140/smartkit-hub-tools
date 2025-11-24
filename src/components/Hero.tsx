@@ -1,16 +1,17 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCallback, memo } from "react";
 
 const Hero = () => {
-  const scrollToTools = () => {
+  const scrollToTools = useCallback(() => {
     const toolsSection = document.getElementById('tools');
     toolsSection?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
-  const scrollToAbout = () => {
+  const scrollToAbout = useCallback(() => {
     const aboutSection = document.getElementById('about');
     aboutSection?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   return (
     <section className="relative overflow-hidden bg-gradient-subtle py-20 md:py-32">
@@ -50,4 +51,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default memo(Hero);
