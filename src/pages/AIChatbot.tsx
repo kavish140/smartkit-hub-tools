@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +31,7 @@ const VOICE_OPTIONS = [
   { id: "EXAVITQu4vr4xnSDxMaL", name: "Sarah (Female)" },
   { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel (Female)" },
   { id: "pNInz6obpgDQGcFmaJgB", name: "Adam (Male)" },
-];
+] as const;
 
 const AIChatbot = () => {
   useToolTracking("AI Chatbot");
@@ -123,13 +123,13 @@ const AIChatbot = () => {
     }
   }, [messages, currentChatId]);
 
-  const generateChatTitle = (msgs: Message[]) => {
+  const generateChatTitle = useCallback((msgs: Message[]) => {
     const firstUserMsg = msgs.find(m => m.role === "user");
     if (!firstUserMsg) return "New Chat";
     return firstUserMsg.content.slice(0, 30) + (firstUserMsg.content.length > 30 ? "..." : "");
-  };
+  }, []);
 
-  const startNewChat = () => {
+  const startNewChat = useCallback(() => {
     const newChat: ChatHistory = {
       id: Date.now().toString(),
       title: "New Chat",
@@ -141,31 +141,31 @@ const AIChatbot = () => {
     setCurrentChatId(newChat.id);
     setMessages([]);
     setInputText("");
-  };
+  }, []);
 
-  const loadChat = (chatId: string) => {
+  const loadChat = useCallback((chatId: string) => {
     const chat = chatHistories.find(c => c.id === chatId);
     if (chat) {
       setCurrentChatId(chatId);
       setMessages(chat.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })));
     }
-  };
+  }, [chatHistories]);
 
-  const deleteChat = (chatId: string) => {
+  const deleteChat = useCallback((chatId: string) => {
     setChatHistories(prev => prev.filter(c => c.id !== chatId));
     if (currentChatId === chatId) {
       setCurrentChatId(null);
       setMessages([]);
     }
-  };
+  }, [currentChatId]);
 
-  const clearAllHistory = () => {
+  const clearAllHistory = useCallback(() => {
     setChatHistories([]);
     setCurrentChatId(null);
     setMessages([]);
-  };
+  }, []);
 
-  const saveSettings = () => {
+  const saveSettings = useCallback(() => {
     if (groqApiKey) localStorage.setItem("groqApiKey", groqApiKey);
     if (elevenLabsApiKey) localStorage.setItem("elevenLabsApiKey", elevenLabsApiKey);
     setShowSettings(false);
@@ -173,9 +173,9 @@ const AIChatbot = () => {
       title: "Settings Saved",
       description: "Your settings have been saved locally.",
     });
-  };
+  }, [groqApiKey, elevenLabsApiKey, toast]);
 
-  const toggleListening = () => {
+  const toggleListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast({
         title: "Not Supported",
@@ -192,9 +192,9 @@ const AIChatbot = () => {
       recognitionRef.current.start();
       setIsListening(true);
     }
-  };
+  }, [isListening, toast]);
 
-  const speakText = async (text: string) => {
+  const speakText = useCallback(async (text: string) => {
     if (!isVoiceEnabled || !elevenLabsApiKey) return;
 
     try {
@@ -241,9 +241,9 @@ const AIChatbot = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [isVoiceEnabled, elevenLabsApiKey, selectedVoice, toast]);
 
-  const sendMessage = async () => {
+  const sendMessage = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
 
     if (!groqApiKey) {
@@ -350,25 +350,25 @@ const AIChatbot = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [inputText, isLoading, groqApiKey, currentChatId, messages, systemPrompt, isVoiceEnabled, speakText, toast]);
 
-  const clearChat = () => {
+  const clearChat = useCallback(() => {
     setMessages([]);
     toast({
       title: "Chat Cleared",
       description: "All messages have been removed.",
     });
-  };
+  }, [toast]);
 
-  const copyMessage = (content: string) => {
+  const copyMessage = useCallback((content: string) => {
     navigator.clipboard.writeText(content);
     toast({
       title: "Copied",
       description: "Message copied to clipboard.",
     });
-  };
+  }, [toast]);
 
-  const exportChat = () => {
+  const exportChat = useCallback(() => {
     const chatText = messages
       .map((msg) => `[${msg.timestamp.toLocaleString()}] ${msg.role.toUpperCase()}: ${msg.content}`)
       .join("\n\n");
@@ -380,14 +380,14 @@ const AIChatbot = () => {
     a.download = `chat-${new Date().toISOString().split("T")[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-  };
+  }, [messages]);
 
-  const stopAudio = () => {
+  const stopAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  };
+  }, []);
 
   return (
     <div className="flex h-screen bg-background">
