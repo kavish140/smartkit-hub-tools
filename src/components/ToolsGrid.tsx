@@ -44,6 +44,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const tools = [
   {
+    title: "Rhino Bot",
+    description: "🔥 Trending - Voice-enabled AI assistant for natural conversations",
+    icon: MessageSquare,
+    category: "AI",
+    path: "/ai-chatbot",
+    badge: "trending"
+  },
+  {
     title: "Calculator",
     description: "Powerful scientific calculator for complex computations",
     icon: Calculator,
@@ -294,13 +302,6 @@ const tools = [
     icon: Type,
     category: "Developer",
     path: "/case-converter"
-  },
-  {
-    title: "AI Chatbot",
-    description: "Voice-enabled AI assistant powered by Gemini",
-    icon: MessageSquare,
-    category: "AI",
-    path: "/ai-chatbot"
   }
 ];
 
