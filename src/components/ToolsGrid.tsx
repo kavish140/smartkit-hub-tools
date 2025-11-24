@@ -336,10 +336,10 @@ const ToolsGrid = () => {
   }), [searchQuery, selectedCategory]);
 
   return (
-    <section id="tools" className="py-20 bg-background">
+    <section id="tools" className="py-12 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8 animate-fade-in">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
             Explore Our <span className="bg-gradient-primary bg-clip-text text-transparent">Smart Tools</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -347,7 +347,7 @@ const ToolsGrid = () => {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto mb-12 animate-fade-in">
+        <div className="max-w-4xl mx-auto mb-8 animate-fade-in">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />

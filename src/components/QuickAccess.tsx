@@ -76,7 +76,7 @@ const QuickAccess = () => {
   }
 
   return (
-    <section className="py-12 bg-gradient-subtle">
+    <section className="py-6 bg-gradient-subtle">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Favorites */}

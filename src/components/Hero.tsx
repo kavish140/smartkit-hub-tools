@@ -14,7 +14,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-subtle py-20 md:py-32">
+    <section className="relative overflow-hidden bg-gradient-subtle py-12 md:py-16">
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
       
       <div className="container mx-auto px-4 relative">
@@ -24,7 +24,7 @@ const Hero = () => {
             <span className="text-sm font-medium">Your Productivity Companion</span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
             All Your Smart Tools
             <br />
             <span className="bg-gradient-primary bg-clip-text text-transparent">
@@ -32,13 +32,13 @@ const Hero = () => {
             </span>
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-4 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground mb-3 max-w-2xl mx-auto">
             Access 30+ powerful utilities, converters, generators, and productivity tools 
             designed to make your daily tasks effortless and efficient.
           </p>
           
-          <div className="flex flex-wrap gap-3 justify-center mb-8 text-sm">
-            <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
+          <div className="flex flex-wrap gap-2 justify-center mb-6 text-sm">
+            <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-3 py-1.5 rounded-full border border-border">
               <span className="text-green-500">✓</span>
               <span>100% Free</span>
             </div>

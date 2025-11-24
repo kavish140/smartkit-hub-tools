@@ -27,10 +27,10 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="py-20 bg-gradient-subtle">
+    <section id="about" className="py-12 bg-gradient-subtle">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8 animate-fade-in">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
             Why Choose <span className="bg-gradient-primary bg-clip-text text-transparent">SmartKit.tech</span>?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-2">
@@ -41,7 +41,7 @@ const About = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -62,31 +62,6 @@ const About = () => {
               </Card>
             );
           })}
-        </div>
-
-        <div className="mt-16 max-w-4xl mx-auto">
-          <Card className="border-2 border-primary/20 bg-card">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold mb-4 text-center">About SmartKit.tech</h3>
-              <div className="space-y-4 text-muted-foreground">
-                <p>
-                  SmartKit.tech is your all-in-one productivity companion, offering a comprehensive collection 
-                  of over 30 powerful web-based tools. From calculators and converters to generators and utilities, 
-                  we've got everything you need to streamline your workflow.
-                </p>
-                <p>
-                  Our mission is to provide free, fast, and reliable tools that respect your privacy. All processing 
-                  happens directly in your browser, ensuring your data never leaves your device. No registration, 
-                  no subscriptions, no hassle—just powerful tools when you need them.
-                </p>
-                <p>
-                  Whether you're a developer, student, designer, or anyone looking to simplify daily tasks, 
-                  SmartKit.tech has the perfect tool for you. Join thousands of users who trust us for their 
-                  productivity needs.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </section>
