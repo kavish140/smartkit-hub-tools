@@ -51,7 +51,7 @@ const AIChatbot = () => {
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [systemPrompt, setSystemPrompt] = useState("You are a helpful, friendly, and expressive AI assistant named Jarvis. When appropriate, use emotional language, exclamations, and varied tone. For jokes, be enthusiastic and playful! For serious topics, be thoughtful and empathetic. Use punctuation like ! and ? to convey emotion. Keep responses natural and conversational.");
+  const [systemPrompt, setSystemPrompt] = useState("You are a helpful, friendly, and expressive AI assistant named Rhino Bot. When appropriate, use emotional language, exclamations, and varied tone. For jokes, be enthusiastic and playful! For serious topics, be thoughtful and empathetic. Use punctuation like ! and ? to convey emotion. Keep responses natural and conversational.");
   const [showSettings, setShowSettings] = useState(false);
   
   const [groqApiKey, setGroqApiKey] = useState(
@@ -392,9 +392,9 @@ const AIChatbot = () => {
   return (
     <div className="flex h-screen bg-background">
       <SEO
-        title="AI Chatbot with Voice - Groq & ElevenLabs | AI SmartKit"
-        description="Advanced AI chatbot powered by Groq (Llama 3.3) with voice input/output using ElevenLabs. Chat naturally with text or voice, customize voices, and get intelligent responses."
-        keywords="AI chatbot, voice assistant, Groq AI, Llama 3, ElevenLabs, voice chat, AI assistant, speech recognition, text to speech"
+        title="Rhino Bot - Voice AI Assistant | AI SmartKit"
+        description="Advanced AI chatbot with voice input/output. Chat naturally with text or voice, and get intelligent responses."
+        keywords="Rhino Bot, AI chatbot, voice assistant, voice chat, AI assistant, speech recognition, text to speech"
       />
       
       {/* Sidebar - Chat History */}
@@ -467,7 +467,7 @@ const AIChatbot = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             )}
-            <h1 className="text-lg font-semibold">AI Chatbot</h1>
+            <h1 className="text-lg font-semibold">Rhino Bot</h1>
           </div>
           
           <div className="flex items-center gap-2">
@@ -487,56 +487,6 @@ const AIChatbot = () => {
               </DialogHeader>
               
               <div className="space-y-6 py-4">
-                {/* API Keys */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-sm">API Configuration</h3>
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="groq-key">Groq API Key</Label>
-                      <Input
-                        id="groq-key"
-                        type="password"
-                        placeholder="gsk_..."
-                        value={groqApiKey}
-                        onChange={(e) => setGroqApiKey(e.target.value)}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Get your free key from{" "}
-                        <a
-                          href="https://console.groq.com/keys"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          Groq Console
-                        </a>
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="elevenlabs-key">ElevenLabs API Key (for voice)</Label>
-                      <Input
-                        id="elevenlabs-key"
-                        type="password"
-                        placeholder="sk_..."
-                        value={elevenLabsApiKey}
-                        onChange={(e) => setElevenLabsApiKey(e.target.value)}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Get your key from{" "}
-                        <a
-                          href="https://elevenlabs.io/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          ElevenLabs
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Voice Settings */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-sm">Voice Settings</h3>
@@ -718,24 +668,17 @@ const AIChatbot = () => {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>How to Use AI Chatbot</DialogTitle>
+                    <DialogTitle>How to Use Rhino Bot</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <ol className="list-decimal list-inside space-y-2 text-sm">
                       <li>Type your message in the input box or use voice input (microphone icon)</li>
                       <li>Press Enter or click Send to get AI responses</li>
-                      <li>Click Settings (gear icon) to configure API keys, voice options, and system prompt</li>
+                      <li>Click Settings (gear icon) to configure voice options and system prompt</li>
                       <li>View and manage your chat history in the sidebar</li>
                       <li>Start new conversations with the "New Chat" button</li>
                       <li>Enable voice output in settings to hear AI responses</li>
                     </ol>
-
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                      <p className="text-xs font-semibold mb-1">💡 Tip</p>
-                      <p className="text-xs text-muted-foreground">
-                        The chatbot works out of the box with default API keys. For unlimited usage, add your own free API keys from Groq Console.
-                      </p>
-                    </div>
 
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
                       <p className="text-xs font-semibold mb-1">🔒 Privacy</p>
