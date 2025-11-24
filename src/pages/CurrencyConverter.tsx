@@ -104,7 +104,7 @@ const CurrencyConverter = () => {
 
   // Auto-convert when amount, currencies, or rates change
   useEffect(() => {
-    if (amount && rates[toCurrency]) {
+    if (amount && rates && rates[toCurrency] && Object.keys(rates).length > 0) {
       convert();
     }
   }, [amount, fromCurrency, toCurrency, rates]);
@@ -116,7 +116,7 @@ const CurrencyConverter = () => {
       return;
     }
 
-    if (!rates[toCurrency]) {
+    if (!rates || !rates[toCurrency] || Object.keys(rates).length === 0) {
       return;
     }
 
@@ -241,7 +241,7 @@ const CurrencyConverter = () => {
                 </Button>
               </div>
 
-              {result !== null && (
+              {result !== null && result > 0 && (
                 <div className="bg-gradient-primary p-6 rounded-lg text-white text-center">
                   <div className="text-sm opacity-90 mb-2">Conversion Result</div>
                   <div className="text-3xl font-bold mb-1">
@@ -250,9 +250,11 @@ const CurrencyConverter = () => {
                   <div className="text-5xl font-bold">
                     {getCurrencySymbol(toCurrency)} {result.toFixed(2)} {toCurrency}
                   </div>
-                  <div className="text-sm opacity-90 mt-4">
-                    1 {fromCurrency} = {rates[toCurrency]?.toFixed(4)} {toCurrency}
-                  </div>
+                  {rates && rates[toCurrency] && (
+                    <div className="text-sm opacity-90 mt-4">
+                      1 {fromCurrency} = {rates[toCurrency].toFixed(4)} {toCurrency}
+                    </div>
+                  )}
                 </div>
               )}
 
