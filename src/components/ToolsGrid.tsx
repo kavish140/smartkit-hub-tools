@@ -42,7 +42,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const tools = useMemo(() => [
+const tools = [
   {
     title: "Rhino Bot",
     description: "🔥 Trending - Voice-enabled AI assistant for natural conversations",
@@ -303,7 +303,7 @@ const tools = useMemo(() => [
     category: "Developer",
     path: "/case-converter"
   }
-], []);
+];
 
 const ToolsGrid = () => {
   const navigate = useNavigate();
