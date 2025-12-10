@@ -43,7 +43,10 @@ const AIChatbot = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    // Start with sidebar closed on mobile, open on desktop
+    return window.innerWidth >= 1024;
+  });
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -141,6 +144,10 @@ const AIChatbot = () => {
     setCurrentChatId(newChat.id);
     setMessages([]);
     setInputText("");
+    // Close sidebar on mobile after creating new chat
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   }, []);
 
   const loadChat = useCallback((chatId: string) => {
@@ -148,6 +155,10 @@ const AIChatbot = () => {
     if (chat) {
       setCurrentChatId(chatId);
       setMessages(chat.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })));
+      // Close sidebar on mobile after selecting a chat
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
     }
   }, [chatHistories]);
 
@@ -390,20 +401,27 @@ const AIChatbot = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative">
       <SEO
         title="Rhino Bot - Voice AI Assistant | AI SmartKit"
         description="Advanced AI chatbot with voice input/output. Chat naturally with text or voice, and get intelligent responses."
         keywords="Rhino Bot, AI chatbot, voice assistant, voice chat, AI assistant, speech recognition, text to speech"
       />
       
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar - Chat History */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 border-r bg-muted/30 flex flex-col overflow-hidden`}>
+      <div className={`${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0 ${sidebarOpen ? 'lg:w-64' : 'lg:w-0'} w-64 fixed lg:relative h-full z-50 transition-all duration-300 border-r bg-muted/30 flex flex-col overflow-hidden`}>
         <div className="p-4 border-b flex items-center justify-between">
           <h2 className="font-semibold">Chat History</h2>
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="lg:hidden">
-            <X className="h-4 w-4" />
-          </Button>
         </div>
         
         <div className="p-2 border-b">
@@ -460,19 +478,20 @@ const AIChatbot = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
-        <div className="border-b p-4 flex items-center justify-between bg-background">
-          <div className="flex items-center gap-3">
-            {!sidebarOpen && (
-              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            )}
-            <h1 className="text-lg font-semibold">Rhino Bot</h1>
+        <div className="border-b p-3 lg:p-4 flex items-center justify-between bg-background">
+          <div className="flex items-center gap-2 lg:gap-3">
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="flex-shrink-0">
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base lg:text-lg font-semibold">Rhino Bot</h1>
           </div>
           
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => window.location.href = '/'}>
+          <div className="flex items-center gap-1 lg:gap-2">
+            <Button variant="outline" size="sm" onClick={() => window.location.href = '/'} className="hidden sm:flex">
               Back to Home
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => window.location.href = '/'} className="sm:hidden flex-shrink-0" title="Back to Home">
+              <span className="text-lg">←</span>
             </Button>
             <Dialog open={showSettings} onOpenChange={setShowSettings}>
               <DialogTrigger asChild>
@@ -555,36 +574,36 @@ const AIChatbot = () => {
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 p-4">
-              <MessageSquare className="h-16 w-16 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 lg:space-y-6 p-4">
+              <MessageSquare className="h-12 w-12 lg:h-16 lg:w-16 text-muted-foreground" />
               <div>
-                <h2 className="text-2xl font-semibold mb-2">Welcome to Rhino Bot!</h2>
-                <p className="text-muted-foreground mb-4">Your AI assistant is ready to help. Try asking:</p>
+                <h2 className="text-xl lg:text-2xl font-semibold mb-2">Welcome to Rhino Bot!</h2>
+                <p className="text-sm lg:text-base text-muted-foreground mb-4">Your AI assistant is ready to help. Try asking:</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-3 max-w-2xl w-full">
                 <button
                   onClick={() => setInputText("Tell me a fun fact about space")}
-                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                  className="p-3 lg:p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
                 >
-                  <p className="text-sm font-medium">🚀 Tell me a fun fact about space</p>
+                  <p className="text-xs lg:text-sm font-medium">🚀 Tell me a fun fact about space</p>
                 </button>
                 <button
                   onClick={() => setInputText("Explain quantum computing simply")}
-                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                  className="p-3 lg:p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
                 >
-                  <p className="text-sm font-medium">💡 Explain quantum computing simply</p>
+                  <p className="text-xs lg:text-sm font-medium">💡 Explain quantum computing simply</p>
                 </button>
                 <button
                   onClick={() => setInputText("Write a short motivational quote")}
-                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                  className="p-3 lg:p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
                 >
-                  <p className="text-sm font-medium">✨ Write a motivational quote</p>
+                  <p className="text-xs lg:text-sm font-medium">✨ Write a motivational quote</p>
                 </button>
                 <button
                   onClick={() => setInputText("Help me brainstorm ideas")}
-                  className="p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
+                  className="p-3 lg:p-4 bg-muted/50 hover:bg-muted rounded-lg text-left transition-colors border border-border"
                 >
-                  <p className="text-sm font-medium">🎨 Help me brainstorm ideas</p>
+                  <p className="text-xs lg:text-sm font-medium">🎨 Help me brainstorm ideas</p>
                 </button>
               </div>
               <p className="text-xs text-muted-foreground mt-4">
@@ -592,16 +611,16 @@ const AIChatbot = () => {
               </p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-3xl mx-auto space-y-4 lg:space-y-6">
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex gap-3 ${
+                  className={`flex gap-2 lg:gap-3 ${
                     message.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                    className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 py-2 lg:px-4 lg:py-3 ${
                       message.role === "user"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted"
@@ -644,11 +663,11 @@ const AIChatbot = () => {
         </div>
 
         {/* Input Area */}
-        <div className="border-t bg-background p-4">
+        <div className="border-t bg-background p-3 lg:p-4">
           <div className="max-w-3xl mx-auto space-y-2">
             <div className="flex gap-2">
               <Textarea
-                placeholder="Message Rhino Bot... (Shift+Enter for new line)"
+                placeholder="Message Rhino Bot..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => {
@@ -658,16 +677,17 @@ const AIChatbot = () => {
                   }
                 }}
                 disabled={isLoading}
-                className="min-h-[50px] max-h-[200px] resize-none"
+                className="min-h-[44px] max-h-[200px] resize-none text-sm lg:text-base"
                 rows={1}
               />
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5 lg:gap-2"> lg:gap-2">
                 <Button
                   onClick={toggleListening}
                   variant={isListening ? "destructive" : "outline"}
                   size="icon"
                   disabled={isLoading}
                   title="Voice input"
+                  className="h-10 w-10 lg:h-10 lg:w-10"
                 >
                   {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
@@ -676,6 +696,7 @@ const AIChatbot = () => {
                   disabled={!inputText.trim() || isLoading}
                   size="icon"
                   title="Send message"
+                  className="h-10 w-10 lg:h-10 lg:w-10"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
