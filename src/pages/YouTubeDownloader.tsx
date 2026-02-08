@@ -259,6 +259,31 @@ const YouTubeDownloader = () => {
                       <p className="text-xs text-blue-700 mt-2">
                         File size: ~19.3 MB | Windows 10/11 compatible
                       </p>
+
+                      {/* Clear user-friendly instructions */}
+                      <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start gap-2">
+                          <span className="text-xl">ℹ️</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-blue-900 mb-2">
+                              Windows Security Warning - Quick Fix
+                            </p>
+                            <p className="text-xs text-blue-800 mb-3">
+                              After downloading, Windows will show a security warning. This is normal for non-commercially signed apps.
+                              <strong> Here's how to run it:</strong>
+                            </p>
+                            <ol className="text-xs text-blue-900 space-y-2 pl-4">
+                              <li>1. Click the download button above</li>
+                              <li>2. When you see "Windows protected your PC", click <strong>"More info"</strong></li>
+                              <li>3. Click the <strong>"Run anyway"</strong> button that appears</li>
+                              <li>4. Done! The app will open ✅</li>
+                            </ol>
+                            <p className="text-xs text-blue-700 mt-3 italic">
+                              This is a free tool. Removing this warning requires a paid code signing certificate (€86/year).
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
