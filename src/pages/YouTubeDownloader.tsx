@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Video, Search, ExternalLink, Clock, Eye, ThumbsUp, Download, Smartphone, CheckCircle } from "lucide-react";
+import { ArrowLeft, Video, Search, ExternalLink, Clock, Eye, ThumbsUp, Download, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
@@ -119,25 +119,30 @@ const YouTubeDownloader = () => {
     setDownloading(true);
 
     try {
-      // Using a free YouTube download service
-      // Note: This uses publicly available services. For production, you might want to use a paid API
-      const downloadUrl = `https://www.y2mate.com/youtube/${videoInfo.videoId}`;
+      // Multiple download service options
+      const youtubeUrl = `https://www.youtube.com/watch?v=${videoInfo.videoId}`;
 
-      // Open in new tab - user can select quality there
+      // Option 1: Use yt1s.com (most reliable free option)
+      const downloadUrl = `https://www.yt1s.com/en/youtube-to-mp3?q=${encodeURIComponent(youtubeUrl)}`;
+
+      // Alternative options if needed:
+      // Option 2: savefrom.net
+      // const downloadUrl = `https://en.savefrom.net/#url=${encodeURIComponent(youtubeUrl)}`;
+
+      // Option 3: y2mate alternative domain
+      // const downloadUrl = `https://y2mate.ch/en/search/${videoInfo.videoId}`;
+
       window.open(downloadUrl, '_blank');
 
       toast({
         title: "Opening Download Page",
-        description: "Select your preferred quality and download the video.",
+        description: `Opening download service. Select ${selectedQuality}p quality if available.`,
       });
-
-      // Alternative: Direct download link (requires backend service)
-      // const response = await fetch(`your-backend-api/download?videoId=${videoInfo.videoId}&quality=${selectedQuality}&format=${selectedFormat}`);
 
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to initiate download. Please try again.",
+        description: "Failed to open download page. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -363,116 +368,6 @@ const YouTubeDownloader = () => {
                   </a>.
                 </p>
               </div>
-
-              {/* Download Desktop App Section */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-blue-600 text-white p-3 rounded-lg">
-                      <Download className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2 text-blue-900">Desktop App (Alternative Option)</h3>
-                      <p className="text-sm text-blue-800 mb-3">
-                        <strong className="text-green-700">✅ NEW: Web version now available above!</strong> We recommend using the web-based downloader for the best experience.
-                      </p>
-                      <p className="text-sm text-blue-800 mb-4">
-                        Advanced users who prefer a desktop application can download our Windows app below.
-                        Please note it may be blocked by Windows Defender.
-                      </p>
-                      <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        onClick={() => {
-                          // Direct download link to the file in public folder
-                          window.open('/VideoDownloaderPro.exe', '_blank');
-                          toast({
-                            title: "Download Started",
-                            description: "VideoDownloaderPro.exe is being downloaded",
-                          });
-                        }}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download for Windows
-                      </Button>
-                      <p className="text-xs text-blue-700 mt-2">
-                        File size: ~19.3 MB | Windows 10/11 compatible
-                      </p>
-
-                      {/* Critical Windows Defender warning */}
-                      <div className="mt-4 bg-red-50 border-2 border-red-300 rounded-lg p-4">
-                        <div className="flex items-start gap-2">
-                          <span className="text-2xl">⚠️</span>
-                          <div className="flex-1">
-                            <p className="text-sm font-bold text-red-900 mb-2">
-                              Important: Windows Defender May Block This File
-                            </p>
-                            <p className="text-xs text-red-800 mb-3">
-                              Because this app is not digitally signed, Windows Defender may <strong>completely block it</strong> (not just warn).
-                              The file might disappear or show an error with no option to run it.
-                            </p>
-
-                            <div className="bg-white/60 rounded border border-red-200 p-3 mb-3">
-                              <p className="text-xs font-semibold text-red-900 mb-2">If the file won't run:</p>
-                              <ol className="text-xs text-red-800 space-y-1 pl-4 list-decimal">
-                                <li>Open <strong>Windows Security</strong></li>
-                                <li>Go to <strong>Virus & threat protection</strong> → <strong>Protection history</strong></li>
-                                <li>Find "VideoDownloaderPro.exe" in the list</li>
-                                <li>Click <strong>Actions</strong> → <strong>Allow on device</strong></li>
-                                <li>Then go to Manage settings → Exclusions → Add the file</li>
-                              </ol>
-                            </div>
-
-                            <p className="text-xs text-red-900 font-semibold mb-1">
-                              Alternative: Better User Experience
-                            </p>
-                            <p className="text-xs text-red-700">
-                              We recommend using web-based downloaders or browser extensions instead,
-                              as they don't have these security restrictions. This desktop app is provided
-                              for advanced users comfortable with Windows Defender settings.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Mobile Apps Coming Soon */}
-              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-purple-600 text-white p-3 rounded-lg">
-                      <Smartphone className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2 text-purple-900">Mobile Apps Coming Soon! 📱</h3>
-                      <p className="text-sm text-purple-800 mb-3">
-                        We're working hard to bring you native mobile applications:
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <div className="bg-white/50 p-3 rounded-lg border border-purple-200">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-2xl">🤖</span>
-                            <span className="font-semibold text-purple-900">Android App</span>
-                          </div>
-                          <p className="text-xs text-purple-700">Coming Soon for Android 8.0+</p>
-                        </div>
-                        <div className="bg-white/50 p-3 rounded-lg border border-purple-200">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-2xl">🍎</span>
-                            <span className="font-semibold text-purple-900">iOS App</span>
-                          </div>
-                          <p className="text-xs text-purple-700">Coming Soon for iOS 14.0+</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-purple-700">
-                        💡 Want early access? Join our newsletter to be notified when we launch!
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </CardContent>
           </Card>
         </div>
