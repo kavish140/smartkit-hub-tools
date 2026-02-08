@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Video, Search, ExternalLink, Clock, Eye, ThumbsUp } from "lucide-react";
+import { ArrowLeft, Video, Search, ExternalLink, Clock, Eye, ThumbsUp, Download, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import HowToUse from "@/components/HowToUse";
 import { useToolTracking } from "@/hooks/useToolTracking";
 
 interface VideoInfo {
@@ -113,7 +112,7 @@ const YouTubeDownloader = () => {
                   placeholder="Enter YouTube URL or Video ID"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && getVideoInfo()}
+                  onKeyDown={(e) => e.key === 'Enter' && getVideoInfo()}
                   className="flex-1"
                 />
                 <Button 
@@ -230,6 +229,76 @@ const YouTubeDownloader = () => {
                   </a>.
                 </p>
               </div>
+
+              {/* Download Desktop App Section */}
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-blue-600 text-white p-3 rounded-lg">
+                      <Download className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2 text-blue-900">Download Videos with Our Desktop App</h3>
+                      <p className="text-sm text-blue-800 mb-4">
+                        Want to actually download YouTube videos? Get our free desktop application for Windows!
+                      </p>
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => {
+                          // Direct download link to the file in public folder
+                          window.open('/VideoDownloaderPro.exe', '_blank');
+                          toast({
+                            title: "Download Started",
+                            description: "VideoDownloaderPro.exe is being downloaded",
+                          });
+                        }}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download for Windows
+                      </Button>
+                      <p className="text-xs text-blue-700 mt-2">
+                        File size: ~19.3 MB | Windows 10/11 compatible
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Mobile Apps Coming Soon */}
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-purple-600 text-white p-3 rounded-lg">
+                      <Smartphone className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2 text-purple-900">Mobile Apps Coming Soon! 📱</h3>
+                      <p className="text-sm text-purple-800 mb-3">
+                        We're working hard to bring you native mobile applications:
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div className="bg-white/50 p-3 rounded-lg border border-purple-200">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-2xl">🤖</span>
+                            <span className="font-semibold text-purple-900">Android App</span>
+                          </div>
+                          <p className="text-xs text-purple-700">Coming Soon for Android 8.0+</p>
+                        </div>
+                        <div className="bg-white/50 p-3 rounded-lg border border-purple-200">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-2xl">🍎</span>
+                            <span className="font-semibold text-purple-900">iOS App</span>
+                          </div>
+                          <p className="text-xs text-purple-700">Coming Soon for iOS 14.0+</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-purple-700">
+                        💡 Want early access? Join our newsletter to be notified when we launch!
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
         </div>
