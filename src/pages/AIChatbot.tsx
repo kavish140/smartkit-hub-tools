@@ -680,7 +680,7 @@ const AIChatbot = () => {
                 className="min-h-[44px] max-h-[200px] resize-none text-sm lg:text-base"
                 rows={1}
               />
-              <div className="flex flex-col gap-1.5 lg:gap-2"> lg:gap-2">
+              <div className="flex flex-col gap-1.5 lg:gap-2">
                 <Button
                   onClick={toggleListening}
                   variant={isListening ? "destructive" : "outline"}
