@@ -119,30 +119,19 @@ const YouTubeDownloader = () => {
     setDownloading(true);
 
     try {
-      // Multiple download service options
-      const youtubeUrl = `https://www.youtube.com/watch?v=${videoInfo.videoId}`;
-
-      // Option 1: Use yt1s.com (most reliable free option)
-      const downloadUrl = `https://www.yt1s.com/en/youtube-to-mp3?q=${encodeURIComponent(youtubeUrl)}`;
-
-      // Alternative options if needed:
-      // Option 2: savefrom.net
-      // const downloadUrl = `https://en.savefrom.net/#url=${encodeURIComponent(youtubeUrl)}`;
-
-      // Option 3: y2mate alternative domain
-      // const downloadUrl = `https://y2mate.ch/en/search/${videoInfo.videoId}`;
-
-      window.open(downloadUrl, '_blank');
+      // Use the SS trick - most reliable method
+      const ssUrl = `https://ssyoutube.com/watch?v=${videoInfo.videoId}`;
+      window.open(ssUrl, '_blank');
 
       toast({
         title: "Opening Download Page",
-        description: `Opening download service. Select ${selectedQuality}p quality if available.`,
+        description: "Using SS YouTube trick - a reliable download method",
       });
 
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to open download page. Please try again.",
+        description: "Failed to open download page. Try Method 2 below.",
         variant: "destructive",
       });
     } finally {
@@ -301,24 +290,109 @@ const YouTubeDownloader = () => {
                             </div>
 
                             <Button
-                              className="bg-green-600 hover:bg-green-700 text-white w-full"
+                              className="bg-green-600 hover:bg-green-700 text-white w-full mb-3"
                               onClick={handleDownload}
                               disabled={downloading}
                             >
                               <Download className="h-4 w-4 mr-2" />
-                              {downloading ? "Opening Download..." : "Download Video"}
+                              {downloading ? "Opening Download..." : "Quick Download (SS Method)"}
                             </Button>
 
-                            <div className="mt-4 bg-white/60 rounded border border-green-200 p-3">
+                            {/* Alternative Download Methods */}
+                            <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-3 mb-3">
+                              <p className="text-xs font-bold text-amber-900 mb-2">⚡ WORKING DOWNLOAD METHODS:</p>
+                              <div className="space-y-2 text-xs text-amber-900">
+
+                                <div className="bg-white rounded p-2 border-2 border-green-400">
+                                  <p className="font-bold mb-1 text-green-700">✅ Method 1: SS Trick (EASIEST!)</p>
+                                  <p className="mb-1">Add <code className="bg-amber-100 px-1 rounded font-bold">ss</code> before youtube.com in any video URL</p>
+                                  <p className="text-[10px] mb-2 text-gray-600">Example: https://<strong className="text-green-700">ss</strong>youtube.com/watch?v={videoInfo.videoId}</p>
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700 h-7 text-xs w-full"
+                                    onClick={() => {
+                                      const ssUrl = `https://ssyoutube.com/watch?v=${videoInfo.videoId}`;
+                                      window.open(ssUrl, '_blank');
+                                      toast({ title: "Opening SS YouTube", description: "This redirects to savefrom.net - select quality and download!" });
+                                    }}
+                                  >
+                                    ⚡ Use SS Method (Recommended)
+                                  </Button>
+                                </div>
+
+                                <div className="bg-white rounded p-2">
+                                  <p className="font-semibold mb-1">Method 2: Copy URL & Use Any Downloader</p>
+                                  <p className="text-[10px] mb-2 text-gray-600">Copy video URL and paste into any YouTube downloader site you trust</p>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 text-xs w-full"
+                                    onClick={() => {
+                                      const youtubeUrl = `https://www.youtube.com/watch?v=${videoInfo.videoId}`;
+                                      navigator.clipboard.writeText(youtubeUrl);
+                                      toast({
+                                        title: "✅ URL Copied!",
+                                        description: "Paste this into: savefrom.net, y2mate.com, or any YouTube downloader"
+                                      });
+                                    }}
+                                  >
+                                    📋 Copy Video URL
+                                  </Button>
+                                </div>
+
+                                <div className="bg-white rounded p-2">
+                                  <p className="font-semibold mb-1">Method 3: Manual Download Sites</p>
+                                  <p className="text-[10px] mb-2 text-gray-600">Open these sites and paste your video URL:</p>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-6 text-[10px] flex-1"
+                                      onClick={() => {
+                                        window.open('https://en.savefrom.net/', '_blank');
+                                        toast({ title: "Opening SaveFrom.net", description: "Paste your video URL there" });
+                                      }}
+                                    >
+                                      SaveFrom.net
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-6 text-[10px] flex-1"
+                                      onClick={() => {
+                                        window.open('https://www.y2mate.com/', '_blank');
+                                        toast({ title: "Opening Y2Mate", description: "Paste your video URL there" });
+                                      }}
+                                    >
+                                      Y2Mate.com
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-6 text-[10px] flex-1"
+                                      onClick={() => {
+                                        window.open('https://loader.to/', '_blank');
+                                        toast({ title: "Opening Loader.to", description: "Paste your video URL there" });
+                                      }}
+                                    >
+                                      Loader.to
+                                    </Button>
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+
+                            <div className="mt-3 bg-white/60 rounded border border-green-200 p-3">
                               <div className="flex items-start gap-2">
                                 <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                                 <div className="text-xs text-green-800">
-                                  <p className="font-semibold mb-1">Web-Based Solution - No Windows Defender Issues!</p>
+                                  <p className="font-semibold mb-1">Web-Based Solution Benefits:</p>
                                   <ul className="space-y-0.5 pl-4 list-disc">
                                     <li>Works on all devices (Windows, Mac, Linux, Mobile)</li>
                                     <li>No installation or exe files needed</li>
                                     <li>No Windows Defender warnings</li>
-                                    <li>Download directly in your browser</li>
+                                    <li>Multiple download methods available</li>
                                   </ul>
                                 </div>
                               </div>
