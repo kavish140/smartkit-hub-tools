@@ -119,19 +119,26 @@ const YouTubeDownloader = () => {
     setDownloading(true);
 
     try {
-      // Use the SS trick - most reliable method
-      const ssUrl = `https://ssyoutube.com/watch?v=${videoInfo.videoId}`;
-      window.open(ssUrl, '_blank');
+      // Use our backend API to download directly
+      const downloadUrl = `/api/download?videoId=${videoInfo.videoId}&quality=${selectedQuality}&format=${selectedFormat}`;
+
+      // Create a hidden link and trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `${videoInfo.title}.${selectedFormat}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       toast({
-        title: "Opening Download Page",
-        description: "Using SS YouTube trick - a reliable download method",
+        title: "Download Started!",
+        description: `Downloading ${videoInfo.title} in ${selectedQuality}p ${selectedFormat.toUpperCase()}`,
       });
 
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to open download page. Try Method 2 below.",
+        description: "Failed to start download. Please try the alternative methods below.",
         variant: "destructive",
       });
     } finally {
@@ -253,9 +260,9 @@ const YouTubeDownloader = () => {
                             <Download className="h-6 w-6" />
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-lg font-semibold mb-2 text-green-900">Download Video - Web Version</h3>
+                            <h3 className="text-lg font-semibold mb-2 text-green-900">Download Video - Direct Download</h3>
                             <p className="text-sm text-green-800 mb-4">
-                              Download this video directly in your browser. No software installation needed!
+                              Download videos directly from our servers. No redirects to other sites!
                             </p>
 
                             <div className="grid grid-cols-2 gap-3 mb-4">
@@ -295,12 +302,12 @@ const YouTubeDownloader = () => {
                               disabled={downloading}
                             >
                               <Download className="h-4 w-4 mr-2" />
-                              {downloading ? "Opening Download..." : "Quick Download (SS Method)"}
+                              {downloading ? "Downloading..." : "⚡ Download Now (Direct from Our Site)"}
                             </Button>
 
-                            {/* Alternative Download Methods */}
+                            {/* Backup Download Methods */}
                             <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-3 mb-3">
-                              <p className="text-xs font-bold text-amber-900 mb-2">⚡ WORKING DOWNLOAD METHODS:</p>
+                              <p className="text-xs font-bold text-amber-900 mb-2">💾 BACKUP METHODS (if direct download fails):</p>
                               <div className="space-y-2 text-xs text-amber-900">
 
                                 <div className="bg-white rounded p-2 border-2 border-green-400">
@@ -387,12 +394,12 @@ const YouTubeDownloader = () => {
                               <div className="flex items-start gap-2">
                                 <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                                 <div className="text-xs text-green-800">
-                                  <p className="font-semibold mb-1">Web-Based Solution Benefits:</p>
+                                  <p className="font-semibold mb-1">Direct Download Benefits:</p>
                                   <ul className="space-y-0.5 pl-4 list-disc">
-                                    <li>Works on all devices (Windows, Mac, Linux, Mobile)</li>
-                                    <li>No installation or exe files needed</li>
-                                    <li>No Windows Defender warnings</li>
-                                    <li>Multiple download methods available</li>
+                                    <li>Downloads directly from our servers</li>
+                                    <li>No redirects to third-party sites</li>
+                                    <li>Choose your preferred quality and format</li>
+                                    <li>Fast and reliable downloads</li>
                                   </ul>
                                 </div>
                               </div>
