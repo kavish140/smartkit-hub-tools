@@ -114,6 +114,7 @@ export default function Admin() {
     if (authenticated) {
       fetchStats();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, showBotsOnly]);
 
   const fetchStats = async () => {

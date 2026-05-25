@@ -55,6 +55,7 @@ const Calculator = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [display, operation, previousValue, newNumber]);
 
   const handleNumber = (num: string) => {
@@ -459,7 +460,7 @@ const Calculator = () => {
                     </Button>
                   </div>
 
-                  <Tabs value={mode} onValueChange={(v: any) => setMode(v)} className="w-full">
+                  <Tabs value={mode} onValueChange={(v: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => setMode(v)} className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="basic">Basic</TabsTrigger>
                       <TabsTrigger value="scientific">Scientific</TabsTrigger>

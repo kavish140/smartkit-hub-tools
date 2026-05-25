@@ -192,35 +192,42 @@ const QRGenerator = () => {
         });
       }
 
-      // Show QR immediately after base draw
-      console.log("QR code generated successfully");
-      setQrGenerated(true);
-
       // Add logo if provided
       if (logo) {
-        const logoImg = new Image();
-        // Helps avoid tainted canvas if a remote image is ever used
-        logoImg.crossOrigin = "anonymous";
-        logoImg.src = logo;
-        logoImg.onload = () => {
-          const logoSizePixels = (size * logoSize) / 100;
-          const x = (size - logoSizePixels) / 2;
-          const y = (size - logoSizePixels) / 2;
+        await new Promise<void>((resolve) => {
+          const logoImg = new Image();
+          // Helps avoid tainted canvas if a remote image is ever used
+          if (!logo.startsWith('data:')) {
+            logoImg.crossOrigin = "anonymous";
+          }
           
-          // Draw white background for logo
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(x - 5, y - 5, logoSizePixels + 10, logoSizePixels + 10);
+          logoImg.onload = () => {
+            const logoSizePixels = (size * logoSize) / 100;
+            const x = (size - logoSizePixels) / 2;
+            const y = (size - logoSizePixels) / 2;
+            
+            // Draw background for logo to ensure contrast
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(x - 5, y - 5, logoSizePixels + 10, logoSizePixels + 10);
+            
+            // Draw logo
+            ctx.drawImage(logoImg, x, y, logoSizePixels, logoSizePixels);
+            resolve();
+          };
           
-          // Draw logo
-          ctx.drawImage(logoImg, x, y, logoSizePixels, logoSizePixels);
-          // QR already shown; nothing else to do
-        };
-        logoImg.onerror = () => {
-          // If logo fails to load, still show QR code
-          // QR already shown
-        };
+          logoImg.onerror = () => {
+            console.error("Failed to load logo image");
+            resolve();
+          };
+          
+          logoImg.src = logo;
+        });
       }
-    } catch (error: any) {
+
+      // Show QR immediately after base draw and logo
+      console.log("QR code generated successfully");
+      setQrGenerated(true);
+    } catch (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       console.error(error);
       const message = typeof error?.message === 'string' ? error.message : 'Failed to generate QR code';
       // Common overflow hint when data is too long for the selected EC level

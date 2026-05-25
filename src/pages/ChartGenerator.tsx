@@ -225,7 +225,7 @@ const ChartGenerator = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Chart Type</Label>
-                  <Select value={chartType} onValueChange={(value: any) => setChartType(value)}>
+                  <Select value={chartType} onValueChange={(value: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => setChartType(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

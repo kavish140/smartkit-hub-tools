@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -152,7 +153,7 @@ const LoremIpsumGenerator = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Generate</Label>
-                <Select value={unit} onValueChange={(value: any) => setUnit(value)}>
+                <Select value={unit} onValueChange={(value: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => setUnit(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

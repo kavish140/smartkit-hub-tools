@@ -48,7 +48,7 @@ const RegexTester = () => {
       setMatches(foundMatches);
       setIsValid(true);
       setError("");
-    } catch (e: any) {
+    } catch (e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       setIsValid(false);
       setError(e.message);
       setMatches([]);

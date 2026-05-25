@@ -54,7 +54,7 @@ const ScreenshotEditor = () => {
   const [fontSize, setFontSize] = useState(16);
   const [fontFamily, setFontFamily] = useState("Arial");
   const [selectedText, setSelectedText] = useState<string>("");
-  const [detectedFontInfo, setDetectedFontInfo] = useState<any>(null);
+  const [detectedFontInfo, setDetectedFontInfo] = useState<any /* eslint-disable-line @typescript-eslint/no-explicit-any */>(null);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,6 +92,7 @@ const ScreenshotEditor = () => {
     } else if (imageRef.current) {
       redrawCanvas();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, image]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

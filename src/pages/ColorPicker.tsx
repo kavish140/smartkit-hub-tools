@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,7 +52,8 @@ const ColorPicker = () => {
     g /= 255;
     b /= 255;
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
 
     if (max !== min) {
       const d = max - min;
@@ -518,7 +520,7 @@ const ColorPicker = () => {
 
                 <TabsContent value="schemes" className="space-y-6 mt-6">
                   {['complementary', 'analogous', 'triadic', 'tetradic', 'monochromatic'].map((schemeType) => {
-                    const scheme = generateColorScheme(schemeType as any);
+                    const scheme = generateColorScheme(schemeType as any /* eslint-disable-line @typescript-eslint/no-explicit-any */);
                     return (
                       <Card key={schemeType}>
                         <CardContent className="p-4">

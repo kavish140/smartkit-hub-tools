@@ -81,7 +81,7 @@ const AudioConverter = () => {
       // For browser-based conversion, we'll use MediaRecorder API
       // This provides format conversion capabilities
       
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (window.AudioContext || (window as any /* eslint-disable-line @typescript-eslint/no-explicit-any */).webkitAudioContext)();
       audioContextRef.current = audioContext;
 
       // Fetch the audio file

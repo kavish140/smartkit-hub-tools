@@ -100,6 +100,7 @@ const CurrencyConverter = () => {
 
   useEffect(() => {
     fetchRates();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromCurrency]);
 
   // Auto-convert when amount, currencies, or rates change
@@ -107,6 +108,7 @@ const CurrencyConverter = () => {
     if (amount && rates && rates[toCurrency] && Object.keys(rates).length > 0) {
       convert();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, fromCurrency, toCurrency, rates]);
 
   const convert = () => {

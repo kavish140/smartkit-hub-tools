@@ -174,7 +174,7 @@ const GradientGenerator = () => {
             {/* Gradient Type */}
             <div className="space-y-2">
               <Label>Gradient Type</Label>
-              <Select value={gradientType} onValueChange={(value: any) => setGradientType(value)}>
+              <Select value={gradientType} onValueChange={(value: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => setGradientType(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

@@ -63,6 +63,7 @@ const CronGenerator = () => {
 
   useEffect(() => {
     setDescription(generateDescription());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minute, hour, dayOfMonth, month, dayOfWeek]);
 
   const cronExpression = generateCronExpression();

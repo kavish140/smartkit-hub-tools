@@ -36,6 +36,14 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.href = 'https://sitenova.dev'}
+              className="hidden sm:flex text-muted-foreground hover:text-foreground border-border/50"
+            >
+              Back to SiteNova
+            </Button>
             <HelpModal />
             <ThemeToggle />
             <Button variant="default" className="bg-gradient-primary border-0" onClick={scrollToTools}>

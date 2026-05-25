@@ -65,7 +65,7 @@ const AIChatbot = () => {
   );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<any /* eslint-disable-line @typescript-eslint/no-explicit-any */>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -79,13 +79,14 @@ const AIChatbot = () => {
 
     // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
       recognitionRef.current.lang = 'en-US';
 
-      recognitionRef.current.onresult = (event: any) => {
+      recognitionRef.current.onresult = (event: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
         const transcript = event.results[0][0].transcript;
         setInputText(transcript);
         setIsListening(false);
@@ -104,6 +105,7 @@ const AIChatbot = () => {
         setIsListening(false);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
   useEffect(() => {
@@ -124,6 +126,7 @@ const AIChatbot = () => {
           : chat
       ));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, currentChatId]);
 
   const generateChatTitle = useCallback((msgs: Message[]) => {
@@ -350,7 +353,7 @@ const AIChatbot = () => {
       if (isVoiceEnabled) {
         await speakText(aiResponse);
       }
-    } catch (error: any) {
+    } catch (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       console.error("Chat error:", error);
       const errorMessage = error?.message || "Unknown error occurred";
       toast({

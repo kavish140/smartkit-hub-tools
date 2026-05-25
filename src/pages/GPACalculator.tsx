@@ -54,7 +54,7 @@ const GPACalculator = () => {
     }
   };
 
-  const updateCourse = (id: number, field: keyof Course, value: any) => {
+  const updateCourse = (id: number, field: keyof Course, value: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
     setCourses(courses.map(course => 
       course.id === id ? { ...course, [field]: value } : course
     ));

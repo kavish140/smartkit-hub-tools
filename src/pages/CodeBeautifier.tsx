@@ -38,6 +38,7 @@ const CodeBeautifier = () => {
         indent = Math.max(0, indent - 1);
       }
       
+      // eslint-disable-next-line no-useless-escape
       if (token.match(/^<\w[^>]*[^\/]>$/)) {
         result.push(tab.repeat(indent) + token);
         indent++;

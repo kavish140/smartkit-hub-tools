@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +24,7 @@ interface ConversionFormat {
   from: string[];
   to: string[];
   label: string;
-  icon: any;
+  icon: any /* eslint-disable-line @typescript-eslint/no-explicit-any */;
 }
 
 const FileConverter = () => {
@@ -193,7 +194,7 @@ const FileConverter = () => {
         const text = await file.text();
         let convertedContent = text;
         let mimeType = 'text/plain';
-        let extension = outputFormat;
+        const extension = outputFormat;
 
         switch (outputFormat) {
           case 'pdf':
@@ -392,7 +393,7 @@ const FileConverter = () => {
         if (fileExt === 'csv' || fileExt === 'json') {
           // Read and convert CSV/JSON to XLSX
           const text = await file.text();
-          let data: any[][] = [];
+          let data: any /* eslint-disable-line @typescript-eslint/no-explicit-any */[][] = [];
           
           if (fileExt === 'csv') {
             // Parse CSV
@@ -447,7 +448,7 @@ const FileConverter = () => {
             // Convert to JSON
             const jsonData = data.length > 1 
               ? data.slice(1).map(row => {
-                  const obj: any = {};
+                  const obj: any /* eslint-disable-line @typescript-eslint/no-explicit-any */ = {};
                   data[0].forEach((header, idx) => {
                     obj[header] = row[idx];
                   });

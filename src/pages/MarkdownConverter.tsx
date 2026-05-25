@@ -54,17 +54,17 @@ function hello() {
 
     // Bold
     html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-    html = html.replace(/\_\_(.*?)\_\_/gim, '<strong>$1</strong>');
+    html = html.replace(/__(.*?)__/gim, '<strong>$1</strong>');
 
     // Italic
     html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
-    html = html.replace(/\_(.*?)\_/gim, '<em>$1</em>');
+    html = html.replace(/_(.*?)_/gim, '<em>$1</em>');
 
     // Links
-    html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/gim, '<a href="$2">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+))/gim, '<a href="$2">$1</a>');
 
     // Images
-    html = html.replace(/\!\[([^\]]+)\]\(([^\)]+)\)/gim, '<img src="$2" alt="$1" />');
+    html = html.replace(/!\[([^\]]+)\]\(([^)]+))/gim, '<img src="$2" alt="$1" />');
 
     // Code blocks
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/gim, (match, lang, code) => {
@@ -75,10 +75,10 @@ function hello() {
     html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
 
     // Blockquotes
-    html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
+    html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
 
     // Horizontal rule
-    html = html.replace(/^\-\-\-$/gim, '<hr />');
+    html = html.replace(/^---$/gim, '<hr />');
     html = html.replace(/^\*\*\*$/gim, '<hr />');
 
     // Ordered lists
@@ -86,7 +86,7 @@ function hello() {
     html = html.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
 
     // Unordered lists
-    html = html.replace(/^\-\s(.+)$/gim, '<li>$1</li>');
+    html = html.replace(/^-\s(.+)$/gim, '<li>$1</li>');
     html = html.replace(/^\*\s(.+)$/gim, '<li>$1</li>');
 
     // Line breaks

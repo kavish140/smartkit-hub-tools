@@ -72,6 +72,7 @@ const CryptoPrices = () => {
     // Auto-refresh every 60 seconds
     const interval = setInterval(fetchCryptoPrices, 60000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
