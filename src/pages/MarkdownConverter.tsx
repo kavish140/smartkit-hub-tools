@@ -61,10 +61,12 @@ function hello() {
     html = html.replace(/_(.*?)_/gim, '<em>$1</em>');
 
     // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+))/gim, '<a href="$2">$1</a>');
+    // eslint-disable-next-line no-useless-escape
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
 
     // Images
-    html = html.replace(/!\[([^\]]+)\]\(([^)]+))/gim, '<img src="$2" alt="$1" />');
+    // eslint-disable-next-line no-useless-escape
+    html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/gim, '<img src="$2" alt="$1" />');
 
     // Code blocks
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/gim, (match, lang, code) => {
